@@ -588,11 +588,8 @@ function upd(){
   nb.className=ci>=S.length-1?"bx":"bo";nb.disabled=ci>=S.length-1;
 }
 
-dlog("Calling ld()...");
 ld();
-dlog("ci="+ci+". Calling bld()...");
 bld();
-dlog("Calling upd()...");
 upd();
 }catch(ex){
   document.getElementById("err").style.display="block";
