@@ -67,6 +67,8 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 #snapback{display:none;position:fixed;bottom:140px;left:50%;transform:translateX(-50%);z-index:150;padding:8px 16px;border-radius:20px;background:rgba(99,102,241,0.9);color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;max-width:80%;overflow:hidden;text-overflow:ellipsis;transition:bottom 0.15s}
 #snapback:active{opacity:0.7}
 #err{color:red;padding:20px;font-size:14px;display:none}
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);z-index:600;padding:10px 20px;border-radius:12px;background:rgba(30,30,50,0.95);color:#e2e8f0;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,0.1);box-shadow:0 4px 20px rgba(0,0,0,0.5);opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 #wp{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:500;background:#0c0c18;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #wp.open{display:flex;flex-direction:column}
@@ -95,6 +97,7 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 <div id="progBg"><div id="progFill"></div></div>
 </div>
 <div id="err"></div>
+<div id="toast"></div>
 <div id="wp">
 <div id="wpHead">
 <div class="row"><h2>Watch Dancers</h2><button id="wpDone" onclick="hideWatch()">Done</button></div>
@@ -721,9 +724,18 @@ var wpFilter="";
 function showWatch(){document.getElementById("wp").className="open";renderWP();document.getElementById("wpSearch").value="";wpFilter="";}
 function hideWatch(){document.getElementById("wp").className="";onWatchChange();}
 function filterWP(){wpFilter=document.getElementById("wpSearch").value.toLowerCase();renderWP();}
+var toastTimer=null;
+function showToast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg;
+  t.className="show";
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.className="";},1800);
+}
 function toggleW(name){
   var idx=DN.indexOf(name);
-  if(idx>=0)DN.splice(idx,1);else DN.push(name);
+  if(idx>=0){DN.splice(idx,1);showToast("\u2606 Removed "+name);}
+  else{DN.push(name);showToast("\u2605 Watching "+name);}
   saveWatched();
   renderWP();
 }
