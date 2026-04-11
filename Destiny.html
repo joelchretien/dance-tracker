@@ -590,7 +590,9 @@ function jumpToNow(){
     if(t!==null&&t<=nowMin)best=i;
   }
   var cel=document.getElementById("e"+best);
-  if(cel)cel.scrollIntoView({behavior:"smooth",block:"center"});
+  if(cel){cel.scrollIntoView({behavior:"smooth",block:"center"});}
+  var be=S[best];
+  showToast("\u25F7 "+(be.title||"Now")+(be.time?" \u00b7 "+be.time:""));
 }
 function togDet(){
   sd=!sd;
@@ -611,6 +613,7 @@ function togDet(){
       if(Math.abs(newY-anchorY)>2)window.scrollBy(0,newY-anchorY);
     });
   }
+  showToast(sd?"\u24D8 Details shown":"\u24D8 Details hidden");
 }
 
 var curObs=null;
