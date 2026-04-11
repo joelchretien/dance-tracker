@@ -88,6 +88,8 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 </style>
 </head>
 <body>
+<div id="_dbg" style="display:none;position:fixed;top:50px;left:10px;right:10px;z-index:9999;background:#300;color:#f88;font-size:13px;padding:12px;border-radius:8px;font-family:monospace;max-height:40vh;overflow:auto"></div>
+<script>window.onerror=function(m,u,l,c){var d=document.getElementById("_dbg");d.style.display="block";d.textContent+="ERR: "+m+" @L"+l+"\n";};</script>
 <div id="top">
 <div id="topbar"><h1>Destiny</h1><div id="topright"><button class="tbtn" id="nowBtn" onclick="jumpToNow()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button><button class="tbtn" id="watchBtn" onclick="showWatch()"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button><button class="tbtn" id="detailsBtn" onclick="togDet()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div></div>
 <div id="progBg"><div id="progFill"></div></div>
