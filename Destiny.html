@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -70,15 +69,7 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 <div id="progBg"><div id="progFill"></div></div>
 </div>
 <div id="err"></div>
-<div id="dbg" style="position:fixed;top:50px;left:0;right:0;z-index:9999;max-height:40vh;overflow:auto;background:#1a1a2e;color:#4ade80;font-size:12px;padding:12px;font-family:monospace;border-bottom:2px solid #4ade80"></div>
-<script>
-var _log=[];
-function dlog(msg){_log.push(msg);var el=document.getElementById("dbg");if(el)el.textContent=_log.join("\n");}
-window.onerror=function(msg,url,line,col,err){dlog("ERR: "+msg+" @ line "+line+":"+col);return false;};
-dlog("Debug ready");
-dlog("Doc length: "+document.documentElement.outerHTML.length);
-dlog("Scripts: "+document.getElementsByTagName("script").length);
-</script>
+
 <div id="list"></div>
 <div id="bot"><div id="bi">
 <div id="ban"></div>
@@ -87,7 +78,6 @@ dlog("Scripts: "+document.getElementsByTagName("script").length);
 </div></div>
 <script>
 try{
-dlog("Main script started");
 var SATURDAY = [
   { num: 282, time: "8:00 AM", studio: "F", category: "Pre-Competitive| Nova| Jazz| Small Group", title: "MONEY", dancers: ["Lakelynn Baxter","Cree Hook","Adelaide Kapteyn","Arianna Sixtus","Gracie May Sweet-Hood","Madalena Tavarez"], age: 10 },
   { num: 283, time: "8:03 AM", studio: "B", category: "Pre-Competitive| Nova| Jazz| Small Group", title: "WHO ORDERED TAKE OUT?", dancers: ["Palmer Burrell-Curran","Mallory McMahon","Madeline Robbins","Eliana Shanmugabalan"], age: 9 },
@@ -269,7 +259,6 @@ var SATURDAY = [
   { num: 450, time: "8:46 PM", studio: "C", category: "Novice| Prime| Tap| Large Group", title: "CRANK, CRANK, CRANK", dancers: ["Charlie Roberts","Isleigh McDonald","Madison Alvey","Harleen Tamber","Carmen Williams","Makayla Tome","Davia Weese","Natalie Melo"], age: 15 },
   { num: 0, time: "8:49 PM", studio: "", category: "AWARDS #10 & GOODNIGHT", title: "AWARDS #10 & GOODNIGHT", dancers: [], age: 0, isBreak: true },
 ];
-dlog("SAT loaded: "+SATURDAY.length+" entries");
 var SUNDAY = [
   { num: 451, time: "8:00 AM", studio: "G", category: "Pre-Competitive| Star| Ballet| Solo", title: "YOU'LL BE IN MY HEART", dancers: ["Aria Woolley"], age: 8 },
   { num: 452, time: "8:03 AM", studio: "C", category: "Competitive| Cosmic| Acro| Large Group", title: "FALLEN ANGEL", dancers: ["Adeline Boudreau","Alianna Chretien","Adrianna Forsyth","Ellie Fram","Laela Fram","Marley Fram","Dylan Helm","Kiana Mechefske","Jaden Palmquist","Peyton Walker"], age: 13 },
@@ -445,25 +434,24 @@ var SUNDAY = [
 ];
 var DN=["Abigail Chretien","Alianna Chretien"];
 var S=[{num:0,time:"",studio:"",category:"SATURDAY APRIL 11",title:"SATURDAY APRIL 11",dancers:[],age:0,isBreak:true,isDH:true}].concat(SATURDAY).concat([{num:0,time:"",studio:"",category:"SUNDAY APRIL 12",title:"SUNDAY APRIL 12",dancers:[],age:0,isBreak:true,isDH:true}]).concat(SUNDAY);
-dlog("SUN:"+SUNDAY.length+" S:"+S.length);
 var DI=[];for(var i=0;i<S.length;i++){if(!S[i].isBreak)DI.push(i);}
 var TOT=DI.length;
 
 // Precompute awards blocks: each block = dances from previous awards (or start) to this awards
 var AWARDS=[];
 for(var i=0;i<S.length;i++){
-if(S[i].isBreak && S[i].title && S[i].title.indexOf(“AWARDS”)>=0) AWARDS.push(i);
+  if(S[i].isBreak && S[i].title && S[i].title.indexOf("AWARDS")>=0) AWARDS.push(i);
 }
 // For each awards, find its block start and check if daughters are in the block
 var ABLOCKS=[];
 for(var a=0;a<AWARDS.length;a++){
-var blockStart=(a===0)?0:AWARDS[a-1]+1;
-var blockEnd=AWARDS[a];
-var hasDaughter=false;
-for(var j=blockStart;j<blockEnd;j++){
-if(isD(S[j])){hasDaughter=true;break;}
-}
-ABLOCKS.push({idx:AWARDS[a],start:blockStart,hasDaughter:hasDaughter});
+  var blockStart=(a===0)?0:AWARDS[a-1]+1;
+  var blockEnd=AWARDS[a];
+  var hasDaughter=false;
+  for(var j=blockStart;j<blockEnd;j++){
+    if(isD(S[j])){hasDaughter=true;break;}
+  }
+  ABLOCKS.push({idx:AWARDS[a],start:blockStart,hasDaughter:hasDaughter});
 }
 // Set of awards indices that have daughter dances in their block
 var DAWARDS={};
@@ -475,145 +463,141 @@ var ci=1,sd=false;
 
 function isD(e){if(!e.dancers)return false;for(var j=0;j<e.dancers.length;j++){if(DN.indexOf(e.dancers[j])>=0)return true;}return false;}
 function wD(e){var r=[];if(!e.dancers)return r;for(var j=0;j<e.dancers.length;j++){if(DN.indexOf(e.dancers[j])>=0)r.push(e.dancers[j]);}return r;}
-function pT(t){if(!t)return null;var m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return null;var h=parseInt(m[1]),mn=parseInt(m[2]),ap=m[3].toUpperCase();if(ap===“PM”&&h!==12)h+=12;if(ap===“AM”&&h===12)h=0;return h*60+mn;}
-function tD(a,b){if(a==null||b==null)return””;var d=b-a;if(d<0)d+=1440;var h=Math.floor(d/60),m=d%60;return h?”~”+h+“h “+m+“min”:”~”+m+“min”;}
-function fC(c){if(!c)return””;return c.split(”|”).map(function(s){return s.trim();}).filter(Boolean).join(” \u00b7 “);}
+function pT(t){if(!t)return null;var m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return null;var h=parseInt(m[1]),mn=parseInt(m[2]),ap=m[3].toUpperCase();if(ap==="PM"&&h!==12)h+=12;if(ap==="AM"&&h===12)h=0;return h*60+mn;}
+function tD(a,b){if(a==null||b==null)return"";var d=b-a;if(d<0)d+=1440;var h=Math.floor(d/60),m=d%60;return h?"~"+h+"h "+m+"min":"~"+m+"min";}
+function fC(c){if(!c)return"";return c.split("|").map(function(s){return s.trim();}).filter(Boolean).join(" \u00b7 ");}
 function gND(){for(var i=ci+1;i<S.length;i++){if(isD(S[i])||isDaughterAwards(i))return i;}return null;}
 function cU(t){var c=0;for(var i=ci+1;i<=t;i++){if(!S[i].isBreak)c++;}return c;}
-function sv(){try{localStorage.setItem(“dst”,JSON.stringify({ci:ci}));}catch(e){}}
-function ld(){try{var s=localStorage.getItem(“dst”);if(s){var d=JSON.parse(s);if(typeof d.ci===“number”)ci=Math.max(1,Math.min(d.ci,S.length-1));}}catch(e){}}
+function sv(){try{localStorage.setItem("dst",JSON.stringify({ci:ci}));}catch(e){}}
+function ld(){try{var s=localStorage.getItem("dst");if(s){var d=JSON.parse(s);if(typeof d.ci==="number")ci=Math.max(1,Math.min(d.ci,S.length-1));}}catch(e){}}
 
-function esc(s){var d=document.createElement(“div”);d.textContent=s;return d.innerHTML;}
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
 
 function bld(){
-var el=document.getElementById(“list”);
-var h=””;
-var lc=””;
-for(var i=0;i<S.length;i++){
-var e=S[i];
-if(!e.isBreak&&e.category!==lc){
-lc=e.category;
-h+=’<div class="ch"><span>’+fC(e.category)+’</span></div>’;
-}
-if(e.isBreak)lc=””;
-if(e.isBreak){
-if(e.isDH){
-h+=’<div class="dh" id="e'+i+'" onclick="go('+i+')"><span>’+esc(e.title)+’</span></div>’;
-}else{
-var awdHl=isDaughterAwards(i);
-h+=’<div class="bk'+(awdHl?' ahl':'')+'" id="e'+i+'" onclick="go('+i+')"><span>’+esc(e.title)+’</span>’+(e.time?’<span class="t">’+e.time+’</span>’:’’)+’</div>’;
-}
-}else{
-var hl=isD(e);
-h+=’<div class="en'+(hl?' hl':'')+'" id="e'+i+'" data-st="'+e.studio+'" onclick="go('+i+')">’;
-h+=’<div class="rw"><span class="tm">’+e.time+’</span><div style="flex:1"><span class="tt">’+esc(e.title)+’</span>’;
-if(hl){h+=’<div style="margin-top:4px">’;var dd=wD(e);for(var j=0;j<dd.length;j++){h+=’<span class="db">’+esc(dd[j])+’</span>’;}h+=’</div>’;}
-h+=’</div></div>’;
-h+=’<div class="dt"><div class="mt"><b>#’+e.num+’</b> \u00b7 Studio ‘+e.studio+’ \u00b7 Age ‘+e.age+’</div>’;
-if(e.dancers.length>0){
-var pre=e.dancers.slice(0,4);
-var rest=e.dancers.length-4;
-h+=’<div class="dn">’;
-for(var j=0;j<pre.length;j++){
-var cls=DN.indexOf(pre[j])>=0?“d”:(hl?“x”:””);
-h+=’<span’+(cls?’ class=”’+cls+’”’:’’)+’>’+esc(pre[j])+’</span>’;
-}
-h+=’</div>’;
-if(rest>0){
-h+=’<button class="mb" onclick="event.stopPropagation();xp(this)">+ ‘+rest+’ more</button>’;
-h+=’<div class="dn" style="display:none">’;
-for(var j=0;j<e.dancers.length;j++){
-var cls=DN.indexOf(e.dancers[j])>=0?“d”:(hl?“x”:””);
-h+=’<span’+(cls?’ class=”’+cls+’”’:’’)+’>’+esc(e.dancers[j])+’</span>’;
-}
-h+=’</div>’;
-}
-}
-h+=’</div></div>’;
-}
-}
-dlog(“bld html len=”+h.length+” items=”+S.length);
-el.innerHTML=h;
-dlog(“bld children=”+el.children.length);
-}
+  var el=document.getElementById("list");
+  var h="";
+  var lc="";
+  for(var i=0;i<S.length;i++){
+    var e=S[i];
+    if(!e.isBreak&&e.category!==lc){
+      lc=e.category;
+      h+='<div class="ch"><span>'+fC(e.category)+'</span></div>';
+    }
+    if(e.isBreak)lc="";
+    if(e.isBreak){
+      if(e.isDH){
+        h+='<div class="dh" id="e'+i+'" onclick="go('+i+')"><span>'+esc(e.title)+'</span></div>';
+      }else{
+        var awdHl=isDaughterAwards(i);
+        h+='<div class="bk'+(awdHl?' ahl':'')+'" id="e'+i+'" onclick="go('+i+')"><span>'+esc(e.title)+'</span>'+(e.time?'<span class="t">'+e.time+'</span>':'')+'</div>';
+      }
+    }else{
+      var hl=isD(e);
+      h+='<div class="en'+(hl?' hl':'')+'" id="e'+i+'" data-st="'+e.studio+'" onclick="go('+i+')">';
+      h+='<div class="rw"><span class="tm">'+e.time+'</span><div style="flex:1"><span class="tt">'+esc(e.title)+'</span>';
+      if(hl){h+='<div style="margin-top:4px">';var dd=wD(e);for(var j=0;j<dd.length;j++){h+='<span class="db">'+esc(dd[j])+'</span>';}h+='</div>';}
+      h+='</div></div>';
+      h+='<div class="dt"><div class="mt"><b>#'+e.num+'</b> \u00b7 Studio '+e.studio+' \u00b7 Age '+e.age+'</div>';
+      if(e.dancers.length>0){
+        var pre=e.dancers.slice(0,4);
+        var rest=e.dancers.length-4;
+        h+='<div class="dn">';
+        for(var j=0;j<pre.length;j++){
+          var cls=DN.indexOf(pre[j])>=0?"d":(hl?"x":"");
+          h+='<span'+(cls?' class="'+cls+'"':'')+'>'+esc(pre[j])+'</span>';
+        }
+        h+='</div>';
+        if(rest>0){
+          h+='<button class="mb" onclick="event.stopPropagation();xp(this)">+ '+rest+' more</button>';
+          h+='<div class="dn" style="display:none">';
+          for(var j=0;j<e.dancers.length;j++){
+            var cls=DN.indexOf(e.dancers[j])>=0?"d":(hl?"x":"");
+            h+='<span'+(cls?' class="'+cls+'"':'')+'>'+esc(e.dancers[j])+'</span>';
+          }
+          h+='</div>';
+        }
+      }
+      h+='</div></div>';
+    }
+  }
+    el.innerHTML=h;
+  }
 
-function xp(btn){btn.style.display=“none”;btn.nextElementSibling.style.display=“flex”;}
+function xp(btn){btn.style.display="none";btn.nextElementSibling.style.display="flex";}
 function go(i){ci=i;sv();upd();}
-function goP(){if(ci>1){ci–;sv();upd();}}
+function goP(){if(ci>1){ci--;sv();upd();}}
 function goN(){if(ci<S.length-1){ci++;sv();upd();}}
 function jmpNxt(){var n=gND();if(n!==null){ci=n;sv();upd();}}
 function togDet(){sd=!sd;upd();}
 
 function upd(){
-var e=S[ci],hl=isD(e);
-document.querySelectorAll(”.en.cur,.bk.cur”).forEach(function(el){el.classList.remove(“cur”);});
-document.querySelectorAll(”.en.ss”).forEach(function(el){el.classList.remove(“ss”);});
-var cel=document.getElementById(“e”+ci);
-if(cel){cel.classList.add(“cur”);cel.scrollIntoView({behavior:“smooth”,block:“center”});}
+  var e=S[ci],hl=isD(e);
+  document.querySelectorAll(".en.cur,.bk.cur").forEach(function(el){el.classList.remove("cur");});
+  document.querySelectorAll(".en.ss").forEach(function(el){el.classList.remove("ss");});
+  var cel=document.getElementById("e"+ci);
+  if(cel){cel.classList.add("cur");cel.scrollIntoView({behavior:"smooth",block:"center"});}
 
-// Highlight same-studio dances as next daughter dance
-var nxt=gND();
-if(nxt!==null){
-var nxtStudio=S[nxt].studio;
-if(nxtStudio){
-document.querySelectorAll(’.en[data-st=”’+nxtStudio+’”]’).forEach(function(el){
-if(!el.classList.contains(“hl”)){
-el.classList.add(“ss”);
-}
-});
-}
-}
-var di=DI.indexOf(ci);
-document.getElementById(“counter”).textContent=(di>=0?(di+1):”-”)+”/”+TOT;
-document.getElementById(“progFill”).style.width=((di>=0?di+1:1)/TOT*100)+”%”;
-var db=document.getElementById(“detailsBtn”);
-db.textContent=sd?“Hide Details”:“Details”;
-db.className=sd?“on”:””;
-document.querySelectorAll(”.dt”).forEach(function(d){d.style.display=sd?“block”:“none”;});
-var ban=document.getElementById(“ban”);
-var bbtn=document.getElementById(“bbtn”);
-var isAwd=isDaughterAwards(ci);
-if(hl){
-ban.style.display=“block”;
-ban.style.background=“linear-gradient(135deg,#fbbf24,#f59e0b)”;
-ban.style.textAlign=“center”;
-ban.innerHTML=’<div style="font-size:15px;font-weight:800;color:#1a1a2e">ON NOW \u2014 ‘+esc(wD(e).join(” & “))+’</div><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.45);margin-top:2px">’+esc(e.title)+’</div>’;
-bbtn.style.display=“none”;
-}else if(isAwd){
-ban.style.display=“block”;
-ban.style.background=“linear-gradient(135deg,#fbbf24,#f59e0b)”;
-ban.style.textAlign=“center”;
-ban.innerHTML=’<div style="font-size:15px;font-weight:800;color:#1a1a2e">’+esc(e.title)+’</div><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.45);margin-top:2px">Your girls are in this block</div>’;
-bbtn.style.display=“none”;
-}else if(nxt!==null){
-ban.style.display=“none”;
-bbtn.style.display=“block”;
-var cnt=cU(nxt),ne=S[nxt];
-var td=tD(pT(e.time),pT(ne.time));
-var isNxtAwd=isDaughterAwards(nxt);
-var subtext=isNxtAwd?‘Your girls are in this block’:’’+esc(wD(ne).join(” & “));
-bbtn.innerHTML=’<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:22px;font-weight:800;color:#fbbf24;line-height:1">’+cnt+’</span><span style="font-size:14px;color:#fbbf24;font-weight:600">’+(cnt===1?“dance”:“dances”)+’ until</span><span style="font-size:14px;color:#fbbf24;font-weight:800">’+esc(ne.title)+’</span></div><div style="font-size:12px;color:rgba(251,191,36,0.5);margin-top:3px">’+subtext+(td?’ \u00b7 ‘+td:’’)+’ \u00b7 tap to jump</div>’;
-}else{
-ban.style.display=“none”;
-bbtn.style.display=“none”;
-}
-var pb=document.getElementById(“pb”),nb=document.getElementById(“nb”);
-pb.className=ci<=1?“bx”:“bo”;pb.disabled=ci<=1;
-nb.className=ci>=S.length-1?“bx”:“bo”;nb.disabled=ci>=S.length-1;
+  // Highlight same-studio dances as next daughter dance
+  var nxt=gND();
+  if(nxt!==null){
+    var nxtStudio=S[nxt].studio;
+    if(nxtStudio){
+      document.querySelectorAll('.en[data-st="'+nxtStudio+'"]').forEach(function(el){
+        if(!el.classList.contains("hl")){
+          el.classList.add("ss");
+        }
+      });
+    }
+  }
+  var di=DI.indexOf(ci);
+  document.getElementById("counter").textContent=(di>=0?(di+1):"-")+"/"+TOT;
+  document.getElementById("progFill").style.width=((di>=0?di+1:1)/TOT*100)+"%";
+  var db=document.getElementById("detailsBtn");
+  db.textContent=sd?"Hide Details":"Details";
+  db.className=sd?"on":"";
+  document.querySelectorAll(".dt").forEach(function(d){d.style.display=sd?"block":"none";});
+  var ban=document.getElementById("ban");
+  var bbtn=document.getElementById("bbtn");
+  var isAwd=isDaughterAwards(ci);
+  if(hl){
+    ban.style.display="block";
+    ban.style.background="linear-gradient(135deg,#fbbf24,#f59e0b)";
+    ban.style.textAlign="center";
+    ban.innerHTML='<div style="font-size:15px;font-weight:800;color:#1a1a2e">ON NOW \u2014 '+esc(wD(e).join(" & "))+'</div><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.45);margin-top:2px">'+esc(e.title)+'</div>';
+    bbtn.style.display="none";
+  }else if(isAwd){
+    ban.style.display="block";
+    ban.style.background="linear-gradient(135deg,#fbbf24,#f59e0b)";
+    ban.style.textAlign="center";
+    ban.innerHTML='<div style="font-size:15px;font-weight:800;color:#1a1a2e">'+esc(e.title)+'</div><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.45);margin-top:2px">Your girls are in this block</div>';
+    bbtn.style.display="none";
+  }else if(nxt!==null){
+    ban.style.display="none";
+    bbtn.style.display="block";
+    var cnt=cU(nxt),ne=S[nxt];
+    var td=tD(pT(e.time),pT(ne.time));
+    var isNxtAwd=isDaughterAwards(nxt);
+    var subtext=isNxtAwd?'Your girls are in this block':''+esc(wD(ne).join(" & "));
+    bbtn.innerHTML='<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:22px;font-weight:800;color:#fbbf24;line-height:1">'+cnt+'</span><span style="font-size:14px;color:#fbbf24;font-weight:600">'+(cnt===1?"dance":"dances")+' until</span><span style="font-size:14px;color:#fbbf24;font-weight:800">'+esc(ne.title)+'</span></div><div style="font-size:12px;color:rgba(251,191,36,0.5);margin-top:3px">'+subtext+(td?' \u00b7 '+td:'')+' \u00b7 tap to jump</div>';
+  }else{
+    ban.style.display="none";
+    bbtn.style.display="none";
+  }
+  var pb=document.getElementById("pb"),nb=document.getElementById("nb");
+  pb.className=ci<=1?"bx":"bo";pb.disabled=ci<=1;
+  nb.className=ci>=S.length-1?"bx":"bo";nb.disabled=ci>=S.length-1;
 }
 
-dlog(“Calling ld()…”);
+dlog("Calling ld()...");
 ld();
-dlog(“ci=”+ci+”. Calling bld()…”);
+dlog("ci="+ci+". Calling bld()...");
 bld();
-dlog(“Calling upd()…”);
+dlog("Calling upd()...");
 upd();
-dlog(“All done!”);
 }catch(ex){
-document.getElementById(“err”).style.display=“block”;
-document.getElementById(“err”).textContent=“Error: “+ex.message+” | “+ex.stack;
+  document.getElementById("err").style.display="block";
+  document.getElementById("err").textContent="Error: "+ex.message+" | "+ex.stack;
 }
 </script>
-
 </body>
 </html>
