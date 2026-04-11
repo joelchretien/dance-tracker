@@ -70,6 +70,15 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 <div id="progBg"><div id="progFill"></div></div>
 </div>
 <div id="err"></div>
+<div id="dbg" style="position:fixed;top:50px;left:0;right:0;z-index:9999;max-height:40vh;overflow:auto;background:#1a1a2e;color:#4ade80;font-size:12px;padding:12px;font-family:monospace;border-bottom:2px solid #4ade80"></div>
+<script>
+var _log=[];
+function dlog(msg){_log.push(msg);var el=document.getElementById("dbg");if(el)el.textContent=_log.join("\n");}
+window.onerror=function(msg,url,line,col,err){dlog("ERR: "+msg+" @ line "+line+":"+col);return false;};
+dlog("Debug ready");
+dlog("Doc length: "+document.documentElement.outerHTML.length);
+dlog("Scripts: "+document.getElementsByTagName("script").length);
+</script>
 <div id="list"></div>
 <div id="bot"><div id="bi">
 <div id="ban"></div>
@@ -78,6 +87,7 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 </div></div>
 <script>
 try{
+dlog("Main script started");
 var SATURDAY = [
   { num: 282, time: "8:00 AM", studio: "F", category: "Pre-Competitive| Nova| Jazz| Small Group", title: "MONEY", dancers: ["Lakelynn Baxter","Cree Hook","Adelaide Kapteyn","Arianna Sixtus","Gracie May Sweet-Hood","Madalena Tavarez"], age: 10 },
   { num: 283, time: "8:03 AM", studio: "B", category: "Pre-Competitive| Nova| Jazz| Small Group", title: "WHO ORDERED TAKE OUT?", dancers: ["Palmer Burrell-Curran","Mallory McMahon","Madeline Robbins","Eliana Shanmugabalan"], age: 9 },
@@ -259,6 +269,7 @@ var SATURDAY = [
   { num: 450, time: "8:46 PM", studio: "C", category: "Novice| Prime| Tap| Large Group", title: "CRANK, CRANK, CRANK", dancers: ["Charlie Roberts","Isleigh McDonald","Madison Alvey","Harleen Tamber","Carmen Williams","Makayla Tome","Davia Weese","Natalie Melo"], age: 15 },
   { num: 0, time: "8:49 PM", studio: "", category: "AWARDS #10 & GOODNIGHT", title: "AWARDS #10 & GOODNIGHT", dancers: [], age: 0, isBreak: true },
 ];
+dlog("SAT loaded: "+SATURDAY.length+" entries");
 var SUNDAY = [
   { num: 451, time: "8:00 AM", studio: "G", category: "Pre-Competitive| Star| Ballet| Solo", title: "YOU'LL BE IN MY HEART", dancers: ["Aria Woolley"], age: 8 },
   { num: 452, time: "8:03 AM", studio: "C", category: "Competitive| Cosmic| Acro| Large Group", title: "FALLEN ANGEL", dancers: ["Adeline Boudreau","Alianna Chretien","Adrianna Forsyth","Ellie Fram","Laela Fram","Marley Fram","Dylan Helm","Kiana Mechefske","Jaden Palmquist","Peyton Walker"], age: 13 },
@@ -434,6 +445,7 @@ var SUNDAY = [
 ];
 var DN=["Abigail Chretien","Alianna Chretien"];
 var S=[{num:0,time:"",studio:"",category:"SATURDAY APRIL 11",title:"SATURDAY APRIL 11",dancers:[],age:0,isBreak:true,isDH:true}].concat(SATURDAY).concat([{num:0,time:"",studio:"",category:"SUNDAY APRIL 12",title:"SUNDAY APRIL 12",dancers:[],age:0,isBreak:true,isDH:true}]).concat(SUNDAY);
+dlog("SUN:"+SUNDAY.length+" S:"+S.length);
 var DI=[];for(var i=0;i<S.length;i++){if(!S[i].isBreak)DI.push(i);}
 var TOT=DI.length;
 
@@ -520,7 +532,9 @@ h+=’</div>’;
 h+=’</div></div>’;
 }
 }
+dlog(“bld html len=”+h.length+” items=”+S.length);
 el.innerHTML=h;
+dlog(“bld children=”+el.children.length);
 }
 
 function xp(btn){btn.style.display=“none”;btn.nextElementSibling.style.display=“flex”;}
@@ -588,9 +602,13 @@ pb.className=ci<=1?“bx”:“bo”;pb.disabled=ci<=1;
 nb.className=ci>=S.length-1?“bx”:“bo”;nb.disabled=ci>=S.length-1;
 }
 
+dlog(“Calling ld()…”);
 ld();
+dlog(“ci=”+ci+”. Calling bld()…”);
 bld();
+dlog(“Calling upd()…”);
 upd();
+dlog(“All done!”);
 }catch(ex){
 document.getElementById(“err”).style.display=“block”;
 document.getElementById(“err”).textContent=“Error: “+ex.message+” | “+ex.stack;
