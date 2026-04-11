@@ -63,6 +63,13 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 <div id="progBg"><div id="progFill"></div></div>
 </div>
 <div id="err"></div>
+<div id="dbg" style="position:fixed;top:50px;left:0;right:0;z-index:9999;max-height:40vh;overflow:auto;background:#1a1a2e;color:#4ade80;font-size:11px;padding:10px;font-family:monospace;display:block;border-bottom:2px solid #4ade80"></div>
+<script>
+var _log=[];
+function dlog(msg){_log.push(msg);var el=document.getElementById("dbg");if(el)el.textContent=_log.join("\n");}
+window.onerror=function(msg,url,line,col,err){dlog("ERR: "+msg+" @ line "+line+":"+col);return false;};
+dlog("Debug console ready");
+</script>
 <div id="list"></div>
 <div id="bot"><div id="bi">
 <div id="ban"></div>
@@ -427,6 +434,7 @@ var SUNDAY = [
 ];
 var DN=["Abigail Chretien","Alianna Chretien"];
 var S=[{num:0,time:"",studio:"",category:"SATURDAY APRIL 11",title:"SATURDAY APRIL 11",dancers:[],age:0,isBreak:true,isDH:true}].concat(SATURDAY).concat([{num:0,time:"",studio:"",category:"SUNDAY APRIL 12",title:"SUNDAY APRIL 12",dancers:[],age:0,isBreak:true,isDH:true}]).concat(SUNDAY);
+dlog("SAT:"+SATURDAY.length+" SUN:"+SUNDAY.length+" SCHED:"+S.length);
 var DI=[];for(var i=0;i<S.length;i++){if(!S[i].isBreak)DI.push(i);}
 var TOT=DI.length;
 var ci=1,sd=false;
@@ -445,6 +453,7 @@ function esc(s){var d=document.createElement(“div”);d.textContent=s;return d
 
 function bld(){
 var el=document.getElementById(“list”);
+dlog(“bld: list el found=”+(!!el));
 var h=””;
 var lc=””;
 for(var i=0;i<S.length;i++){
@@ -464,7 +473,7 @@ h+=’<div class="bk" id="e'+i+'" onclick="go('+i+')"><span>’+esc(e.title)+’
 var hl=isD(e);
 h+=’<div class="en'+(hl?' hl':'')+'" id="e'+i+'" onclick="go('+i+')">’;
 h+=’<div class="rw"><span class="tm">’+e.time+’</span><div style="flex:1"><span class="tt">’+esc(e.title)+’</span>’;
-if(hl){var dd=wD(e);for(var j=0;j<dd.length;j++){h+=’<span class="db">’+esc(dd[j])+’</span>’;}}
+if(hl){h+=’<div style="margin-top:4px">’;var dd=wD(e);for(var j=0;j<dd.length;j++){h+=’<span class="db">’+esc(dd[j])+’</span>’;}h+=’</div>’;}
 h+=’</div></div>’;
 h+=’<div class="dt"><div class="mt"><b>#’+e.num+’</b> \u00b7 Studio ‘+e.studio+’ \u00b7 Age ‘+e.age+’</div>’;
 if(e.dancers.length>0){
@@ -489,7 +498,9 @@ h+=’</div>’;
 h+=’</div></div>’;
 }
 }
+dlog(“bld: html len=”+h.length);
 el.innerHTML=h;
+dlog(“bld: innerHTML set, children=”+el.children.length);
 }
 
 function xp(btn){btn.style.display=“none”;btn.nextElementSibling.style.display=“flex”;}
@@ -535,7 +546,13 @@ pb.className=ci<=1?“bx”:“bo”;pb.disabled=ci<=1;
 nb.className=ci>=S.length-1?“bx”:“bo”;nb.disabled=ci>=S.length-1;
 }
 
-ld();bld();upd();
+dlog(“Loading saved state…”);
+ld();
+dlog(“ci=”+ci+” Building list…”);
+bld();
+dlog(“List built. Updating UI…”);
+upd();
+dlog(“Done! All OK.”);
 }catch(ex){
 document.getElementById(“err”).style.display=“block”;
 document.getElementById(“err”).textContent=“Error: “+ex.message+” | “+ex.stack;
