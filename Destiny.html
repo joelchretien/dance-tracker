@@ -21,37 +21,44 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 #progBg{height:2px;background:rgba(255,255,255,0.04)}
 #progFill{height:2px;background:linear-gradient(90deg,#6366f1,#818cf8);border-radius:1px;transition:width 0.3s;width:0%}
 #list{padding:4px 10px 210px}
-.ch{padding:10px 14px 6px;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06)}
-.ch span{font-size:12px;font-weight:600;color:#6366f1}
-.dh{padding:24px 16px;text-align:center;margin:20px 0 8px;border-top:1px solid rgba(99,102,241,0.25);border-bottom:1px solid rgba(99,102,241,0.25)}
-.dh span{font-size:14px;font-weight:700;color:#818cf8;letter-spacing:2px;text-transform:uppercase}
-.bk{padding:12px 16px;text-align:center;margin:6px 0;border-radius:8px;border:1px dashed rgba(255,255,255,0.08)}
-.bk.cur{background:rgba(99,102,241,0.1);border:1.5px solid #6366f1}
-.bk span{font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase}
+.ch{padding:8px 14px 4px;margin-top:10px;border-top:1px solid rgba(255,255,255,0.04)}
+.ch span{font-size:11px;font-weight:500;color:#475569;letter-spacing:0.3px}
+.dh{padding:24px 16px;text-align:center;margin:20px 0 8px;border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08)}
+.dh span{font-size:14px;font-weight:700;color:#94a3b8;letter-spacing:2px;text-transform:uppercase}
+.bk{padding:12px 16px;text-align:center;margin:6px 0;border-radius:8px;border:1px dashed rgba(255,255,255,0.06)}
+.bk.cur{background:rgba(99,102,241,0.08);border:1.5px solid rgba(99,102,241,0.3)}
+.bk.ahl{border:1.5px solid rgba(251,191,36,0.3);background:rgba(251,191,36,0.05)}
+.bk.ahl span{color:#fbbf24}
+.bk span{font-size:13px;font-weight:500;color:#64748b;text-transform:uppercase}
 .bk .t{font-size:13px;color:#475569;margin-left:8px}
 .en{padding:12px 14px;border-radius:12px;margin:2px 0;border:1px solid transparent;cursor:pointer}
-.en.cur{background:rgba(99,102,241,0.12);border:1.5px solid rgba(99,102,241,0.4)}
+.en:active{opacity:0.7}
+.en.cur{background:rgba(99,102,241,0.10);border:1.5px solid rgba(99,102,241,0.35)}
+.en.ss{border-left:3px solid rgba(56,189,248,0.4)}
 .en.hl{background:rgba(251,191,36,0.05);border:1.5px solid rgba(251,191,36,0.2)}
-.en.cur.hl{background:linear-gradient(135deg,rgba(251,191,36,0.18),rgba(251,191,36,0.06));border:1.5px solid rgba(251,191,36,0.5)}
+.en.hl.ss{border-left-color:rgba(251,191,36,0.2)}
+.en.cur.hl{background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(251,191,36,0.05));border:1.5px solid rgba(251,191,36,0.5)}
 .rw{display:flex;align-items:baseline;gap:10px}
 .tm{font-size:14px;color:#64748b;flex-shrink:0;min-width:64px}
-.tt{font-size:17px;font-weight:700;color:#e2e8f0}
+.tt{font-size:17px;font-weight:600;color:#e2e8f0}
 .hl .tt{color:#fbbf24}
 .db{font-size:11px;padding:2px 9px;border-radius:8px;background:#fbbf24;color:#1a1a2e;font-weight:700;display:inline-block;margin:4px 4px 0 0}
 .dt{margin-top:8px;margin-left:74px;display:none}
 .mt{font-size:12px;color:#4b5563}
-.mt b{color:#6366f1;font-weight:600}
+.mt b{color:#818cf8;font-weight:600}
 .dn{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px 6px}
 .dn span{font-size:11px;padding:3px 8px;border-radius:12px;background:rgba(255,255,255,0.05);color:#94a3b8}
 .dn span.d{background:#fbbf24;color:#1a1a2e;font-weight:700}
 .dn span.x{background:rgba(251,191,36,0.12)}
-.mb{background:none;border:none;color:#6366f1;font-size:11px;padding:6px 0 0;cursor:pointer}
-#bot{position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(to top,#0c0c18 80%,transparent);padding-top:24px}
-#bi{max-width:520px;margin:0 auto}
-#ban{margin:0 12px 8px;padding:12px 14px;border-radius:12px;display:none}
-#bbtn{display:none;width:calc(100% - 24px);margin:0 12px 8px;padding:10px 14px;border-radius:12px;cursor:pointer;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);text-align:left}
-#nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 16px}
-#nav button{padding:16px 0;border-radius:12px;border:none;cursor:pointer;font-size:15px;font-weight:700}
+.mb{background:none;border:none;color:#818cf8;font-size:11px;padding:6px 0 0;cursor:pointer}
+#bot{position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(to top,#0c0c18 85%,transparent);padding-top:20px}
+#bi{max-width:520px;margin:0 auto;padding:0 12px}
+#ban{padding:12px 14px;border-radius:12px;display:none;margin-bottom:8px}
+#bbtn{display:none;width:100%;padding:10px 14px;border-radius:12px;cursor:pointer;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);text-align:left;margin-bottom:6px;font-family:inherit}
+#bbtn:active{opacity:0.7}
+#nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:16px}
+#nav button{padding:16px 0;border-radius:12px;border:none;cursor:pointer;font-size:15px;font-weight:700;font-family:inherit}
+#nav button:active{opacity:0.7}
 .bo{background:rgba(99,102,241,0.12);color:#818cf8}
 .bx{background:rgba(255,255,255,0.03);color:#1e1e2e}
 #err{color:red;padding:20px;font-size:14px;display:none}
@@ -63,13 +70,6 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 <div id="progBg"><div id="progFill"></div></div>
 </div>
 <div id="err"></div>
-<div id="dbg" style="position:fixed;top:50px;left:0;right:0;z-index:9999;max-height:40vh;overflow:auto;background:#1a1a2e;color:#4ade80;font-size:11px;padding:10px;font-family:monospace;display:block;border-bottom:2px solid #4ade80"></div>
-<script>
-var _log=[];
-function dlog(msg){_log.push(msg);var el=document.getElementById("dbg");if(el)el.textContent=_log.join("\n");}
-window.onerror=function(msg,url,line,col,err){dlog("ERR: "+msg+" @ line "+line+":"+col);return false;};
-dlog("Debug console ready");
-</script>
 <div id="list"></div>
 <div id="bot"><div id="bi">
 <div id="ban"></div>
@@ -434,9 +434,31 @@ var SUNDAY = [
 ];
 var DN=["Abigail Chretien","Alianna Chretien"];
 var S=[{num:0,time:"",studio:"",category:"SATURDAY APRIL 11",title:"SATURDAY APRIL 11",dancers:[],age:0,isBreak:true,isDH:true}].concat(SATURDAY).concat([{num:0,time:"",studio:"",category:"SUNDAY APRIL 12",title:"SUNDAY APRIL 12",dancers:[],age:0,isBreak:true,isDH:true}]).concat(SUNDAY);
-dlog("SAT:"+SATURDAY.length+" SUN:"+SUNDAY.length+" SCHED:"+S.length);
 var DI=[];for(var i=0;i<S.length;i++){if(!S[i].isBreak)DI.push(i);}
 var TOT=DI.length;
+
+// Precompute awards blocks: each block = dances from previous awards (or start) to this awards
+var AWARDS=[];
+for(var i=0;i<S.length;i++){
+if(S[i].isBreak && S[i].title && S[i].title.indexOf(“AWARDS”)>=0) AWARDS.push(i);
+}
+// For each awards, find its block start and check if daughters are in the block
+var ABLOCKS=[];
+for(var a=0;a<AWARDS.length;a++){
+var blockStart=(a===0)?0:AWARDS[a-1]+1;
+var blockEnd=AWARDS[a];
+var hasDaughter=false;
+for(var j=blockStart;j<blockEnd;j++){
+if(isD(S[j])){hasDaughter=true;break;}
+}
+ABLOCKS.push({idx:AWARDS[a],start:blockStart,hasDaughter:hasDaughter});
+}
+// Set of awards indices that have daughter dances in their block
+var DAWARDS={};
+for(var a=0;a<ABLOCKS.length;a++){if(ABLOCKS[a].hasDaughter)DAWARDS[ABLOCKS[a].idx]=true;}
+
+function isDaughterAwards(i){return !!DAWARDS[i];}
+
 var ci=1,sd=false;
 
 function isD(e){if(!e.dancers)return false;for(var j=0;j<e.dancers.length;j++){if(DN.indexOf(e.dancers[j])>=0)return true;}return false;}
@@ -444,7 +466,7 @@ function wD(e){var r=[];if(!e.dancers)return r;for(var j=0;j<e.dancers.length;j+
 function pT(t){if(!t)return null;var m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return null;var h=parseInt(m[1]),mn=parseInt(m[2]),ap=m[3].toUpperCase();if(ap===“PM”&&h!==12)h+=12;if(ap===“AM”&&h===12)h=0;return h*60+mn;}
 function tD(a,b){if(a==null||b==null)return””;var d=b-a;if(d<0)d+=1440;var h=Math.floor(d/60),m=d%60;return h?”~”+h+“h “+m+“min”:”~”+m+“min”;}
 function fC(c){if(!c)return””;return c.split(”|”).map(function(s){return s.trim();}).filter(Boolean).join(” \u00b7 “);}
-function gND(){for(var i=ci+1;i<S.length;i++){if(isD(S[i]))return i;}return null;}
+function gND(){for(var i=ci+1;i<S.length;i++){if(isD(S[i])||isDaughterAwards(i))return i;}return null;}
 function cU(t){var c=0;for(var i=ci+1;i<=t;i++){if(!S[i].isBreak)c++;}return c;}
 function sv(){try{localStorage.setItem(“dst”,JSON.stringify({ci:ci}));}catch(e){}}
 function ld(){try{var s=localStorage.getItem(“dst”);if(s){var d=JSON.parse(s);if(typeof d.ci===“number”)ci=Math.max(1,Math.min(d.ci,S.length-1));}}catch(e){}}
@@ -453,7 +475,6 @@ function esc(s){var d=document.createElement(“div”);d.textContent=s;return d
 
 function bld(){
 var el=document.getElementById(“list”);
-dlog(“bld: list el found=”+(!!el));
 var h=””;
 var lc=””;
 for(var i=0;i<S.length;i++){
@@ -467,11 +488,12 @@ if(e.isBreak){
 if(e.isDH){
 h+=’<div class="dh" id="e'+i+'" onclick="go('+i+')"><span>’+esc(e.title)+’</span></div>’;
 }else{
-h+=’<div class="bk" id="e'+i+'" onclick="go('+i+')"><span>’+esc(e.title)+’</span>’+(e.time?’<span class="t">’+e.time+’</span>’:’’)+’</div>’;
+var awdHl=isDaughterAwards(i);
+h+=’<div class="bk'+(awdHl?' ahl':'')+'" id="e'+i+'" onclick="go('+i+')"><span>’+esc(e.title)+’</span>’+(e.time?’<span class="t">’+e.time+’</span>’:’’)+’</div>’;
 }
 }else{
 var hl=isD(e);
-h+=’<div class="en'+(hl?' hl':'')+'" id="e'+i+'" onclick="go('+i+')">’;
+h+=’<div class="en'+(hl?' hl':'')+'" id="e'+i+'" data-st="'+e.studio+'" onclick="go('+i+')">’;
 h+=’<div class="rw"><span class="tm">’+e.time+’</span><div style="flex:1"><span class="tt">’+esc(e.title)+’</span>’;
 if(hl){h+=’<div style="margin-top:4px">’;var dd=wD(e);for(var j=0;j<dd.length;j++){h+=’<span class="db">’+esc(dd[j])+’</span>’;}h+=’</div>’;}
 h+=’</div></div>’;
@@ -498,9 +520,7 @@ h+=’</div>’;
 h+=’</div></div>’;
 }
 }
-dlog(“bld: html len=”+h.length);
 el.innerHTML=h;
-dlog(“bld: innerHTML set, children=”+el.children.length);
 }
 
 function xp(btn){btn.style.display=“none”;btn.nextElementSibling.style.display=“flex”;}
@@ -513,8 +533,22 @@ function togDet(){sd=!sd;upd();}
 function upd(){
 var e=S[ci],hl=isD(e);
 document.querySelectorAll(”.en.cur,.bk.cur”).forEach(function(el){el.classList.remove(“cur”);});
+document.querySelectorAll(”.en.ss”).forEach(function(el){el.classList.remove(“ss”);});
 var cel=document.getElementById(“e”+ci);
 if(cel){cel.classList.add(“cur”);cel.scrollIntoView({behavior:“smooth”,block:“center”});}
+
+// Highlight same-studio dances as next daughter dance
+var nxt=gND();
+if(nxt!==null){
+var nxtStudio=S[nxt].studio;
+if(nxtStudio){
+document.querySelectorAll(’.en[data-st=”’+nxtStudio+’”]’).forEach(function(el){
+if(!el.classList.contains(“hl”)){
+el.classList.add(“ss”);
+}
+});
+}
+}
 var di=DI.indexOf(ci);
 document.getElementById(“counter”).textContent=(di>=0?(di+1):”-”)+”/”+TOT;
 document.getElementById(“progFill”).style.width=((di>=0?di+1:1)/TOT*100)+”%”;
@@ -524,19 +558,27 @@ db.className=sd?“on”:””;
 document.querySelectorAll(”.dt”).forEach(function(d){d.style.display=sd?“block”:“none”;});
 var ban=document.getElementById(“ban”);
 var bbtn=document.getElementById(“bbtn”);
-var nxt=gND();
+var isAwd=isDaughterAwards(ci);
 if(hl){
 ban.style.display=“block”;
 ban.style.background=“linear-gradient(135deg,#fbbf24,#f59e0b)”;
 ban.style.textAlign=“center”;
 ban.innerHTML=’<div style="font-size:15px;font-weight:800;color:#1a1a2e">ON NOW \u2014 ‘+esc(wD(e).join(” & “))+’</div><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.45);margin-top:2px">’+esc(e.title)+’</div>’;
 bbtn.style.display=“none”;
+}else if(isAwd){
+ban.style.display=“block”;
+ban.style.background=“linear-gradient(135deg,#fbbf24,#f59e0b)”;
+ban.style.textAlign=“center”;
+ban.innerHTML=’<div style="font-size:15px;font-weight:800;color:#1a1a2e">’+esc(e.title)+’</div><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.45);margin-top:2px">Your girls are in this block</div>’;
+bbtn.style.display=“none”;
 }else if(nxt!==null){
 ban.style.display=“none”;
 bbtn.style.display=“block”;
 var cnt=cU(nxt),ne=S[nxt];
 var td=tD(pT(e.time),pT(ne.time));
-bbtn.innerHTML=’<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:22px;font-weight:800;color:#fbbf24;line-height:1">’+cnt+’</span><span style="font-size:14px;color:#fbbf24;font-weight:600">’+(cnt===1?“dance”:“dances”)+’ until</span><span style="font-size:14px;color:#fbbf24;font-weight:800">’+esc(ne.title)+’</span></div><div style="font-size:12px;color:rgba(251,191,36,0.5);margin-top:3px">’+esc(wD(ne).join(” & “))+(td?” \u00b7 “+td:””)+’ \u00b7 tap to jump</div>’;
+var isNxtAwd=isDaughterAwards(nxt);
+var subtext=isNxtAwd?‘Your girls are in this block’:’’+esc(wD(ne).join(” & “));
+bbtn.innerHTML=’<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:22px;font-weight:800;color:#fbbf24;line-height:1">’+cnt+’</span><span style="font-size:14px;color:#fbbf24;font-weight:600">’+(cnt===1?“dance”:“dances”)+’ until</span><span style="font-size:14px;color:#fbbf24;font-weight:800">’+esc(ne.title)+’</span></div><div style="font-size:12px;color:rgba(251,191,36,0.5);margin-top:3px">’+subtext+(td?’ \u00b7 ‘+td:’’)+’ \u00b7 tap to jump</div>’;
 }else{
 ban.style.display=“none”;
 bbtn.style.display=“none”;
@@ -546,13 +588,9 @@ pb.className=ci<=1?“bx”:“bo”;pb.disabled=ci<=1;
 nb.className=ci>=S.length-1?“bx”:“bo”;nb.disabled=ci>=S.length-1;
 }
 
-dlog(“Loading saved state…”);
 ld();
-dlog(“ci=”+ci+” Building list…”);
 bld();
-dlog(“List built. Updating UI…”);
 upd();
-dlog(“Done! All OK.”);
 }catch(ex){
 document.getElementById(“err”).style.display=“block”;
 document.getElementById(“err”).textContent=“Error: “+ex.message+” | “+ex.stack;
