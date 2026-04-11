@@ -11,12 +11,16 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system,system-ui,sans-serif;overflow-x:hidden;overflow-anchor:auto}
 #top{position:sticky;top:0;z-index:100;background:#0c0c18;overflow-anchor:none}
-#topbar{padding:14px 16px 10px;display:flex;justify-content:space-between;align-items:center}
+#topbar{padding:12px 16px 10px;display:flex;justify-content:space-between;align-items:center}
 #topbar h1{font-size:17px;font-weight:800;color:#e2e8f0}
-#topright{display:flex;align-items:center;gap:12px}
-#detailsBtn{border-radius:8px;font-size:12px;padding:5px 10px;cursor:pointer;font-weight:600;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#64748b}
-#detailsBtn.on{background:rgba(99,102,241,0.15);border-color:rgba(99,102,241,0.3);color:#818cf8}
-#counter{font-size:13px;color:#4b5563}
+#topright{display:flex;align-items:center;gap:6px}
+.tbtn{width:40px;height:40px;border-radius:10px;cursor:pointer;background:none;border:1.5px solid rgba(255,255,255,0.08);color:#64748b;display:flex;align-items:center;justify-content:center;position:relative;padding:0}
+.tbtn:active{opacity:0.7}
+.tbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#detailsBtn.on{border-color:rgba(99,102,241,0.4);color:#818cf8}
+#watchBtn.active{border-color:rgba(251,191,36,0.4);color:#fbbf24}
+#watchBtn.active svg{fill:#fbbf24;stroke:#fbbf24}
+.badge{position:absolute;top:-5px;right:-5px;background:#fbbf24;color:#1a1a2e;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #0c0c18}
 #progBg{height:2px;background:rgba(255,255,255,0.04)}
 #progFill{height:2px;background:linear-gradient(90deg,#6366f1,#818cf8);border-radius:1px;transition:width 0.3s;width:0%}
 #list{padding:4px 10px 210px}
@@ -60,17 +64,42 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 #nav button:active{opacity:0.7}
 .bo{background:rgba(99,102,241,0.12);color:#818cf8}
 .bx{background:rgba(255,255,255,0.03);color:#1e1e2e}
-#snapback{display:none;position:fixed;bottom:140px;left:50%;transform:translateX(-50%);z-index:150;padding:8px 16px;border-radius:20px;background:rgba(99,102,241,0.9);color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;max-width:80%;overflow:hidden;text-overflow:ellipsis}
+#snapback{display:none;position:fixed;bottom:140px;left:50%;transform:translateX(-50%);z-index:150;padding:8px 16px;border-radius:20px;background:rgba(99,102,241,0.9);color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;max-width:80%;overflow:hidden;text-overflow:ellipsis;transition:bottom 0.15s}
 #snapback:active{opacity:0.7}
 #err{color:red;padding:20px;font-size:14px;display:none}
+
+#wp{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:500;background:#0c0c18;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#wp.open{display:flex;flex-direction:column}
+#wpHead{position:sticky;top:0;background:#0c0c18;padding:14px 16px;z-index:1;border-bottom:1px solid rgba(255,255,255,0.06)}
+#wpHead .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+#wpHead h2{font-size:17px;font-weight:700;color:#e2e8f0}
+#wpDone{background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:8px;color:#818cf8;font-size:14px;font-weight:600;padding:6px 16px;cursor:pointer;font-family:inherit}
+#wpSearch{width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.05);color:#e2e8f0;font-size:15px;font-family:inherit;outline:none}
+#wpSearch:focus{border-color:rgba(99,102,241,0.4)}
+#wpSearch::placeholder{color:#4b5563}
+#wpList{flex:1;padding:8px 16px 40px;overflow-y:auto}
+.wpSec{font-size:11px;font-weight:500;color:#475569;padding:12px 0 6px;text-transform:uppercase;letter-spacing:0.5px}
+.wpItem{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer}
+.wpItem:active{opacity:0.7}
+.wpItem .name{font-size:15px;color:#cbd5e1}
+.wpItem.watched .name{color:#fbbf24;font-weight:600}
+.wpItem .check{font-size:20px;flex-shrink:0;color:#334155}
+.wpItem.watched .check{color:#fbbf24}
 </style>
 </head>
 <body>
 <div id="top">
-<div id="topbar"><h1>Destiny</h1><div id="topright"><button id="detailsBtn" onclick="togDet()">Details</button><span id="counter"></span></div></div>
+<div id="topbar"><h1>Destiny</h1><div id="topright"><button class="tbtn" id="nowBtn" onclick="jumpToNow()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button><button class="tbtn" id="watchBtn" onclick="showWatch()"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button><button class="tbtn" id="detailsBtn" onclick="togDet()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div></div>
 <div id="progBg"><div id="progFill"></div></div>
 </div>
 <div id="err"></div>
+<div id="wp">
+<div id="wpHead">
+<div class="row"><h2>Watch Dancers</h2><button id="wpDone" onclick="hideWatch()">Done</button></div>
+<input id="wpSearch" type="text" placeholder="Search dancers..." oninput="filterWP()">
+</div>
+<div id="wpList"></div>
+</div>
 
 <div id="list"></div>
 <button id="snapback" onclick="snapToCurrent()"></button>
@@ -435,40 +464,47 @@ var SUNDAY = [
   { num: 617, time: "6:34 PM", studio: "D", category: "Competitive| Prime| Jazz| Large Group", title: "WHEN THE DOVES CRY", dancers: ["Aaliyah Adams","Madison Alvey","Syanne Brookes","Valeriya Ermakova","Ella Hoang","Isleigh McDonald","Ashlyn Murray-Fellin","Abigail Roides","Ava Sliwowicz","Harleen Tamber","Davia Weese","Carmen Williams"], age: 15 },
   { num: 0, time: "6:38 PM", studio: "", category: "AWARDS #13 & END OF COMPETITION!", title: "AWARDS #13 & END OF COMPETITION!", dancers: [], age: 0, isBreak: true },
 ];
-var DN=["Abigail Chretien","Alianna Chretien"];
+var DN=[];
 var S=[{num:0,time:"",studio:"",category:"SATURDAY APRIL 11",title:"SATURDAY APRIL 11",dancers:[],age:0,isBreak:true,isDH:true}].concat(SATURDAY).concat([{num:0,time:"",studio:"",category:"SUNDAY APRIL 12",title:"SUNDAY APRIL 12",dancers:[],age:0,isBreak:true,isDH:true}]).concat(SUNDAY);
+
+// Build sorted list of all unique dancers
+var ALL_D={};
+for(var i=0;i<S.length;i++){if(S[i].dancers){for(var j=0;j<S[i].dancers.length;j++){ALL_D[S[i].dancers[j]]=true;}}}
+var ALL_DANCERS=Object.keys(ALL_D).sort(function(a,b){return a.toLowerCase().localeCompare(b.toLowerCase());});
+
+function loadWatched(){try{var s=localStorage.getItem("dw");if(s)DN=JSON.parse(s);else DN=[];}catch(e){DN=[];}}
+function saveWatched(){try{localStorage.setItem("dw",JSON.stringify(DN));}catch(e){}}
 var DI=[];for(var i=0;i<S.length;i++){if(!S[i].isBreak)DI.push(i);}
 var TOT=DI.length;
 
-// Precompute awards blocks: each block = dances from previous awards (or start) to this awards
+// Awards indices (static)
 var AWARDS=[];
 for(var i=0;i<S.length;i++){
   if(S[i].isBreak && S[i].title && S[i].title.indexOf("AWARDS")>=0) AWARDS.push(i);
 }
-// For each awards, find its block start and check if daughters are in the block
-var ABLOCKS=[];
-for(var a=0;a<AWARDS.length;a++){
-  var blockStart=(a===0)?0:AWARDS[a-1]+1;
-  var blockEnd=AWARDS[a];
-  var hasDaughter=false;
-  for(var j=blockStart;j<blockEnd;j++){
-    if(isD(S[j])){hasDaughter=true;break;}
+// Recomputable awards blocks
+var ABLOCKS=[],DAWARDS={};
+function recomputeAwards(){
+  ABLOCKS=[];DAWARDS={};
+  for(var a=0;a<AWARDS.length;a++){
+    var blockStart=(a===0)?0:AWARDS[a-1]+1;
+    var blockEnd=AWARDS[a];
+    var has=false;
+    for(var j=blockStart;j<blockEnd;j++){if(isD(S[j])){has=true;break;}}
+    ABLOCKS.push({idx:AWARDS[a],start:blockStart,hasDaughter:has});
+    if(has)DAWARDS[AWARDS[a]]=true;
   }
-  ABLOCKS.push({idx:AWARDS[a],start:blockStart,hasDaughter:hasDaughter});
 }
-// Set of awards indices that have daughter dances in their block
-var DAWARDS={};
-for(var a=0;a<ABLOCKS.length;a++){if(ABLOCKS[a].hasDaughter)DAWARDS[ABLOCKS[a].idx]=true;}
-
 function isDaughterAwards(i){return !!DAWARDS[i];}
-
-var ci=1,sd=false;
 
 function isD(e){if(!e.dancers)return false;for(var j=0;j<e.dancers.length;j++){if(DN.indexOf(e.dancers[j])>=0)return true;}return false;}
 function wD(e){var r=[];if(!e.dancers)return r;for(var j=0;j<e.dancers.length;j++){if(DN.indexOf(e.dancers[j])>=0)r.push(e.dancers[j]);}return r;}
+
+var ci=1,sd=false;
 function pT(t){if(!t)return null;var m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return null;var h=parseInt(m[1]),mn=parseInt(m[2]),ap=m[3].toUpperCase();if(ap==="PM"&&h!==12)h+=12;if(ap==="AM"&&h===12)h=0;return h*60+mn;}
 function tD(a,b){if(a==null||b==null)return"";var d=b-a;if(d<0)d+=1440;var h=Math.floor(d/60),m=d%60;return h?"~"+h+"h "+m+"min":"~"+m+"min";}
 function fC(c){if(!c)return"";return c.split("|").map(function(s){return s.trim();}).filter(Boolean).join(" \u00b7 ");}
+function fST(c){if(!c)return"";var p=c.split("|").map(function(s){return s.trim();}).filter(Boolean);var r=[];if(p.length>=3)r.push(p[2]);if(p.length>=4)r.push(p[3]);return r.join(" \u00b7 ");}
 function gND(){for(var i=ci+1;i<S.length;i++){if(isD(S[i])||isDaughterAwards(i))return i;}return null;}
 function cU(t){var c=0;for(var i=ci+1;i<=t;i++){if(!S[i].isBreak)c++;}return c;}
 function sv(){try{localStorage.setItem("dst",JSON.stringify({ci:ci}));}catch(e){}}
@@ -530,7 +566,27 @@ function xp(btn){btn.style.display="none";btn.nextElementSibling.style.display="
 function go(i){ci=i;sv();upd();}
 function goP(){if(ci>1){ci--;sv();upd();}}
 function goN(){if(ci<S.length-1){ci++;sv();upd();}}
-function jmpNxt(){var n=gND();if(n!==null){ci=n;sv();upd();}}
+function jmpNxt(){var n=gND();if(n!==null){var cel=document.getElementById("e"+n);if(cel)cel.scrollIntoView({behavior:"smooth",block:"center"});}}
+function jumpToNow(){
+  var now=new Date();
+  var day=now.getDay(); // 0=Sun,6=Sat
+  var nowMin=now.getHours()*60+now.getMinutes();
+  // Find Sunday header index
+  var sunIdx=0;
+  for(var i=0;i<S.length;i++){if(S[i].isDH&&S[i].title.indexOf("SUNDAY")>=0){sunIdx=i;break;}}
+  // Determine search range based on day
+  var rangeStart=1,rangeEnd=S.length-1;
+  if(day===6){rangeEnd=sunIdx-1;} // Saturday: only search Saturday entries
+  else if(day===0){rangeStart=sunIdx+1;} // Sunday: only search Sunday entries
+  // Find last entry whose time <= now
+  var best=rangeStart;
+  for(var i=rangeStart;i<=rangeEnd;i++){
+    var t=pT(S[i].time);
+    if(t!==null&&t<=nowMin)best=i;
+  }
+  var cel=document.getElementById("e"+best);
+  if(cel)cel.scrollIntoView({behavior:"smooth",block:"center"});
+}
 function togDet(){
   sd=!sd;
   // Find first visible entry to anchor to
@@ -542,8 +598,7 @@ function togDet(){
   }
   document.querySelectorAll(".dt").forEach(function(d){d.style.display=sd?"block":"none";});
   var db=document.getElementById("detailsBtn");
-  db.textContent=sd?"Hide Details":"Details";
-  db.className=sd?"on":"";
+  db.className=sd?"tbtn on":"tbtn";
   // JS fallback scroll correction (supplements CSS overflow-anchor)
   if(anchor){
     requestAnimationFrame(function(){
@@ -554,6 +609,19 @@ function togDet(){
 }
 
 var curObs=null;
+function updateSnapArrow(){
+  var snap=document.getElementById("snapback");
+  if(snap.style.display==="none")return;
+  var cel=document.getElementById("e"+ci);
+  if(!cel)return;
+  var r=cel.getBoundingClientRect();
+  var arrow=r.top<0?"\u2191 ":"\u2193 ";
+  var e=S[ci];
+  snap.textContent=arrow+(e.title||"Current")+(e.time?" \u00b7 "+e.time:"");
+  var botH=document.getElementById("bot").offsetHeight;
+  snap.style.bottom=(botH+12)+"px";
+}
+window.addEventListener("scroll",updateSnapArrow,{passive:true});
 function watchCurrent(){
   if(curObs)curObs.disconnect();
   var cel=document.getElementById("e"+ci);
@@ -563,9 +631,8 @@ function watchCurrent(){
     if(entries[0].isIntersecting){
       snap.style.display="none";
     }else{
-      var e=S[ci];
-      snap.textContent="\u2022 "+(e.title||"Current")+(e.time?" \u00b7 "+e.time:"");
       snap.style.display="block";
+      updateSnapArrow();
     }
   },{threshold:0.1});
   curObs.observe(cel);
@@ -601,11 +668,9 @@ function upd(doScroll){
     }
   }
   var di=DI.indexOf(ci);
-  document.getElementById("counter").textContent=(di>=0?(di+1):"-")+"/"+TOT;
   document.getElementById("progFill").style.width=((di>=0?di+1:1)/TOT*100)+"%";
   var db=document.getElementById("detailsBtn");
-  db.textContent=sd?"Hide Details":"Details";
-  db.className=sd?"on":"";
+  db.className=sd?"tbtn on":"tbtn";
   document.querySelectorAll(".dt").forEach(function(d){d.style.display=sd?"block":"none";});
   var ban=document.getElementById("ban");
   var bbtn=document.getElementById("bbtn");
@@ -614,7 +679,8 @@ function upd(doScroll){
     ban.style.display="block";
     ban.style.background="linear-gradient(135deg,#fbbf24,#f59e0b)";
     ban.style.textAlign="center";
-    ban.innerHTML='<div style="font-size:15px;font-weight:800;color:#1a1a2e">ON NOW \u2014 '+esc(wD(e).join(" & "))+'</div><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.45);margin-top:2px">'+esc(e.title)+'</div>';
+    var onCat=fST(e.category);
+    ban.innerHTML='<div style="font-size:15px;font-weight:800;color:#1a1a2e">ON NOW \u2014 '+esc(wD(e).join(" & "))+'</div><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.45);margin-top:2px">'+esc(e.title)+(onCat?' \u00b7 '+onCat:'')+'</div>';
     bbtn.style.display="none";
   }else if(isAwd){
     ban.style.display="block";
@@ -628,8 +694,17 @@ function upd(doScroll){
     var cnt=cU(nxt),ne=S[nxt];
     var td=tD(pT(e.time),pT(ne.time));
     var isNxtAwd=isDaughterAwards(nxt);
-    var subtext=isNxtAwd?'Your girls are in this block':''+esc(wD(ne).join(" & "));
-    bbtn.innerHTML='<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:22px;font-weight:800;color:#fbbf24;line-height:1">'+cnt+'</span><span style="font-size:14px;color:#fbbf24;font-weight:600">'+(cnt===1?"dance":"dances")+' until</span><span style="font-size:14px;color:#fbbf24;font-weight:800">'+esc(ne.title)+'</span></div><div style="font-size:12px;color:rgba(251,191,36,0.5);margin-top:3px">'+subtext+(td?' \u00b7 '+td:'')+' \u00b7 tap to jump</div>';
+    var line1='<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:22px;font-weight:800;color:#fbbf24;line-height:1">'+cnt+'</span><span style="font-size:14px;color:#fbbf24;font-weight:600">'+(cnt===1?"dance":"dances")+' until</span><span style="font-size:14px;color:#fbbf24;font-weight:800">'+esc(ne.title)+'</span></div>';
+    var line2,line3;
+    if(isNxtAwd){
+      line2='<div style="font-size:12px;color:rgba(251,191,36,0.5);margin-top:3px">Your dancers are in this block'+(ne.time?' \u00b7 '+ne.time:'')+(td?' \u00b7 '+td:'')+'</div>';
+      line3='<div style="font-size:11px;color:rgba(251,191,36,0.35);margin-top:2px">tap to jump</div>';
+    }else{
+      var catInfo=fST(ne.category);
+      line2='<div style="font-size:12px;color:rgba(251,191,36,0.6);margin-top:3px">'+(catInfo?catInfo+' \u00b7 ':'')+ne.time+(td?' \u00b7 '+td:'')+'</div>';
+      line3='<div style="font-size:11px;color:rgba(251,191,36,0.35);margin-top:2px">'+esc(wD(ne).join(" & "))+' \u00b7 tap to jump</div>';
+    }
+    bbtn.innerHTML=line1+line2+line3;
   }else{
     ban.style.display="none";
     bbtn.style.display="none";
@@ -639,9 +714,76 @@ function upd(doScroll){
   nb.className=ci>=S.length-1?"bx":"bo";nb.disabled=ci>=S.length-1;
 }
 
+// Watch panel
+var wpFilter="";
+function showWatch(){document.getElementById("wp").className="open";renderWP();document.getElementById("wpSearch").value="";wpFilter="";}
+function hideWatch(){document.getElementById("wp").className="";onWatchChange();}
+function filterWP(){wpFilter=document.getElementById("wpSearch").value.toLowerCase();renderWP();}
+function toggleW(name){
+  var idx=DN.indexOf(name);
+  if(idx>=0)DN.splice(idx,1);else DN.push(name);
+  saveWatched();
+  renderWP();
+}
+function renderWP(){
+  var el=document.getElementById("wpList");
+  var h="";
+  // Build filtered list, watched first
+  var watched=[],unwatched=[];
+  for(var i=0;i<ALL_DANCERS.length;i++){
+    var n=ALL_DANCERS[i];
+    if(wpFilter&&n.toLowerCase().indexOf(wpFilter)<0)continue;
+    if(DN.indexOf(n)>=0)watched.push(n);
+    else unwatched.push(n);
+  }
+  var all=watched.concat(unwatched);
+  if(watched.length>0&&unwatched.length>0&&!wpFilter){
+    // Show a subtle separator after watched dancers
+    for(var i=0;i<watched.length;i++){
+      h+='<div class="wpItem watched" data-name="'+esc(watched[i])+'">';
+      h+='<span class="name">'+esc(watched[i])+'</span>';
+      h+='<span class="check">\u2605</span></div>';
+    }
+    h+='<div class="wpSec">All Dancers</div>';
+    for(var i=0;i<unwatched.length;i++){
+      h+='<div class="wpItem" data-name="'+esc(unwatched[i])+'">';
+      h+='<span class="name">'+esc(unwatched[i])+'</span>';
+      h+='<span class="check">\u2606</span></div>';
+    }
+  }else{
+    for(var i=0;i<all.length;i++){
+      var n=all[i];
+      var w=DN.indexOf(n)>=0;
+      h+='<div class="wpItem'+(w?' watched':'')+'" data-name="'+esc(n)+'">';
+      h+='<span class="name">'+esc(n)+'</span>';
+      h+='<span class="check">'+(w?'\u2605':'\u2606')+'</span></div>';
+    }
+  }
+  el.innerHTML=h;
+}
+document.getElementById("wpList").addEventListener("click",function(ev){
+  var item=ev.target.closest(".wpItem");
+  if(item&&item.dataset.name){toggleW(item.dataset.name);}
+});
+function onWatchChange(){
+  recomputeAwards();
+  bld();
+  upd();
+  updWatchBtn();
+}
+function updWatchBtn(){
+  var wb=document.getElementById("watchBtn");
+  var svg='<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  wb.innerHTML=svg;
+  wb.className=DN.length>0?"tbtn active":"tbtn";
+}
+
+loadWatched();
+recomputeAwards();
 ld();
 bld();
 upd();
+updWatchBtn();
 }catch(ex){
   document.getElementById("err").style.display="block";
   document.getElementById("err").textContent="Error: "+ex.message+" | "+ex.stack;
