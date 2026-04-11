@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Destiny">
+<title>Destiny Dance Tracker</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; background:#0c0c18; color:#cbd5e1; font-family:'DM Sans','Segoe UI',system-ui,sans-serif; overflow-x:hidden; }
+#top { position:sticky; top:0; z-index:100; background:#0c0c18; }
+#topbar { padding:14px 16px 10px; display:flex; justify-content:space-between; align-items:center; }
+#topbar h1 { font-size:17px; font-weight:800; color:#e2e8f0; letter-spacing:-0.3px; }
+#topright { display:flex; align-items:center; gap:12px; }
+#detailsBtn { border-radius:8px; font-size:12px; padding:5px 10px; cursor:pointer; font-family:inherit; font-weight:600; }
+#counter { font-size:13px; color:#4b5563; font-variant-numeric:tabular-nums; }
+#progBg { height:2px; background:rgba(255,255,255,0.04); }
+#progFill { height:2px; background:linear-gradient(90deg,#6366f1,#818cf8); border-radius:1px; transition:width 0.3s ease; }
+#list { padding:4px 10px 210px; }
+.catHeader { padding:10px 14px 6px; margin-top:10px; border-top:1px solid rgba(255,255,255,0.06); }
+.catHeader span { font-size:12px; font-weight:600; color:#6366f1; letter-spacing:0.3px; }
+.dayHeader { padding:24px 16px; text-align:center; margin:20px 0 8px; border-top:1px solid rgba(99,102,241,0.25); border-bottom:1px solid rgba(99,102,241,0.25); }
+.dayHeader span { font-size:14px; font-weight:700; color:#818cf8; letter-spacing:2px; text-transform:uppercase; }
+.brk { padding:12px 16px; text-align:center; margin:6px 0; border-radius:8px; border:1px dashed rgba(255,255,255,0.08); }
+.brk.cur { background:rgba(99,102,241,0.1); border:1.5px solid #6366f1; }
+.brk span { font-size:13px; font-weight:600; color:#64748b; letter-spacing:0.5px; text-transform:uppercase; }
+.brk .tm { font-size:13px; color:#475569; margin-left:8px; }
+.entry { padding:12px 14px; border-radius:12px; margin:2px 0; transition:all 0.15s; cursor:pointer; border:1px solid transparent; }
+.entry.cur { background:rgba(99,102,241,0.12); border:1.5px solid rgba(99,102,241,0.4); }
+.entry.hl { background:rgba(251,191,36,0.05); border:1.5px solid rgba(251,191,36,0.2); }
+.entry.cur.hl { background:linear-gradient(135deg,rgba(251,191,36,0.18),rgba(251,191,36,0.06)); border:1.5px solid rgba(251,191,36,0.5); }
+.entry .row { display:flex; align-items:baseline; gap:10px; }
+.entry .tm { font-size:14px; color:#64748b; font-variant-numeric:tabular-nums; flex-shrink:0; min-width:64px; }
+.entry .ttl { font-size:17px; font-weight:700; letter-spacing:-0.2px; color:#e2e8f0; }
+.entry.hl .ttl { color:#fbbf24; }
+.dbadge { font-size:11px; padding:2px 9px; border-radius:8px; background:#fbbf24; color:#1a1a2e; font-weight:700; display:inline-block; margin:4px 4px 0 0; }
+.details { margin-top:8px; margin-left:74px; }
+.details .meta { font-size:12px; color:#4b5563; }
+.details .meta b { color:#6366f1; font-weight:600; }
+.dancers { margin-top:8px; display:flex; flex-wrap:wrap; gap:5px 6px; }
+.dancers span { font-size:11px; line-height:16px; padding:3px 8px; border-radius:12px; background:rgba(255,255,255,0.05); color:#94a3b8; }
+.dancers span.d { background:#fbbf24; color:#1a1a2e; font-weight:700; }
+.dancers span.dhl { background:rgba(251,191,36,0.12); }
+.moreBtn { background:none; border:none; color:#6366f1; font-size:11px; padding:6px 0 0; cursor:pointer; font-family:inherit; }
+#bottom { position:fixed; bottom:0; left:0; right:0; z-index:200; background:linear-gradient(to top,#0c0c18 80%,transparent); padding-top:24px; }
+#bottomInner { max-width:520px; margin:0 auto; }
+#banner { margin:0 12px 8px; padding:12px 14px; border-radius:12px; text-align:center; display:none; }
+#banner.on { display:block; background:linear-gradient(135deg,#fbbf24,#f59e0b); }
+#banner.on .b1 { font-size:15px; font-weight:800; color:#1a1a2e; }
+#banner.on .b2 { font-size:13px; font-weight:600; color:rgba(0,0,0,0.45); margin-top:2px; }
+#bannerBtn { display:none; width:calc(100% - 24px); margin:0 12px 8px; padding:10px 14px; border-radius:12px; cursor:pointer; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.2); font-family:inherit; text-align:left; }
+#bannerBtn .b1 { display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+#bannerBtn .cnt { font-size:22px; font-weight:800; color:#fbbf24; line-height:1; }
+#bannerBtn .b1t { font-size:14px; color:#fbbf24; font-weight:600; }
+#bannerBtn .b1n { font-size:14px; color:#fbbf24; font-weight:800; }
+#bannerBtn .b2 { font-size:12px; color:rgba(251,191,36,0.5); margin-top:3px; }
+#navBtns { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0 12px 16px; }
+#navBtns button { padding:16px 0; border-radius:12px; border:none; cursor:pointer; font-family:inherit; font-size:15px; font-weight:700; }
+.nbOn { background:rgba(99,102,241,0.12); color:#818cf8; }
+.nbOff { background:rgba(255,255,255,0.03); color:#1e1e2e; }
+</style>
+</head>
+<body>
+<div id="top">
+  <div id="topbar">
+    <h1>Destiny</h1>
+    <div id="topright">
+      <button id="detailsBtn" onclick="toggleDetails()">Details</button>
+      <span id="counter"></span>
+    </div>
+  </div>
+  <div id="progBg"><div id="progFill"></div></div>
+</div>
+<div id="list"></div>
+<div id="bottom">
+  <div id="bottomInner">
+    <div id="banner"><div class="b1"></div><div class="b2"></div></div>
+    <button id="bannerBtn" onclick="jumpNext()"><div class="b1"><span class="cnt"></span><span class="b1t"></span><span class="b1n"></span></div><div class="b2"></div></button>
+    <div id="navBtns">
+      <button id="prevBtn" onclick="goPrev()">‹ PREV</button>
+      <button id="nextBtn" onclick="goNext()">NEXT ›</button>
+    </div>
+  </div>
+</div>
+<script>
+const SATURDAY = [
+  { num: 282, time: "8:00 AM", studio: "F", category: "Pre-Competitive| Nova| Jazz| Small Group", title: "MONEY", dancers: ["Lakelynn Baxter","Cree Hook","Adelaide Kapteyn","Arianna Sixtus","Gracie May Sweet-Hood","Madalena Tavarez"], age: 10 },
+  { num: 283, time: "8:03 AM", studio: "B", category: "Pre-Competitive| Nova| Jazz| Small Group", title: "WHO ORDERED TAKE OUT?", dancers: ["Palmer Burrell-Curran","Mallory McMahon","Madeline Robbins","Eliana Shanmugabalan"], age: 9 },
+  { num: 284, time: "8:07 AM", studio: "C", category: "Competitive| Nova| Hip Hop| Line", title: "NEW PHONE WHO DIS", dancers: ["Julia Albudane","Aubrey Allen","Evelyn Arnold","Maddison Beauchamp","Kensie Brunette","Alianna Chretien","Meadow Condo","Audrey Dewar","Collins Eamer","Ellie Fram","Claire Lafortune","Brynn McColeman","Aria Mechefske","Elin Nurmi","Emilie Paul","Margot Todd","Charlotte Villeneuve"], age: 9 },
+  { num: 285, time: "8:11 AM", studio: "C", category: "Pre-Competitive| Cosmic| Ballet| Solo", title: "KIND AND GOOD", dancers: ["Daria-Zabella M Louis-Jean"], age: 13 },
+  { num: 286, time: "8:14 AM", studio: "D", category: "Pre-Competitive| Cosmic| Ballet| Solo", title: "AMELIE'S WALTZ", dancers: ["Lailey Van Vliet"], age: 13 },
+  { num: 287, time: "8:17 AM", studio: "D", category: "Pre-Competitive| Nova| Lyrical| Solo", title: "HOLDING ON TO YOU", dancers: ["Isadora Stangarone"], age: 9 },
+  { num: 288, time: "8:20 AM", studio: "A", category: "Competitive| Nova| Jazz| Large Group", title: "BLACK AND GOLD", dancers: ["Sabina Akbary","Tiana Bui","Leah Cerasuolo","Julia Isoufi","Ellianna Menendez","Ashani Mistry","Rachel Rotella","Ava Ventura-DaSilva","Kaia Win"], age: 9 },
+  { num: 289, time: "8:24 AM", studio: "C", category: "Pre-Competitive| Cosmic| Ballet| Solo", title: "ADVENT CANTATA", dancers: ["Nora Keith"], age: 14 },
+  { num: 290, time: "8:27 AM", studio: "D", category: "Pre-Competitive| Cosmic| Ballet| Solo", title: "OCEAN AND THE PEARL", dancers: ["Scarlett McDonald"], age: 14 },
+  { num: 291, time: "8:30 AM", studio: "C", category: "Pre-Competitive| Cosmic| Ballet| Solo", title: "CELLO SUITE", dancers: ["Mara Parnell"], age: 14 },
+  { num: 292, time: "8:33 AM", studio: "F", category: "Pre-Competitive| Nova| Lyrical| Small Group", title: "FOREVER YOUNG", dancers: ["Lakelynn Baxter","Cree Hook","Samantha Paul","Arianna Sixtus","Gracie May Sweet-Hood"], age: 10 },
+  { num: 293, time: "8:37 AM", studio: "C", category: "Competitive| Nova| Lyrical| Line", title: "THIS ONE'S FOR YOU", dancers: ["Julia Albudane","Aubrey Allen","Maddison Beauchamp","Kensie Brunette","Alianna Chretien","Audrey Dewar","Ellie Fram","Claire Lafortune","Brynn McColeman","Brooklyn Migrino","Elin Nurmi","Emilie Paul","Claire Peng","Bethany Shewchuk","Charlotte Villeneuve"], age: 10 },
+  { num: 294, time: "8:41 AM", studio: "C", category: "Pre-Competitive| Cosmic| Contemporary| Solo", title: "YOU'LL BE ALRIGHT", dancers: ["Alice Cropper"], age: 13 },
+  { num: 295, time: "8:44 AM", studio: "C", category: "Pre-Competitive| Cosmic| Contemporary| Solo", title: "LOST & FOUND", dancers: ["Harloe Bardeggia"], age: 13 },
+  { num: 296, time: "8:47 AM", studio: "F", category: "Pre-Competitive| Cosmic| Contemporary| Solo", title: "SAFETY DANCE", dancers: ["Lailey Van Vliet"], age: 13 },
+  { num: 297, time: "8:50 AM", studio: "B", category: "Pre-Competitive| Cosmic| Contemporary| Solo", title: "SHE WAS STARLIGHT", dancers: ["Laura Shosenberg"], age: 13 },
+  { num: 298, time: "8:53 AM", studio: "A", category: "Competitive| Nova| Tap| Solo", title: "MMM MMM GOOD", dancers: ["Rachel Rotella"], age: 9 },
+  { num: 299, time: "8:56 AM", studio: "A", category: "Competitive| Nova| Open| Solo", title: "I WANT TO BE A ROCKETTE", dancers: ["Tiana Bui"], age: 10 },
+  { num: 300, time: "8:59 AM", studio: "C", category: "Competitive| Nova| Open| Solo", title: "AFTER DARK", dancers: ["Alianna Chretien"], age: 10 },
+  { num: 301, time: "9:02 AM", studio: "C", category: "Competitive| Nova| Musical Theatre| Solo", title: "WHEN HE SEES ME", dancers: ["Claire Lafortune"], age: 10 },
+  { num: 302, time: "9:05 AM", studio: "C", category: "Pre-Competitive| Cosmic| Contemporary| Solo", title: "KNOWN", dancers: ["Camila Pimentel"], age: 14 },
+  { num: 303, time: "9:08 AM", studio: "D", category: "Pre-Competitive| Cosmic| Contemporary| Solo", title: "SOMEONE TO STAY", dancers: ["Scarlett McDonald"], age: 14 },
+  { num: 304, time: "9:11 AM", studio: "A", category: "Pre-Competitive| Cosmic| Contemporary| Solo", title: "DON'T LET ME BE MISUNDERSTOOD", dancers: ["Alice Fagin"], age: 14 },
+  { num: 305, time: "9:14 AM", studio: "F", category: "Pre-Competitive| Cosmic| Contemporary| Solo", title: "NO LIGHT", dancers: ["Allyannah Roffey"], age: 14 },
+  { num: 306, time: "9:17 AM", studio: "C", category: "Pre-Competitive| Cosmic| Contemporary| Solo", title: "THE WEIGHT", dancers: ["Mara Parnell"], age: 14 },
+  { num: 307, time: "9:20 AM", studio: "B", category: "Pre-Competitive| Cosmic| Contemporary| Solo", title: "WRONG DIRECTION", dancers: ["Brinley Hobbs"], age: 14 },
+  { num: 308, time: "9:23 AM", studio: "B", category: "Pre-Competitive| Nova| Musical Theatre| Small Group", title: "WHO WANTS ICE CREAM?", dancers: ["Avery Beacock","Palmer Burrell-Curran","Sadie Carson","Caidence Eickmeier","Mallory McMahon","Madeline Robbins","Eliana Shanmugabalan"], age: 9 },
+  { num: 309, time: "9:27 AM", studio: "C", category: "Competitive| Nova| Jazz| Line", title: "YA YA", dancers: ["Julia Albudane","Aubrey Allen","Maddison Beauchamp","Kensie Brunette","Alianna Chretien","Audrey Dewar","Ellie Fram","Claire Lafortune","Brynn McColeman","Brooklyn Migrino","Elin Nurmi","Emilie Paul","Claire Peng","Bethany Shewchuk","Charlotte Villeneuve"], age: 10 },
+  { num: 310, time: "9:31 AM", studio: "F", category: "Pre-Competitive| Cosmic| Hip Hop| Solo", title: "MINAJ", dancers: ["Brooklyn Lohnes"], age: 13 },
+  { num: 311, time: "9:34 AM", studio: "B", category: "Pre-Competitive| Cosmic| Hip Hop| Solo", title: "DESTINY'S CHILD", dancers: ["Melayna Iordanoglou"], age: 13 },
+  { num: 312, time: "9:37 AM", studio: "C", category: "Pre-Competitive| Cosmic| Hip Hop| Solo", title: "INDEPENDENT", dancers: ["Daria-Zabella M Louis-Jean"], age: 13 },
+  { num: 313, time: "9:40 AM", studio: "D", category: "Pre-Competitive| Cosmic| Hip Hop| Solo", title: "BARBIE", dancers: ["Lailey Van Vliet"], age: 13 },
+  { num: 314, time: "9:43 AM", studio: "F", category: "Pre-Competitive| Nova| Musical Theatre| Small Group", title: "COFFEE BREAK", dancers: ["Lakelynn Baxter","Cree Hook","Adelaide Kapteyn","Arianna Sixtus","Gracie May Sweet-Hood","Madalena Tavarez"], age: 10 },
+  { num: 315, time: "9:47 AM", studio: "A", category: "Competitive| Nova| Tap| Large Group", title: "HIT THE ROAD JACK", dancers: ["Sabina Akbary","Tiana Bui","Leah Cerasuolo","Julia Isoufi","Ellianna Menendez","Ashani Mistry","Rachel Rotella","Ava Ventura-DaSilva","Kaia Win"], age: 9 },
+  { num: 316, time: "9:51 AM", studio: "F", category: "Pre-Competitive| Nova| Open| Solo", title: "YELLOW FLICKER BEAT", dancers: ["Samantha Paul"], age: 9 },
+  { num: 317, time: "9:54 AM", studio: "C", category: "Competitive| Nova| Contemporary| Line", title: "ALL THE LONELY PEOPLE", dancers: ["Julia Albudane","Aubrey Allen","Maddison Beauchamp","Kensie Brunette","Alianna Chretien","Audrey Dewar","Ellie Fram","Claire Lafortune","Brynn McColeman","Brooklyn Migrino","Elin Nurmi","Emilie Paul","Claire Peng","Bethany Shewchuk","Charlotte Villeneuve"], age: 10 },
+  { num: 0, time: "9:58 AM", studio: "", category: "AWARDS #6", title: "AWARDS #6", dancers: [], age: 0, isBreak: true },
+  { num: 318, time: "10:28 AM", studio: "D", category: "Pre-Competitive| Nova| Acro| Solo", title: "INSIDE", dancers: ["Sydney Yee Shui"], age: 10 },
+  { num: 319, time: "10:31 AM", studio: "F", category: "Pre-Competitive| Nova| Musical Theatre| Large Group", title: "THE LORAX", dancers: ["Lakelynn Baxter","Harmony English","Lily Heykoop","Cree Hook","Irelyn Kelly","Piper Kirkham","Jordyn Lohnes","Brooklyn Lohnes","Rowan O'Rourke","Arianna Sixtus","Gracie May Sweet-Hood","Sophia Williams"], age: 10 },
+  { num: 320, time: "10:35 AM", studio: "E", category: "Competitive| Solar| Acro| Duet/Trio", title: "PINK PANTHER", dancers: ["Alexia Kowalski","Abbey Quesnelle"], age: 12 },
+  { num: 321, time: "10:38 AM", studio: "C", category: "Competitive| Solar| Ballet| Solo", title: "DANSA BRASILEIRA", dancers: ["Julia Albudane"], age: 11 },
+  { num: 322, time: "10:41 AM", studio: "C", category: "Competitive| Solar| Ballet| Solo", title: "AURORA'S VARIATION", dancers: ["Katherine Wallace"], age: 12 },
+  { num: 323, time: "10:44 AM", studio: "A", category: "Competitive| Solar| Contemporary| Solo", title: "IN THE STARS", dancers: ["Giuliana Martino"], age: 11 },
+  { num: 324, time: "10:47 AM", studio: "C", category: "Competitive| Solar| Contemporary| Solo", title: "CHARIOT", dancers: ["Kiana Mechefske"], age: 11 },
+  { num: 325, time: "10:50 AM", studio: "D", category: "Pre-Competitive| Solar| Contemporary| Large Group", title: "THE AFTERMATH", dancers: ["Yasmine Allen","Sienna Baptiste","Zosia Bradshaw","Chloe Forster","Lyla Gabbott","Madelyn Glasbergen","Nawaal Hasan-Dessouki","Mackenzie Heynen","Annie McCormick","Maggie Mc Cormick","Aryanna Rampat"], age: 12 },
+  { num: 326, time: "10:54 AM", studio: "F", category: "Pre-Competitive| Solar| Hip Hop| Large Group", title: "DRIZZY", dancers: ["Rory Arial","Lakelynn Baxter","Ava Field","Lily Heykoop","Cree Hook","Carter Hyma","Piper Kirkham","Jordyn Lohnes","Brooklyn Lohnes","Allyannah Roffey","Arianna Sixtus","Gracie May Sweet-Hood","Madelyn Whan"], age: 11 },
+  { num: 327, time: "10:58 AM", studio: "C", category: "Competitive| Solar| Contemporary| Solo", title: "I TRY", dancers: ["Aurora Albisi"], age: 12 },
+  { num: 328, time: "11:01 AM", studio: "C", category: "Competitive| Solar| Contemporary| Solo", title: "THIS BITTER EARTH", dancers: ["Laela Fram"], age: 12 },
+  { num: 329, time: "11:04 AM", studio: "A", category: "Competitive| Solar| Contemporary| Solo", title: "DISASSOCIATED", dancers: ["Polina Ternovska"], age: 12 },
+  { num: 330, time: "11:07 AM", studio: "A", category: "Competitive| Solar| Contemporary| Solo", title: "HYPERBALLAD", dancers: ["Avery Lo"], age: 12 },
+  { num: 331, time: "11:10 AM", studio: "A", category: "Competitive| Solar| Contemporary| Solo", title: "WICKED GAME", dancers: ["Alessandra Martino"], age: 12 },
+  { num: 332, time: "11:13 AM", studio: "C", category: "Competitive| Solar| Contemporary| Solo", title: "DON'T THINK TWICE", dancers: ["Aila Nurmi"], age: 12 },
+  { num: 333, time: "11:16 AM", studio: "C", category: "Competitive| Solar| Contemporary| Solo", title: "ONCE I WAS LOVED", dancers: ["Katherine Wallace"], age: 12 },
+  { num: 334, time: "11:19 AM", studio: "D", category: "Pre-Competitive| Solar| Jazz| Large Group", title: "PRETTY WOMAN", dancers: ["Willow Comisso","Scarlett McDonald","Mercedes Nadeau","Charlotte Oster","Cassidy Pomocnik","Skylar Rogers","Lola Stangarone","Lailey Van Vliet","Davia Weese","Savannah Yee Shui"], age: 12 },
+  { num: 335, time: "11:23 AM", studio: "C", category: "Competitive| Solar| Contemporary| Duet/Trio", title: "THREADS BETWEEN US", dancers: ["Ellie Fram","Laela Fram"], age: 11 },
+  { num: 336, time: "11:26 AM", studio: "C", category: "Competitive| Solar| Hip Hop| Solo", title: "THROWBACK", dancers: ["Ruby Gagnon"], age: 12 },
+  { num: 337, time: "11:29 AM", studio: "C", category: "Competitive| Solar| Jazz| Solo", title: "FASHIONISTA", dancers: ["Cristiana Dumencu"], age: 11 },
+  { num: 338, time: "11:32 AM", studio: "A", category: "Competitive| Solar| Jazz| Solo", title: "YOU'RE THE TOP", dancers: ["Julia Isoufi"], age: 11 },
+  { num: 339, time: "11:35 AM", studio: "A", category: "Competitive| Solar| Jazz| Solo", title: "POKER FACE", dancers: ["Filomena Youssef"], age: 12 },
+  { num: 340, time: "11:38 AM", studio: "C", category: "Competitive| Solar| Jazz| Solo", title: "FAITH", dancers: ["Aila Nurmi"], age: 12 },
+  { num: 341, time: "11:41 AM", studio: "C", category: "Competitive| Solar| Jazz| Solo", title: "BE MY GIRL", dancers: ["Laela Fram"], age: 12 },
+  { num: 342, time: "11:44 AM", studio: "C", category: "Competitive| Solar| Lyrical| Solo", title: "RULES OF BEAUTIFUL", dancers: ["Aubrey Allen"], age: 11 },
+  { num: 343, time: "11:47 AM", studio: "C", category: "Competitive| Solar| Lyrical| Solo", title: "DON'T YOU", dancers: ["Cristiana Dumencu"], age: 11 },
+  { num: 344, time: "11:50 AM", studio: "D", category: "Pre-Competitive| Solar| Hip Hop| Line", title: "ROCK, PAPER, SCISSORS", dancers: ["Yasmine Allen","Sienna Baptiste","Zosia Bradshaw","Chloe Forster","Lyla Gabbott","Mackenzie Heynen","Annie McCormick","Scarlett McDonald","Charlotte Oster","Cassidy Pomocnik","Aryanna Rampat","Skylar Rogers","Lola Stangarone","Charlotte Stangarone","Lailey Van Vliet"], age: 12 },
+  { num: 0, time: "11:54 AM", studio: "", category: "AWARDS #7 & LUNCH", title: "AWARDS #7 & LUNCH", dancers: [], age: 0, isBreak: true },
+  { num: 345, time: "12:54 PM", studio: "C", category: "Competitive| Nova| Song & Dance| Solo", title: "DON'T RAIN ON MY PARADE", dancers: ["Charlotte Villeneuve"], age: 10 },
+  { num: 346, time: "12:57 PM", studio: "D", category: "Pre-Competitive| Solar| Musical Theatre| Large Group", title: "BE OUR GUEST", dancers: ["Zosia Bradshaw","Kristina Chatzinikolis","Willow Comisso","Kalina Kryway","Mercedes Nadeau","Charlotte Oster","Julia Papadopolous","Cassidy Pomocnik","Skylar Rogers","Lola Stangarone","Charlotte Stangarone","Lailey Van Vliet"], age: 11 },
+  { num: 347, time: "1:01 PM", studio: "C", category: "Competitive| Nova| Tap| Solo", title: "DANCE TO THE MUSIC", dancers: ["Claire Peng"], age: 10 },
+  { num: 348, time: "1:04 PM", studio: "E", category: "Competitive| Solar| Open| Solo", title: "GRAVEYARD", dancers: ["Sophie Parks-Wignall"], age: 11 },
+  { num: 349, time: "1:07 PM", studio: "A", category: "Competitive| Solar| Open| Solo", title: "RESPECT", dancers: ["Ashani Mistry"], age: 11 },
+  { num: 350, time: "1:10 PM", studio: "C", category: "Competitive| Solar| Open| Solo", title: "COME ON, DREAMER", dancers: ["Cristiana Dumencu"], age: 11 },
+  { num: 351, time: "1:13 PM", studio: "D", category: "Pre-Competitive| Solar| Lyrical| Small Group", title: "BEST OF YOU", dancers: ["Sienna Baptiste","Chloe Forster","Lyla Gabbott","Nawaal Hasan-Dessouki","Maggie Mc Cormick"], age: 11 },
+  { num: 352, time: "1:17 PM", studio: "F", category: "Pre-Competitive| Solar| Musical Theatre| Solo", title: "FABULOUS", dancers: ["Gracie May Sweet-Hood"], age: 11 },
+  { num: 353, time: "1:20 PM", studio: "D", category: "Pre-Competitive| Solar| Musical Theatre| Solo", title: "GORGEOUS", dancers: ["Zosia Bradshaw"], age: 12 },
+  { num: 354, time: "1:23 PM", studio: "B", category: "Pre-Competitive| Solar| Musical Theatre| Solo", title: "THE OTHER SIDE", dancers: ["Keira Mavor"], age: 12 },
+  { num: 355, time: "1:26 PM", studio: "D", category: "Pre-Competitive| Solar| Musical Theatre| Solo", title: "THE GREATEST STAR", dancers: ["Cassidy Pomocnik"], age: 12 },
+  { num: 356, time: "1:29 PM", studio: "A", category: "Competitive| Nova| Hip Hop| Small Group", title: "2 KOOL 4 SKOOL", dancers: ["Sabina Akbary","Tiana Bui","Julia Isoufi","Ashani Mistry","Rachel Rotella","Ava Ventura-DaSilva"], age: 9 },
+  { num: 357, time: "1:32 PM", studio: "D", category: "Pre-Competitive| Solar| Musical Theatre| Duet/Trio", title: "HUMUHUMU", dancers: ["Mercedes Nadeau","Julia Papadopolous"], age: 12 },
+  { num: 358, time: "1:35 PM", studio: "C", category: "Pre-Competitive| Solar| Musical Theatre| Duet/Trio", title: "THE OTHER SIDE", dancers: ["Aaliya Corbiere","Elizabeth Eibl"], age: 12 },
+  { num: 359, time: "1:38 PM", studio: "C", category: "Competitive| Solaris| Contemporary| Small Group", title: "GOODBYE STRANGER", dancers: ["Avery Cook","Sophie Goodale","Kyana Kingsley","Martha Langley","Gabriella Leduc"], age: 17 },
+  { num: 360, time: "1:42 PM", studio: "A", category: "Student Choreography/Solar/Open/Solo|12", title: "NOTHING BURNS LIKE THE COLD - STUDENT CHOREOGRAPHY", dancers: ["Polina Ternovska"], age: 12 },
+  { num: 361, time: "1:45 PM", studio: "C", category: "Competitive| Solar| Lyrical| Solo", title: "AULD LANG SYNE", dancers: ["Katherine Wallace"], age: 12 },
+  { num: 362, time: "1:48 PM", studio: "D", category: "Pre-Competitive| Solar| Tap| Solo", title: "STYLE", dancers: ["Kristina Chatzinikolis"], age: 11 },
+  { num: 363, time: "1:51 PM", studio: "D", category: "Pre-Competitive| Solar| Tap| Solo", title: "I FEEL GOOD", dancers: ["Skylar Rogers"], age: 11 },
+  { num: 364, time: "1:54 PM", studio: "D", category: "Pre-Competitive| Solar| Tap| Solo", title: "JUMP RIGHT IN", dancers: ["Abigail Navoa"], age: 11 },
+  { num: 365, time: "1:57 PM", studio: "D", category: "Pre-Competitive| Solar| Tap| Solo", title: "SUPERCALIFRAGILISTIC", dancers: ["Charlotte Stangarone"], age: 11 },
+  { num: 366, time: "2:00 PM", studio: "F", category: "Pre-Competitive| Solar| Open| Duet/Trio", title: "CAGE OF BONES", dancers: ["Harmony English","Samantha Paul"], age: 12 },
+  { num: 367, time: "2:03 PM", studio: "C", category: "Competitive| Solar| Open| Extended Line", title: "I'M ALIVE", dancers: ["Aurora Albisi","Julia Albudane","Aubrey Allen","Maddison Beauchamp","Adriana Berardi","Kensie Brunette","Alianna Chretien","Abigail Chretien","Audrey Dewar","Cristiana Dumencu","Ellie Fram","Laela Fram","Ruby Gagnon","Mia Gauthier","Claire Lafortune","Brynn McColeman","Kiana Mechefske","Brooklyn Migrino","Aila Nurmi","Elin Nurmi","Emilie Paul","Alexis Pavacic","Claire Peng","Bethany Shewchuk","Charlotte Villeneuve","Peyton Walker","Katherine Wallace"], age: 11 },
+  { num: 0, time: "2:13 PM", studio: "", category: "PROP CLEAN UP", title: "PROP CLEAN UP", dancers: [], age: 0, isBreak: true },
+  { num: 368, time: "2:18 PM", studio: "D", category: "Pre-Competitive| Solar| Lyrical| Large Group", title: "DREAM ON", dancers: ["Willow Comisso","Scarlett McDonald","Mercedes Nadeau","Charlotte Oster","Cassidy Pomocnik","Skylar Rogers","Lola Stangarone","Charlotte Stangarone","Lailey Van Vliet","Davia Weese","Savannah Yee Shui"], age: 12 },
+  { num: 369, time: "2:22 PM", studio: "B", category: "Pre-Competitive| Solaris| Jazz| Solo", title: "BABY DID A BAD, BAD THING", dancers: ["Dora Stebbins"], age: 17 },
+  { num: 370, time: "2:25 PM", studio: "B", category: "Pre-Competitive| Solaris| Musical Theatre| Solo", title: "ROXIE", dancers: ["Zoe Neill"], age: 17 },
+  { num: 371, time: "2:28 PM", studio: "F", category: "Pre-Competitive| Solaris| Acro| Solo", title: "MADNESS", dancers: ["Kristen Jade Woodward"], age: 17 },
+  { num: 372, time: "2:31 PM", studio: "C", category: "Competitive| Solar| Ballet| Extended Line", title: "SEASONS", dancers: ["Aurora Albisi","Julia Albudane","Aubrey Allen","Evelyn Arnold","Maddison Beauchamp","Adriana Berardi","Sophia Berardi","Adeline Boudreau","Kensie Brunette","Teagan Bryson","Alianna Chretien","Abigail Chretien","Meadow Condo","Vera Denniston","Audrey Dewar","Sienna Deziel","Cristiana Dumencu","Collins Eamer","Charlotte Eibl","Adrianna Forsyth","Ellie Fram","Laela Fram","Ruby Gagnon","Mia Gauthier","Sophie Goodale","Dylan Helm","Kyana Kingsley","Claire Lafortune","Martha Langley","Gabriella Leduc","Daria-Zabella M Louis-Jean","Elle Macdonald","Brynn McColeman","Kiana Mechefske","Aria Mechefske","Ella Migrino","Brooklyn Migrino","Aila Nurmi","Elin Nurmi","Emilie Paul","Alexis Pavacic","Claire Peng","Jessa Prince","Mila Santos","Bethany Shewchuk","Margot Todd","Charlotte Villeneuve","Peyton Walker","Katherine Wallace"], age: 11 },
+  { num: 0, time: "2:41 PM", studio: "", category: "PROP CLEAN UP", title: "PROP CLEAN UP", dancers: [], age: 0, isBreak: true },
+  { num: 373, time: "2:46 PM", studio: "C", category: "Pre-Competitive| Solaris| Lyrical| Solo", title: "FEAR OF WATER", dancers: ["Avery Cook"], age: 17 },
+  { num: 374, time: "2:49 PM", studio: "B", category: "Pre-Competitive| Solaris| Lyrical| Solo", title: "ALWAYS REMEMBER US THIS WAY", dancers: ["Jessica Ludlow"], age: 17 },
+  { num: 375, time: "2:52 PM", studio: "D", category: "Pre-Competitive| Solar| Jazz| Solo", title: "WHY DON'T YOU DO RIGHT", dancers: ["Cassidy Pomocnik"], age: 12 },
+  { num: 376, time: "2:55 PM", studio: "D", category: "Pre-Competitive| Solar| Jazz| Solo", title: "COMMANDER", dancers: ["Savannah Yee Shui"], age: 12 },
+  { num: 377, time: "2:58 PM", studio: "D", category: "Pre-Competitive| Nova| Tap| Large Group", title: "BEETHOVEN BEATS", dancers: ["Zosia Bradshaw","Kristina Chatzinikolis","Ava Colangelo","Audrey Kennedy","Kalina Kryway","Valentina Melendez-Brooks","Abigail Navoa","Julia Papadopolous","Isla Rego","Charlotte Stangarone","Sydney Yee Shui"], age: 10 },
+  { num: 378, time: "3:02 PM", studio: "C", category: "Competitive| Solar| Tap| Solo", title: "WANT YOU BACK", dancers: ["Aurora Albisi"], age: 12 },
+  { num: 379, time: "3:05 PM", studio: "C", category: "Competitive| Solar| Tap| Duet/Trio", title: "RUNAWAY BABY", dancers: ["Kensie Brunette","Mia Gauthier"], age: 12 },
+  { num: 380, time: "3:08 PM", studio: "D", category: "Pre-Competitive| Cosmic| Open| Solo", title: "NOTHING CAN CHANGE THIS LOVE", dancers: ["Lailey Van Vliet"], age: 13 },
+  { num: 0, time: "3:11 PM", studio: "", category: "AWARDS #8", title: "AWARDS #8", dancers: [], age: 0, isBreak: true },
+  { num: 381, time: "3:56 PM", studio: "C", category: "Competitive| Solar| Open| Production", title: "FROM SCREEN TO STAGE", dancers: ["Aurora Albisi","Julia Albudane","Luiza Albudane","Aubrey Allen","Evelyn Arnold","Harloe Bardeggia","Lyla Beauchamp","Maddison Beauchamp","Autumn Bell","Adriana Berardi","Lylah Bonhomme","Sophia Berardi","Adeline Boudreau","Kensie Brunette","Teagan Bryson","Alianna Chretien","Abigail Chretien","Meadow Condo","Avery Cook","Aaliya Corbiere","Alice Cropper","Vera Denniston","Blake Desjardins","Audrey Dewar","Sienna Deziel","Madelyn Deziel","Vada Doring","Cristiana Dumencu","Collins Eamer","Charlotte Eibl","Elizabeth Eibl","Adrianna Forsyth","Ellie Fram","Laela Fram","Marley Fram","Ruby Gagnon","Kailey Gagnon","Vicky Ha","Dylan Helm","Sophie Goodale","Nora Keith","Kyana Kingsley","Claire Lafortune","Martha Langley","Gabriella Leduc","Daria-Zabella M Louis-Jean","Elle Macdonald","Amelia Maddigan","Irradessa Mallick-Taylor","Alexis Marcotte","Brynn McColeman","Mila McLean","Kiana Mechefske","Aria Mechefske","Ella Migrino","Brooklyn Migrino","Aila Nurmi","Elin Nurmi","Evelyn Nuttall","Jaden Palmquist","Mara Parnell","Emilie Paul","Alexis Pavacic","Claire Peng","Camila Pimentel","Sophia Pittman-Carmichael","Jessa Prince","Camryn Roy","Mila Santos","Bethany Shewchuk","Colton Shewchuk","Taylor Tammi","Margot Todd","Allie Truskoski","Charlotte Villeneuve","Peyton Walker","Rowen Walker","Katherine Wallace"], age: 11 },
+  { num: 0, time: "4:06 PM", studio: "", category: "PROP BREAK", title: "PROP BREAK", dancers: [], age: 0, isBreak: true },
+  { num: 382, time: "4:16 PM", studio: "D", category: "Pre-Competitive| Solar| Tap| Small Group", title: "GIRLS JUST WANNA HAVE FUN", dancers: ["Mercedes Nadeau","Skylar Rogers","Lola Stangarone","Charlotte Stangarone","Lailey Van Vliet"], age: 12 },
+  { num: 383, time: "4:20 PM", studio: "D", category: "Competitive| Prime| Jazz| Solo", title: "WEST END GIRLS", dancers: ["Ava Sliwowicz"], age: 16 },
+  { num: 384, time: "4:23 PM", studio: "D", category: "Competitive| Prime| Jazz| Solo", title: "TAINTED LOVE", dancers: ["Madison Alvey"], age: 16 },
+  { num: 385, time: "4:26 PM", studio: "D", category: "Competitive| Prime| Jazz| Solo", title: "SHAKE AND POP", dancers: ["Ella Hoang"], age: 16 },
+  { num: 386, time: "4:29 PM", studio: "B", category: "Pre-Competitive| Cosmic| Jazz| Solo", title: "PLAY IT LOUD", dancers: ["Lilliane Gaudreau"], age: 14 },
+  { num: 387, time: "4:32 PM", studio: "F", category: "Pre-Competitive| Cosmic| Jazz| Solo", title: "ADDICTED TO YOU", dancers: ["Sophia Williams"], age: 14 },
+  { num: 388, time: "4:35 PM", studio: "F", category: "Pre-Competitive| Cosmic| Jazz| Solo", title: "GET IT", dancers: ["Allyannah Roffey"], age: 14 },
+  { num: 389, time: "4:38 PM", studio: "C", category: "Pre-Competitive| Cosmic| Jazz| Solo", title: "BAD FOR ME", dancers: ["Mara Parnell"], age: 14 },
+  { num: 390, time: "4:41 PM", studio: "C", category: "Pre-Competitive| Cosmic| Jazz| Solo", title: "LOVE YOU I DO", dancers: ["Daria-Zabella M Louis-Jean"], age: 13 },
+  { num: 391, time: "4:44 PM", studio: "C", category: "Pre-Competitive| Cosmic| Jazz| Solo", title: "TEMPTATION", dancers: ["Harloe Bardeggia"], age: 13 },
+  { num: 392, time: "4:47 PM", studio: "D", category: "Pre-Competitive| Cosmic| Jazz| Solo", title: "FOOTLOOSE", dancers: ["Lola Stangarone"], age: 13 },
+  { num: 393, time: "4:50 PM", studio: "C", category: "Pre-Competitive| Cosmic| Jazz| Solo", title: "MUSIC KEEPS ME DANCIN'", dancers: ["Alexis Marcotte"], age: 13 },
+  { num: 394, time: "4:53 PM", studio: "B", category: "Pre-Competitive| Cosmic| Jazz| Solo", title: "THINK ABOUT IT", dancers: ["Jenna Brake"], age: 13 },
+  { num: 0, time: "4:56 PM", studio: "", category: "JUDGES BREAK", title: "JUDGES BREAK", dancers: [], age: 0, isBreak: true },
+  { num: 395, time: "4:59 PM", studio: "D", category: "Pre-Competitive| Cosmic| Lyrical| Solo", title: "SURVIVE", dancers: ["Annie McCormick"], age: 13 },
+  { num: 396, time: "5:02 PM", studio: "D", category: "Pre-Competitive| Cosmic| Lyrical| Solo", title: "HEAVEN", dancers: ["Charlotte Oster"], age: 13 },
+  { num: 397, time: "5:05 PM", studio: "C", category: "Pre-Competitive| Cosmic| Lyrical| Solo", title: "UN MILLION DE RAISONS", dancers: ["Daria-Zabella M Louis-Jean"], age: 13 },
+  { num: 398, time: "5:08 PM", studio: "C", category: "Pre-Competitive| Cosmic| Lyrical| Solo", title: "GRATITUDE", dancers: ["Harloe Bardeggia"], age: 13 },
+  { num: 399, time: "5:11 PM", studio: "F", category: "Pre-Competitive| Cosmic| Lyrical| Solo", title: "WHERE I STOOD", dancers: ["Brooklyn Lohnes"], age: 13 },
+  { num: 400, time: "5:14 PM", studio: "C", category: "Pre-Competitive| Cosmic| Lyrical| Solo", title: "PERFECTLY BROKEN", dancers: ["Alexis Marcotte"], age: 13 },
+  { num: 401, time: "5:17 PM", studio: "B", category: "Pre-Competitive| Cosmic| Lyrical| Solo", title: "SOMEBODY ELSE", dancers: ["Jenna Brake"], age: 13 },
+  { num: 402, time: "5:20 PM", studio: "D", category: "Pre-Competitive| Solar| Tap| Large Group", title: "CRABBUCKIT", dancers: ["Willow Comisso","Scarlett McDonald","Mercedes Nadeau","Charlotte Oster","Cassidy Pomocnik","Skylar Rogers","Lola Stangarone","Charlotte Stangarone","Lailey Van Vliet","Savannah Yee Shui"], age: 12 },
+  { num: 403, time: "5:24 PM", studio: "F", category: "Pre-Competitive| Cosmic| Lyrical| Solo", title: "WAKE ME UP", dancers: ["Sophia Williams"], age: 14 },
+  { num: 404, time: "5:27 PM", studio: "C", category: "Pre-Competitive| Cosmic| Lyrical| Solo", title: "DIE ON THIS HILL", dancers: ["Camila Pimentel"], age: 14 },
+  { num: 405, time: "5:30 PM", studio: "C", category: "Competitive| Prime| Lyrical| Solo", title: "MAKE YOU LOVE ME", dancers: ["Mila Santos"], age: 15 },
+  { num: 406, time: "5:33 PM", studio: "C", category: "Competitive| Prime| Lyrical| Solo", title: "STRANGE", dancers: ["Sophia Berardi"], age: 15 },
+  { num: 407, time: "5:36 PM", studio: "C", category: "Competitive| Prime| Lyrical| Solo", title: "PIECE BY PIECE", dancers: ["Teagan Bryson"], age: 15 },
+  { num: 408, time: "5:39 PM", studio: "E", category: "Competitive| Prime| Lyrical| Solo", title: "I AM FREE", dancers: ["Zoey DeWinter"], age: 15 },
+  { num: 409, time: "5:42 PM", studio: "D", category: "Pre-Competitive| Solar| Acro| Line", title: "EVERY SEASON", dancers: ["Eva Bacon","Celia Bradshaw","Zosia Bradshaw","Fife Brown","Kristina Chatzinikolis","Audrey Kennedy","Kalina Kryway","Scarlett McDonald","Charlotte Oster","Cassidy Pomocnik","Lola Stangarone","Charlotte Stangarone","Isadora Stangarone","Lailey Van Vliet","Savannah Yee Shui"], age: 11 },
+  { num: 0, time: "5:46 PM", studio: "", category: "CLEAN UP", title: "CLEAN UP", dancers: [], age: 0, isBreak: true },
+  { num: 410, time: "5:47 PM", studio: "C", category: "Competitive| Solar| Tap| Extended Line", title: "MR. BLUE SKY", dancers: ["Aurora Albisi","Julia Albudane","Aubrey Allen","Maddison Beauchamp","Adriana Berardi","Kensie Brunette","Alianna Chretien","Abigail Chretien","Audrey Dewar","Cristiana Dumencu","Ellie Fram","Laela Fram","Ruby Gagnon","Mia Gauthier","Claire Lafortune","Brynn McColeman","Kiana Mechefske","Brooklyn Migrino","Aila Nurmi","Elin Nurmi","Emilie Paul","Alexis Pavacic","Claire Peng","Bethany Shewchuk","Charlotte Villeneuve","Peyton Walker","Katherine Wallace"], age: 11 },
+  { num: 411, time: "5:57 PM", studio: "C", category: "Pre-Competitive| Cosmic| Musical Theatre| Solo", title: "RIGHT HAND MAN", dancers: ["Nora Keith"], age: 14 },
+  { num: 412, time: "6:00 PM", studio: "F", category: "Pre-Competitive| Cosmic| Musical Theatre| Solo", title: "LITTLE GIRLS", dancers: ["Nikayla Whan"], age: 14 },
+  { num: 413, time: "6:03 PM", studio: "F", category: "Pre-Competitive| Cosmic| Musical Theatre| Solo", title: "I KNOW WHATS GONNA HAPPEN", dancers: ["Sophia Williams"], age: 14 },
+  { num: 414, time: "6:06 PM", studio: "A", category: "Competitive| Solar| Jazz| Extended Line", title: "RAH!", dancers: ["Sabina Akbary","Valentina Amato","Tiana Bui","Leah Cerasuolo","Alice Fagin","Julia Isoufi","Maya Isoufi","Boya Jin","Avery Lo","Alessandra Martino","Giuliana Martino","Ashani Mistry","Katelyn Paiuk","Rachel Rotella","Ava Ventura-DaSilva","Lovely Winters","Filomena Youssef"], age: 11 },
+  { num: 0, time: "6:11 PM", studio: "", category: "AWARDS #9 & DINNER BREAK", title: "AWARDS #9 & DINNER BREAK", dancers: [], age: 0, isBreak: true },
+  { num: 415, time: "6:56 PM", studio: "D", category: "Pre-Competitive| Cosmic| Tap| Solo", title: "THEM THERE EYES", dancers: ["Lola Stangarone"], age: 13 },
+  { num: 416, time: "6:59 PM", studio: "C", category: "Pre-Competitive| Cosmic| Tap| Solo", title: "MEAN TO ME", dancers: ["Alexis Marcotte"], age: 13 },
+  { num: 417, time: "7:02 PM", studio: "C", category: "Pre-Competitive| Cosmic| Tap| Solo", title: "FIND ME", dancers: ["Alice Cropper"], age: 13 },
+  { num: 418, time: "7:05 PM", studio: "D", category: "Pre-Competitive| Cosmic| Tap| Solo", title: "OKAY CUPID", dancers: ["Charlotte Oster"], age: 13 },
+  { num: 419, time: "7:08 PM", studio: "E", category: "Novice| Prime| Jazz| Solo", title: "LET'S STAY IN LOVE", dancers: ["Makayla Tome"], age: 15 },
+  { num: 420, time: "7:11 PM", studio: "D", category: "Competitive| Prime| Jazz| Solo", title: "NEW YORK, NEW YORK", dancers: ["Abigail Roides"], age: 15 },
+  { num: 421, time: "7:14 PM", studio: "C", category: "Competitive| Prime| Jazz| Solo", title: "BLACK VELVET", dancers: ["Marley Fram"], age: 15 },
+  { num: 422, time: "7:17 PM", studio: "E", category: "Competitive| Prime| Jazz| Solo", title: "BLACK & GOLD", dancers: ["Zoey DeWinter"], age: 15 },
+  { num: 423, time: "7:20 PM", studio: "E", category: "Competitive| Prime| Jazz| Solo", title: "YOU DON'T OWN ME", dancers: ["Mali MacNeil"], age: 15 },
+  { num: 424, time: "7:23 PM", studio: "D", category: "Pre-Competitive| Solar| Ballet| Large Group", title: "NYMPH SONG", dancers: ["Willow Comisso","Scarlett McDonald","Mercedes Nadeau","Charlotte Oster","Cassidy Pomocnik","Skylar Rogers","Lola Stangarone","Lailey Van Vliet","Savannah Yee Shui"], age: 12 },
+  { num: 425, time: "7:27 PM", studio: "F", category: "Pre-Competitive| Cosmic| Hip Hop| Solo", title: "BUSTA", dancers: ["Jordyn Lohnes"], age: 14 },
+  { num: 426, time: "7:30 PM", studio: "B", category: "Pre-Competitive| Cosmic| Hip Hop| Solo", title: "JENNY FROM THE BLOCK", dancers: ["Morgan Willison"], age: 14 },
+  { num: 427, time: "7:33 PM", studio: "C", category: "Competitive| Solar| Contemporary| Large Group", title: "STATE OF MIND", dancers: ["Aurora Albisi","Adriana Berardi","Abigail Chretien","Cristiana Dumencu","Laela Fram","Ruby Gagnon","Mia Gauthier","Kiana Mechefske","Aila Nurmi","Alexis Pavacic","Peyton Walker","Katherine Wallace"], age: 12 },
+  { num: 428, time: "7:37 PM", studio: "C", category: "Competitive| Solar| Tap| Solo", title: "ACCENTUATE THE POSITIVE", dancers: ["Kensie Brunette"], age: 11 },
+  { num: 429, time: "7:40 PM", studio: "F", category: "Pre-Competitive| Prime| Contemporary| Solo", title: "THE OTHER SIDE", dancers: ["Rory Arial"], age: 16 },
+  { num: 430, time: "7:43 PM", studio: "E", category: "Pre-Competitive| Prime| Contemporary| Solo", title: "SOLITUDE", dancers: ["Andrea Matei"], age: 16 },
+  { num: 431, time: "7:46 PM", studio: "A", category: "Pre-Competitive| Prime| Contemporary| Solo", title: "MY WAY", dancers: ["Valentina Amato"], age: 16 },
+  { num: 432, time: "7:49 PM", studio: "D", category: "Competitive| Prime| Contemporary| Solo", title: "LILAC WINE", dancers: ["Syanne Brookes"], age: 16 },
+  { num: 433, time: "7:52 PM", studio: "D", category: "Competitive| Prime| Contemporary| Solo", title: "SEND IN THE CLOWNS", dancers: ["Ava Sliwowicz"], age: 16 },
+  { num: 434, time: "7:55 PM", studio: "E", category: "Competitive| Prime| Contemporary| Solo", title: "CORNERSTONE", dancers: ["Sami Sawaged"], age: 16 },
+  { num: 435, time: "7:58 PM", studio: "D", category: "Competitive| Prime| Contemporary| Solo", title: "BETWEEN THESE HANDS", dancers: ["Harleen Tamber"], age: 16 },
+  { num: 436, time: "8:01 PM", studio: "C", category: "Pre-Competitive| Prime| Ballet| Solo", title: "UNDER THE BRIDGE", dancers: ["Camryn Roy"], age: 16 },
+  { num: 437, time: "8:04 PM", studio: "D", category: "Pre-Competitive| Solar| Ballet| Solo", title: "SUPERNOVA", dancers: ["Cassidy Pomocnik"], age: 12 },
+  { num: 438, time: "8:07 PM", studio: "D", category: "Pre-Competitive| Solar| Tap| Solo", title: "SUNNY SIDE OF THE STREET", dancers: ["Willow Comisso"], age: 12 },
+  { num: 439, time: "8:10 PM", studio: "D", category: "Pre-Competitive| Solar| Tap| Solo", title: "DON'T GO YET", dancers: ["Mercedes Nadeau"], age: 12 },
+  { num: 440, time: "8:13 PM", studio: "F", category: "Pre-Competitive| Prime| Hip Hop| Solo", title: "DUCHESS OF YORK", dancers: ["Madelyn Whan"], age: 15 },
+  { num: 441, time: "8:16 PM", studio: "F", category: "Pre-Competitive| Prime| Jazz| Solo", title: "THE RUSH", dancers: ["Harmony English"], age: 15 },
+  { num: 442, time: "8:19 PM", studio: "C", category: "Pre-Competitive| Prime| Lyrical| Solo", title: "JEALOUS", dancers: ["Camryn Roy"], age: 16 },
+  { num: 443, time: "8:22 PM", studio: "F", category: "Pre-Competitive| Prime| Musical Theatre| Solo", title: "GOTTA GET OUT", dancers: ["Rory Arial"], age: 16 },
+  { num: 444, time: "8:25 PM", studio: "B", category: "Pre-Competitive| Prime| Musical Theatre| Solo", title: "A TRIP TO THE LIBRARY", dancers: ["Haylee James"], age: 16 },
+  { num: 445, time: "8:28 PM", studio: "A", category: "Pre-Competitive| Prime| Lyrical| Solo", title: "I TALK TOO MUCH", dancers: ["Katelyn Paiuk"], age: 15 },
+  { num: 446, time: "8:31 PM", studio: "F", category: "Pre-Competitive| Prime| Lyrical| Solo", title: "WINTER BIRD", dancers: ["Madelyn Whan"], age: 15 },
+  { num: 447, time: "8:34 PM", studio: "F", category: "Pre-Competitive| Prime| Musical Theatre| Solo", title: "OOPS", dancers: ["Kristen Jade Woodward"], age: 16 },
+  { num: 448, time: "8:37 PM", studio: "C", category: "Pre-Competitive| Prime| Open| Solo", title: "TRUE", dancers: ["Camryn Roy"], age: 16 },
+  { num: 449, time: "8:40 PM", studio: "C", category: "Pre-Competitive| Prime| Open| Solo", title: "WHAT'S DREAMS", dancers: ["Andrea Matei"], age: 16 },
+  { num: 450, time: "8:46 PM", studio: "C", category: "Novice| Prime| Tap| Large Group", title: "CRANK, CRANK, CRANK", dancers: ["Charlie Roberts","Isleigh McDonald","Madison Alvey","Harleen Tamber","Carmen Williams","Makayla Tome","Davia Weese","Natalie Melo"], age: 15 },
+  { num: 0, time: "8:49 PM", studio: "", category: "AWARDS #10 & GOODNIGHT", title: "AWARDS #10 & GOODNIGHT", dancers: [], age: 0, isBreak: true },
+];
+
+const SUNDAY = [
+{ num: 451, time: “8:00 AM”, studio: “G”, category: “Pre-Competitive| Star| Ballet| Solo”, title: “YOU’LL BE IN MY HEART”, dancers: [“Aria Woolley”], age: 8 },
+{ num: 452, time: “8:03 AM”, studio: “C”, category: “Competitive| Cosmic| Acro| Large Group”, title: “FALLEN ANGEL”, dancers: [“Adeline Boudreau”,“Alianna Chretien”,“Adrianna Forsyth”,“Ellie Fram”,“Laela Fram”,“Marley Fram”,“Dylan Helm”,“Kiana Mechefske”,“Jaden Palmquist”,“Peyton Walker”], age: 13 },
+{ num: 453, time: “8:07 AM”, studio: “C”, category: “Competitive| Solaris| Musical Theatre| Duet/Trio”, title: “SINGLE LADIES”, dancers: [“Sophie Goodale”,“Martha Langley”,“Gabriella Leduc”], age: 17 },
+{ num: 454, time: “8:10 AM”, studio: “C”, category: “Competitive| Cosmic| Jazz| Solo”, title: “SAX”, dancers: [“Adriana Berardi”], age: 13 },
+{ num: 455, time: “8:13 AM”, studio: “C”, category: “Competitive| Cosmic| Jazz| Solo”, title: “THAT’S LIFE”, dancers: [“Elle Macdonald”], age: 13 },
+{ num: 456, time: “8:16 AM”, studio: “D”, category: “Pre-Competitive| Nova| Lyrical| Duet/Trio”, title: “YOU WILL BE FOUND”, dancers: [“Kristina Chatzinikolis”,“Sydney Yee Shui”], age: 10 },
+{ num: 457, time: “8:19 AM”, studio: “G”, category: “Pre-Competitive| Nova| Lyrical| Duet/Trio”, title: “WILD HEARTS”, dancers: [“Kaitlyn Maulson”,“Eve Rowan”], age: 10 },
+{ num: 458, time: “8:22 AM”, studio: “F”, category: “Pre-Competitive| Nova| Lyrical| Duet/Trio”, title: “GIRLS”, dancers: [“Adelaide Kapteyn”,“Madalena Tavarez”], age: 10 },
+{ num: 459, time: “8:25 AM”, studio: “D”, category: “Competitive| Prime| Lyrical| Solo”, title: “IT DOESN’T HURT”, dancers: [“Isleigh McDonald”], age: 16 },
+{ num: 460, time: “8:28 AM”, studio: “E”, category: “Competitive| Prime| Lyrical| Solo”, title: “GRAVITY”, dancers: [“Ava Bailey”], age: 16 },
+{ num: 461, time: “8:31 AM”, studio: “D”, category: “Competitive| Prime| Lyrical| Solo”, title: “PIECE BY PIECE”, dancers: [“Aaliyah Adams”], age: 16 },
+{ num: 462, time: “8:34 AM”, studio: “C”, category: “Competitive| Prime| Lyrical| Solo”, title: “TO BE LOVED”, dancers: [“Adrianna Forsyth”], age: 16 },
+{ num: 463, time: “8:37 AM”, studio: “C”, category: “Competitive| Cosmic| Contemporary| Solo”, title: “THE HILL”, dancers: [“Adriana Berardi”], age: 13 },
+{ num: 464, time: “8:40 AM”, studio: “C”, category: “Competitive| Cosmic| Contemporary| Solo”, title: “GREY”, dancers: [“Elle Macdonald”], age: 13 },
+{ num: 465, time: “8:43 AM”, studio: “C”, category: “Competitive| Cosmic| Contemporary| Solo”, title: “MEMORY”, dancers: [“Alexis Pavacic”], age: 13 },
+{ num: 466, time: “8:46 AM”, studio: “B”, category: “Pre-Competitive| Cosmic| Contemporary| Duet/Trio”, title: “CONNECTIONS”, dancers: [“Lilliane Gaudreau”,“Laura Shosenberg”], age: 13 },
+{ num: 467, time: “8:49 AM”, studio: “D”, category: “Pre-Competitive| Cosmic| Open| Duet/Trio”, title: “INSECTS”, dancers: [“Lola Stangarone”,“Lailey Van Vliet”], age: 13 },
+{ num: 468, time: “8:52 AM”, studio: “F”, category: “Pre-Competitive| Cosmic| Contemporary| Duet/Trio”, title: “EVERYBODY WANTS TO RULE THE WORLD”, dancers: [“Harmony English”,“Sophia Williams”], age: 14 },
+{ num: 469, time: “8:55 AM”, studio: “G”, category: “Pre-Competitive| Cosmic| Acro| Duet/Trio”, title: “GO YOUR OWN WAY”, dancers: [“Scarlett Abernethy”,“Fina Burrows”,“Roxanne Mersereau”], age: 14 },
+{ num: 470, time: “8:58 AM”, studio: “A”, category: “Competitive| Cosmic| Hip Hop| Duet/Trio”, title: “SLUMBER PARTY”, dancers: [“Maya Isoufi”,“Boya Jin”,“Polina Ternovska”], age: 13 },
+{ num: 471, time: “9:01 AM”, studio: “C”, category: “Competitive| Prime| Open| Solo”, title: “BREATHE”, dancers: [“Sienna Deziel”], age: 15 },
+{ num: 472, time: “9:04 AM”, studio: “C”, category: “Competitive| Prime| Open| Solo”, title: “TURN TO STONE”, dancers: [“Jaden Palmquist”], age: 15 },
+{ num: 473, time: “9:07 AM”, studio: “D”, category: “Competitive| Prime| Open| Solo”, title: “YOU SAY”, dancers: [“Ashlyn Murray-Fellin”], age: 15 },
+{ num: 474, time: “9:10 AM”, studio: “E”, category: “Competitive| Prime| Open| Solo”, title: “SATAN’S LIL LAMB”, dancers: [“Indie Madore”], age: 15 },
+{ num: 475, time: “9:13 AM”, studio: “D”, category: “Pre-Competitive| Cosmic| Ballet| Duet/Trio”, title: “CIRRUS”, dancers: [“Scarlett McDonald”,“Lailey Van Vliet”], age: 13 },
+{ num: 476, time: “9:16 AM”, studio: “B”, category: “Pre-Competitive| Cosmic| Hip Hop| Large Group”, title: “SIX WARD”, dancers: [“Jenna Brake”,“Lilliane Gaudreau”,“Brinley Hobbs”,“Melayna Iordanoglou”,“Jessica Ludlow”,“Keira Mavor”,“Zoe Neill”,“Maddie Robbins”,“Morgan Willison”], age: 14 },
+{ num: 477, time: “9:20 AM”, studio: “F”, category: “Pre-Competitive| Cosmic| Hip Hop| Large Group”, title: “SAD GENERATION”, dancers: [“Rory Arial”,“Harmony English”,“Jordyn Lohnes”,“Brooklyn Lohnes”,“Allyannah Roffey”,“Nikayla Whan”,“Madelyn Whan”,“Sophia Williams”,“Kristen Jade Woodward”], age: 14 },
+{ num: 478, time: “9:24 AM”, studio: “C”, category: “Competitive| Cosmic| Hip Hop| Extended Line”, title: “MARSHALL”, dancers: [“Aurora Albisi”,“Adeline Boudreau”,“Abigail Chretien”,“Sienna Deziel”,“Adrianna Forsyth”,“Ruby Gagnon”,“Mia Gauthier”,“Dylan Helm”,“Sophie Goodale”,“Martha Langley”,“Gabriella Leduc”,“Kiana Mechefske”,“Aila Nurmi”,“Alexis Pavacic”,“Peyton Walker”,“Katherine Wallace”], age: 13 },
+{ num: 479, time: “9:29 AM”, studio: “G”, category: “Pre-Competitive| Cosmic| Hip Hop| Duet/Trio”, title: “CHARLIE’S ANGELS”, dancers: [“Hadley Carr”,“Lily Jones”,“Lucy Wannamaker”], age: 13 },
+{ num: 480, time: “9:32 AM”, studio: “A”, category: “Competitive| Cosmic| Jazz| Small Group”, title: “RICH GIRL”, dancers: [“Brittany Cristabella Montilla”,“Maya Isoufi”,“Boya Jin”,“Polina Ternovska”,“Lovely Winters”], age: 13 },
+{ num: 481, time: “9:35 AM”, studio: “D”, category: “Competitive| Prime| Tap| Solo”, title: “TERRIBLE T”, dancers: [“Isleigh McDonald”], age: 16 },
+{ num: 482, time: “9:38 AM”, studio: “D”, category: “Competitive| Prime| Tap| Solo”, title: “ARMANDO’S RHUMBA”, dancers: [“Ella Hoang”], age: 16 },
+{ num: 483, time: “9:41 AM”, studio: “E”, category: “Competitive| Prime| Tap| Solo”, title: “SAY MY NAME”, dancers: [“Sami Sawaged”], age: 16 },
+{ num: 484, time: “9:44 AM”, studio: “C”, category: “Competitive| Cosmic| Jazz| Extended Line”, title: “VIVA”, dancers: [“Aurora Albisi”,“Adriana Berardi”,“Sophia Berardi”,“Adeline Boudreau”,“Abigail Chretien”,“Sienna Deziel”,“Cristiana Dumencu”,“Adrianna Forsyth”,“Laela Fram”,“Marley Fram”,“Ruby Gagnon”,“Mia Gauthier”,“Elle Macdonald”,“Kiana Mechefske”,“Aila Nurmi”,“Jaden Palmquist”,“Alexis Pavacic”,“Mila Santos”,“Peyton Walker”,“Katherine Wallace”], age: 13 },
+{ num: 485, time: “9:49 AM”, studio: “C”, category: “Pre-Competitive| Cosmic| Contemporary| Small Group”, title: “ISLANDS”, dancers: [“Harloe Bardeggia”,“Avery Cook”,“Daria-Zabella M Louis-Jean”,“Alexis Marcotte”,“Mara Parnell”,“Camila Pimentel”,“Camryn Roy”], age: 14 },
+{ num: 486, time: “9:53 AM”, studio: “F”, category: “Pre-Competitive| Cosmic| Contemporary| Small Group”, title: “RAIN DANCE”, dancers: [“Rory Arial”,“Harmony English”,“Jordyn Lohnes”,“Brooklyn Lohnes”,“Allyannah Roffey”,“Nikayla Whan”,“Madelyn Whan”,“Sophia Williams”], age: 14 },
+{ num: 487, time: “9:57 AM”, studio: “D”, category: “Pre-Competitive| Cosmic| Ballet| Small Group”, title: “SWAN GONE WRONG”, dancers: [“Isleigh McDonald”,“Charlotte Oster”,“Cassidy Pomocnik”,“Lailey Van Vliet”], age: 13 },
+{ num: 488, time: “10:01 AM”, studio: “D”, category: “Competitive| Prime| Hip Hop| Solo”, title: “PUPPET”, dancers: [“Ava Sliwowicz”], age: 16 },
+{ num: 489, time: “10:04 AM”, studio: “D”, category: “Competitive| Prime| Hip Hop| Solo”, title: “ARE YOU THAT SOMEBODY”, dancers: [“Aaliyah Adams”], age: 16 },
+{ num: 490, time: “10:07 AM”, studio: “D”, category: “Competitive| Prime| Song & Dance| Solo”, title: “WHEN WILL MY LIFE BEGIN”, dancers: [“Abigail Roides”], age: 15 },
+{ num: 491, time: “10:10 AM”, studio: “C”, category: “Competitive| Cosmic| Open| Duet/Trio”, title: “INTEGRAL SILENCE”, dancers: [“Adeline Boudreau”,“Katherine Wallace”], age: 13 },
+{ num: 492, time: “10:13 AM”, studio: “A”, category: “Competitive| Cosmic| Lyrical| Large Group”, title: “GRAVITY”, dancers: [“Valentina Amato”,“Maya Isoufi”,“Boya Jin”,“Avery Lo”,“Alessandra Martino”,“Giuliana Martino”,“Katelyn Paiuk”,“Deea Patel”,“Polina Ternovska”,“Filomena Youssef”], age: 13 },
+{ num: 493, time: “10:17 AM”, studio: “C”, category: “Competitive| Cosmic| Open| Solo”, title: “TANGO”, dancers: [“Alexis Pavacic”], age: 13 },
+{ num: 494, time: “10:20 AM”, studio: “C”, category: “Competitive| Cosmic| Open| Solo”, title: “FALLING LEAVES”, dancers: [“Peyton Walker”], age: 13 },
+{ num: 495, time: “10:23 AM”, studio: “C”, category: “Competitive| Prime| Open| Solo”, title: “LILAC WINE”, dancers: [“Adrianna Forsyth”], age: 16 },
+{ num: 496, time: “10:26 AM”, studio: “D”, category: “Competitive| Prime| Open| Solo”, title: “KNOCK, KNOCK”, dancers: [“Aaliyah Adams”], age: 16 },
+{ num: 497, time: “10:29 AM”, studio: “D”, category: “Pre-Competitive| Cosmic| Song & Dance| Solo”, title: “FOR THE FIRST TIME IN FOREVER”, dancers: [“Charlotte Oster”], age: 13 },
+{ num: 0, time: “10:32 AM”, studio: “”, category: “AWARDS #11”, title: “AWARDS #11”, dancers: [], age: 0, isBreak: true },
+{ num: 498, time: “11:02 AM”, studio: “D”, category: “Pre-Competitive| Cosmic| Lyrical| Duet/Trio”, title: “LOSE CONTROL”, dancers: [“Scarlett McDonald”,“Davia Weese”], age: 14 },
+{ num: 499, time: “11:05 AM”, studio: “G”, category: “Pre-Competitive| Solar| Hip Hop| Duet/Trio”, title: “POWERPUFF GIRLS”, dancers: [“Alexa Jones”,“Charlotte Pyke”,“Kailani Yigit”], age: 12 },
+{ num: 500, time: “11:08 AM”, studio: “A”, category: “Competitive| Cosmic| Contemporary| Solo”, title: “LIVING LEGEND”, dancers: [“Maya Isoufi”], age: 14 },
+{ num: 501, time: “11:11 AM”, studio: “A”, category: “Competitive| Cosmic| Contemporary| Solo”, title: “YOU CAN TELL ME”, dancers: [“Brittany Cristabella Montilla”], age: 14 },
+{ num: 502, time: “11:14 AM”, studio: “A”, category: “Competitive| Cosmic| Contemporary| Solo”, title: “YOU DON’T OWN ME”, dancers: [“Boya Jin”], age: 14 },
+{ num: 503, time: “11:17 AM”, studio: “G”, category: “Pre-Competitive| Solar| Contemporary| Duet/Trio”, title: “FOR MY HELP”, dancers: [“Ella McIntyre”,“Anna Smith”], age: 11 },
+{ num: 504, time: “11:20 AM”, studio: “A”, category: “Student Choreography/Cosmic/Contemporary/Solo|14”, title: “CARDIGAN - STUDENT CHOREOGRAPHY”, dancers: [“Lovely Winters”], age: 14 },
+{ num: 505, time: “11:23 AM”, studio: “D”, category: “Pre-Competitive| Cosmic| Jazz| Small Group”, title: “AMERICANO”, dancers: [“Madelyn Glasbergen”,“Mackenzie Heynen”,“Georgia Mauricette”,“Annie McCormick”,“Aryanna Rampat”], age: 13 },
+{ num: 506, time: “11:27 AM”, studio: “D”, category: “Competitive| Cosmic| Ballet| Solo”, title: “SNOW WHITE”, dancers: [“Davia Weese”], age: 14 },
+{ num: 507, time: “11:30 AM”, studio: “C”, category: “Competitive| Cosmic| Hip Hop| Solo”, title: “COME THRU”, dancers: [“Dylan Helm”], age: 14 },
+{ num: 508, time: “11:33 AM”, studio: “C”, category: “Pre-Competitive| Solar| Contemporary| Solo”, title: “TOMORROW NEVER COMES”, dancers: [“Sophia Pittman-Carmichael”], age: 12 },
+{ num: 509, time: “11:36 AM”, studio: “G”, category: “Pre-Competitive| Solar| Contemporary| Solo”, title: “NEVER TEAR US APART”, dancers: [“Lillian Doroodchi”], age: 12 },
+{ num: 510, time: “11:39 AM”, studio: “G”, category: “Pre-Competitive| Solar| Contemporary| Solo”, title: “LOVE ME BETTER”, dancers: [“Bria Beatty”], age: 12 },
+{ num: 511, time: “11:42 AM”, studio: “C”, category: “Competitive| Cosmic| Lyrical| Solo”, title: “TEND”, dancers: [“Adeline Boudreau”], age: 14 },
+{ num: 512, time: “11:45 AM”, studio: “C”, category: “Competitive| Cosmic| Tap| Solo”, title: “LOVE ME OR LEAVE ME”, dancers: [“Mia Gauthier”], age: 13 },
+{ num: 513, time: “11:48 AM”, studio: “C”, category: “Competitive| Cosmic| Tap| Solo”, title: “BOOM CLAP”, dancers: [“Abigail Chretien”], age: 13 },
+{ num: 514, time: “11:51 AM”, studio: “C”, category: “Competitive| Cosmic| Acro| Solo”, title: “SPELL”, dancers: [“Peyton Walker”], age: 13 },
+{ num: 515, time: “11:54 AM”, studio: “D”, category: “Pre-Competitive| Cosmic| Lyrical| Duet/Trio”, title: “BRAVE”, dancers: [“Charlotte Oster”,“Lailey Van Vliet”], age: 13 },
+{ num: 516, time: “11:57 AM”, studio: “C”, category: “Competitive| Cosmic| Open| Solo”, title: “IRON”, dancers: [“Dylan Helm”], age: 14 },
+{ num: 517, time: “12:00 PM”, studio: “C”, category: “Competitive| Cosmic| Open| Solo”, title: “CRAZY”, dancers: [“Adeline Boudreau”], age: 14 },
+{ num: 518, time: “12:03 PM”, studio: “D”, category: “Competitive| Cosmic| Jazz| Solo”, title: “YOU DON’T OWN ME”, dancers: [“Davia Weese”], age: 14 },
+{ num: 519, time: “12:06 PM”, studio: “B”, category: “Pre-Competitive| Cosmic| Hip Hop| Duet/Trio”, title: “CHRIS BREEZYYY”, dancers: [“Brinley Hobbs”,“Morgan Willison”], age: 14 },
+{ num: 520, time: “12:09 PM”, studio: “B”, category: “Pre-Competitive| Cosmic| Lyrical| Small Group”, title: “NATURE BOY”, dancers: [“Jenna Brake”,“Lilliane Gaudreau”,“Melayna Iordanoglou”,“Keira Mavor”,“Laura Shosenberg”], age: 13 },
+{ num: 521, time: “12:13 PM”, studio: “D”, category: “Pre-Competitive| Cosmic| Lyrical| Small Group”, title: “CHEMTRAILS OVER THE COUNTRY CLUB”, dancers: [“Scarlett McDonald”,“Charlotte Oster”,“Lola Stangarone”,“Lailey Van Vliet”,“Savannah Yee Shui”], age: 13 },
+{ num: 522, time: “12:16 PM”, studio: “F”, category: “Pre-Competitive| Cosmic| Musical Theatre| Duet/Trio”, title: “THERAPY”, dancers: [“Jordyn Lohnes”,“Sophia Williams”], age: 14 },
+{ num: 523, time: “12:19 PM”, studio: “G”, category: “Pre-Competitive| Cosmic| Musical Theatre| Duet/Trio”, title: “PARTNER IN CRIME”, dancers: [“Chelsea Benson”,“Emily Staples”], age: 13 },
+{ num: 524, time: “12:22 PM”, studio: “D”, category: “Competitive| Cosmic| Acro| Solo”, title: “NEVER LET ME GO”, dancers: [“Davia Weese”], age: 14 },
+{ num: 525, time: “12:25 PM”, studio: “A”, category: “Competitive| Cosmic| Acro| Solo”, title: “I DIDN’T KNOW MY OWN STRENGTH”, dancers: [“Lovely Winters”], age: 14 },
+{ num: 526, time: “12:28 PM”, studio: “D”, category: “Competitive| Prime| Open| Duet/Trio”, title: “ARTIFICIAL INTELLIGENCE”, dancers: [“Aaliyah Adams”,“Carmen Williams”], age: 15 },
+{ num: 527, time: “12:31 PM”, studio: “C”, category: “Competitive| Prime| Open| Duet/Trio”, title: “WHEN IT’S COLD”, dancers: [“Adrianna Forsyth”,“Marley Fram”,“Jaden Palmquist”], age: 15 },
+{ num: 528, time: “12:34 PM”, studio: “D”, category: “Pre-Competitive| Nova| Musical Theatre| Duet/Trio”, title: “THE TRAVEL SONG”, dancers: [“Ava Colangelo”,“Charlotte Stangarone”], age: 10 },
+{ num: 529, time: “12:37 PM”, studio: “G”, category: “Pre-Competitive| Nova| Musical Theatre| Duet/Trio”, title: “BUSTED”, dancers: [“Charlotte Pyke”,“Aria Woolley”], age: 10 },
+{ num: 530, time: “12:40 PM”, studio: “G”, category: “Pre-Competitive| Nova| Lyrical| Solo”, title: “YOU’RE BEAUTIFUL”, dancers: [“Colbie Walker”], age: 10 },
+{ num: 531, time: “12:43 PM”, studio: “D”, category: “Pre-Competitive| Cosmic| Jazz| Duet/Trio”, title: “LIFE OF THE PARTY”, dancers: [“Mackenzie Heynen”,“Aryanna Rampat”], age: 13 },
+{ num: 532, time: “12:46 PM”, studio: “D”, category: “Pre-Competitive| Cosmic| Tap| Duet/Trio”, title: “TAKE ON ME”, dancers: [“Charlotte Oster”,“Lola Stangarone”], age: 13 },
+{ num: 533, time: “12:49 PM”, studio: “C”, category: “Pre-Competitive| Cosmic| Song & Dance| Duet/Trio”, title: “WHAT IS THIS FEELING?”, dancers: [“Alice Cropper”,“Daria-Zabella M Louis-Jean”], age: 13 },
+{ num: 534, time: “12:52 PM”, studio: “F”, category: “Pre-Competitive| Prime| Hip Hop| Duet/Trio”, title: “FIGHT CLUB”, dancers: [“Rory Arial”,“Jordyn Lohnes”,“Kristen Jade Woodward”], age: 15 },
+{ num: 535, time: “12:55 PM”, studio: “D”, category: “Competitive| Prime| Hip Hop| Large Group”, title: “STICKY”, dancers: [“Aaliyah Adams”,“Madison Alvey”,“Syanne Brookes”,“Valeriya Ermakova”,“Ella Hoang”,“Isleigh McDonald”,“Ashlyn Murray-Fellin”,“Abigail Roides”,“Ava Sliwowicz”,“Harleen Tamber”,“Davia Weese”,“Carmen Williams”], age: 15 },
+{ num: 536, time: “12:59 PM”, studio: “D”, category: “Pre-Competitive| Solar| Hip Hop| Solo”, title: “HOW YOU LIKE THAT”, dancers: [“Julia Papadopolous”], age: 12 },
+{ num: 537, time: “1:02 PM”, studio: “G”, category: “Pre-Competitive| Solar| Hip Hop| Solo”, title: “4+4”, dancers: [“Lillian Doroodchi”], age: 12 },
+{ num: 538, time: “1:05 PM”, studio: “G”, category: “Pre-Competitive| Solar| Hip Hop| Solo”, title: “MAIN CHARACTER ENERGY”, dancers: [“Charlotte Pyke”], age: 12 },
+{ num: 539, time: “1:08 PM”, studio: “A”, category: “Pre-Competitive| Prime| Jazz| Small Group”, title: “BAD ROMANCE”, dancers: [“Valentina Amato”,“Katelyn Paiuk”,“Deea Patel”,“Alayne Williams”], age: 15 },
+{ num: 540, time: “1:12 PM”, studio: “C”, category: “Competitive| Prime| Jazz| Small Group”, title: “NEW DORP NEW YORK”, dancers: [“Teagan Bryson”,“Sophie Goodale”,“Dylan Helm”,“Kyana Kingsley”,“Martha Langley”,“Gabriella Leduc”], age: 16 },
+{ num: 541, time: “1:16 PM”, studio: “C”, category: “Competitive| Cosmic| Contemporary| Large Group”, title: “61”, dancers: [“Sophia Berardi”,“Adeline Boudreau”,“Sienna Deziel”,“Adrianna Forsyth”,“Laela Fram”,“Marley Fram”,“Elle Macdonald”,“Jaden Palmquist”,“Mila Santos”,“Katherine Wallace”], age: 14 },
+{ num: 542, time: “1:20 PM”, studio: “C”, category: “Competitive| Cosmic| Ballet| Solo”, title: “PRELUDE”, dancers: [“Peyton Walker”], age: 13 },
+{ num: 543, time: “1:23 PM”, studio: “C”, category: “Competitive| Cosmic| Ballet| Solo”, title: “RONDO ALLEGRETTO”, dancers: [“Mia Gauthier”], age: 13 },
+{ num: 544, time: “1:26 PM”, studio: “G”, category: “Pre-Competitive| Solar| Lyrical| Solo”, title: “HOLD ON”, dancers: [“Ella McIntyre”], age: 11 },
+{ num: 545, time: “1:29 PM”, studio: “G”, category: “Pre-Competitive| Solar| Lyrical| Solo”, title: “NEVER GETTING OVER YOU”, dancers: [“Kaitlyn Maulson”], age: 11 },
+{ num: 546, time: “1:32 PM”, studio: “F”, category: “Pre-Competitive| Solar| Lyrical| Solo”, title: “SKYSCRAPER”, dancers: [“Lakelynn Baxter”], age: 11 },
+{ num: 547, time: “1:35 PM”, studio: “C”, category: “Pre-Competitive| Prime| Open| Duet/Trio”, title: “JUNE”, dancers: [“Camila Pimentel”,“Camryn Roy”], age: 15 },
+{ num: 548, time: “1:38 PM”, studio: “D”, category: “Competitive| Prime| Open| Large Group”, title: “MAYBE, WE’LL SEE”, dancers: [“Aaliyah Adams”,“Madison Alvey”,“Syanne Brookes”,“Valeriya Ermakova”,“Ella Hoang”,“Isleigh McDonald”,“Ashlyn Murray-Fellin”,“Abigail Roides”,“Ava Sliwowicz”,“Harleen Tamber”,“Davia Weese”,“Carmen Williams”], age: 15 },
+{ num: 549, time: “1:42 PM”, studio: “C”, category: “Competitive| Prime| Open| Small Group”, title: “EARTH DIED SCREAMING”, dancers: [“Teagan Bryson”,“Sophie Goodale”,“Dylan Helm”,“Kyana Kingsley”,“Martha Langley”,“Gabriella Leduc”], age: 16 },
+{ num: 550, time: “1:46 PM”, studio: “G”, category: “Pre-Competitive| Solar| Tap| Duet/Trio”, title: “POWERFUL WOMEN”, dancers: [“Lillian Doroodchi”,“Kailani Yigit”], age: 12 },
+{ num: 551, time: “1:49 PM”, studio: “D”, category: “Pre-Competitive| Solar| Lyrical| Duet/Trio”, title: “BUTTERFLY”, dancers: [“Zosia Bradshaw”,“Charlotte Oster”], age: 12 },
+{ num: 552, time: “1:52 PM”, studio: “G”, category: “Pre-Competitive| Solar| Lyrical| Duet/Trio”, title: “I’LL BE THERE”, dancers: [“Veya Cristini”,“Emma Morrissey”], age: 12 },
+{ num: 553, time: “1:55 PM”, studio: “D”, category: “Pre-Competitive| Cosmic| Musical Theatre| Solo”, title: “POOR UNFORTUNATE SOULS”, dancers: [“Lola Stangarone”], age: 13 },
+{ num: 554, time: “1:58 PM”, studio: “C”, category: “Pre-Competitive| Cosmic| Musical Theatre| Solo”, title: “GOOD MORNING BALTIMORE”, dancers: [“Aaliya Corbiere”], age: 13 },
+{ num: 555, time: “2:01 PM”, studio: “G”, category: “Pre-Competitive| Cosmic| Musical Theatre| Solo”, title: “YOU’LL BE BACK”, dancers: [“Wyatt Harris”], age: 13 },
+{ num: 0, time: “2:04 PM”, studio: “”, category: “AWARDS #12 AND LUNCH”, title: “AWARDS #12 AND LUNCH”, dancers: [], age: 0, isBreak: true },
+{ num: 556, time: “3:04 PM”, studio: “D”, category: “Competitive| Prime| Contemporary| Large Group”, title: “FOR THE FIRE”, dancers: [“Aaliyah Adams”,“Madison Alvey”,“Syanne Brookes”,“Valeriya Ermakova”,“Ella Hoang”,“Isleigh McDonald”,“Ashlyn Murray-Fellin”,“Abigail Roides”,“Ava Sliwowicz”,“Harleen Tamber”,“Davia Weese”,“Carmen Williams”], age: 15 },
+{ num: 557, time: “3:08 PM”, studio: “G”, category: “Competitive| Solaris| Hip Hop| Solo”, title: “IS IT”, dancers: [“Kayla Keating”], age: 18 },
+{ num: 558, time: “3:11 PM”, studio: “D”, category: “Pre-Competitive| Solar| Lyrical| Solo”, title: “CAN’T CATCH ME NOW”, dancers: [“Zosia Bradshaw”], age: 12 },
+{ num: 559, time: “3:14 PM”, studio: “C”, category: “Pre-Competitive| Solar| Lyrical| Solo”, title: “CARRY YOU”, dancers: [“Elizabeth Eibl”], age: 12 },
+{ num: 560, time: “3:17 PM”, studio: “D”, category: “Pre-Competitive| Solar| Lyrical| Solo”, title: “DAUGHTER”, dancers: [“Savannah Yee Shui”], age: 12 },
+{ num: 561, time: “3:20 PM”, studio: “D”, category: “Pre-Competitive| Solar| Lyrical| Solo”, title: “BEAUTIFUL LIES”, dancers: [“Mercedes Nadeau”], age: 12 },
+{ num: 562, time: “3:23 PM”, studio: “D”, category: “Pre-Competitive| Solar| Lyrical| Solo”, title: “FOR MEL”, dancers: [“Willow Comisso”], age: 12 },
+{ num: 563, time: “3:26 PM”, studio: “G”, category: “Pre-Competitive| Solar| Lyrical| Solo”, title: “TO BUILD A HOME”, dancers: [“Kailani Yigit”], age: 12 },
+{ num: 564, time: “3:29 PM”, studio: “G”, category: “Pre-Competitive| Solar| Open| Duet/Trio”, title: “SAVE YOUR SOUL”, dancers: [“Veya Cristini”,“Lexeigh Sheehan”], age: 11 },
+{ num: 565, time: “3:32 PM”, studio: “D”, category: “Pre-Competitive| Solar| Open| Duet/Trio”, title: “LEAVING THE NEST”, dancers: [“Isadora Stangarone”,“Davia Weese”], age: 11 },
+{ num: 566, time: “3:35 PM”, studio: “G”, category: “Pre-Competitive| Solar| Musical Theatre| Duet/Trio”, title: “THE END OF THE LINE”, dancers: [“Bria Beatty”,“Colbie Walker”], age: 11 },
+{ num: 567, time: “3:38 PM”, studio: “G”, category: “Competitive| Solaris| Hip Hop| Duet/Trio”, title: “LET HER COOK”, dancers: [“Rachael Harnish”,“Kayla Keating”,“Lyla Wannamaker”], age: 17 },
+{ num: 568, time: “3:41 PM”, studio: “G”, category: “Pre-Competitive| Solar| Open| Solo”, title: “I STILL BELIEVE IN HEROES”, dancers: [“Anna Smith”], age: 12 },
+{ num: 569, time: “3:44 PM”, studio: “A”, category: “Competitive| Solar| Hip Hop| Small Group”, title: “OUTBREAK”, dancers: [“Alice Fagin”,“Maya Isoufi”,“Boya Jin”,“Avery Lo”,“Alessandra Martino”,“Giuliana Martino”,“Polina Ternovska”,“Nika Zubkov”], age: 12 },
+{ num: 570, time: “3:48 PM”, studio: “C”, category: “Competitive| Cosmic| Open| Small Group”, title: “WHY”, dancers: [“Sophia Berardi”,“Adeline Boudreau”,“Sienna Deziel”,“Adrianna Forsyth”,“Marley Fram”,“Elle Macdonald”,“Jaden Palmquist”,“Mila Santos”], age: 14 },
+{ num: 571, time: “3:52 PM”, studio: “C”, category: “Competitive| Prime| Modern| Small Group”, title: “THE END OF LOVE”, dancers: [“Teagan Bryson”,“Sophie Goodale”,“Dylan Helm”,“Kyana Kingsley”,“Martha Langley”,“Gabriella Leduc”], age: 16 },
+{ num: 0, time: “3:55 PM”, studio: “”, category: “JUDGES BREAK”, title: “JUDGES BREAK”, dancers: [], age: 0, isBreak: true },
+{ num: 572, time: “4:00 PM”, studio: “G”, category: “Pre-Competitive| Solaris| Hip Hop| Solo”, title: “MOVE SHAKE”, dancers: [“Rachael Harnish”], age: 17 },
+{ num: 573, time: “4:03 PM”, studio: “B”, category: “Pre-Competitive| Cosmic| Contemporary| Large Group”, title: “NORTHERN”, dancers: [“Jenna Brake”,“Lilliane Gaudreau”,“Brinley Hobbs”,“Melayna Iordanoglou”,“Jessica Ludlow”,“Keira Mavor”,“Zoe Neill”,“Maddie Robbins”,“Lillie Robbins”,“Laura Shosenberg”], age: 14 },
+{ num: 574, time: “4:07 PM”, studio: “E”, category: “Competitive| Prime| Ballet| Duet/Trio”, title: “KITRI’S FRIENDS”, dancers: [“Mali MacNeil”,“Natalie Melo”], age: 16 },
+{ num: 575, time: “4:10 PM”, studio: “G”, category: “Competitive| Prime| Hip Hop| Duet/Trio”, title: “RUSH HOUR”, dancers: [“Lily Jones”,“Kayla Keating”], age: 15 },
+{ num: 576, time: “4:13 PM”, studio: “G”, category: “Novice| Solaris| Hip Hop| Solo”, title: “ENOUGH”, dancers: [“Aaliyah Moore”], age: 17 },
+{ num: 577, time: “4:16 PM”, studio: “A”, category: “Competitive| Solar| Jazz| Small Group”, title: “SUNDAY MORNING”, dancers: [“Lea Bombard”,“Alice Fagin”,“Avery Lo”,“Alessandra Martino”,“Giuliana Martino”,“Filomena Youssef”], age: 12 },
+{ num: 578, time: “4:20 PM”, studio: “F”, category: “Pre-Competitive| Solaris| Contemporary| Solo”, title: “THE VIEW BETWEEN VILLAGES”, dancers: [“Kristen Jade Woodward”], age: 17 },
+{ num: 579, time: “4:23 PM”, studio: “C”, category: “Pre-Competitive| Solaris| Contemporary| Solo”, title: “ENOUGH OF OUR MACHINES”, dancers: [“Avery Cook”], age: 17 },
+{ num: 580, time: “4:26 PM”, studio: “B”, category: “Pre-Competitive| Solaris| Contemporary| Solo”, title: “BOSTON”, dancers: [“Jessica Ludlow”], age: 17 },
+{ num: 581, time: “4:29 PM”, studio: “B”, category: “Pre-Competitive| Solaris| Contemporary| Solo”, title: “KNOCKIN’ ON HEAVEN’S DOOR”, dancers: [“Zoe Neill”], age: 17 },
+{ num: 582, time: “4:32 PM”, studio: “G”, category: “Pre-Competitive| Solaris| Contemporary| Solo”, title: “HOME WITH YOU”, dancers: [“Rachael Harnish”], age: 17 },
+{ num: 583, time: “4:35 PM”, studio: “C”, category: “Competitive| Prime| Contemporary| Small Group”, title: “HEART OF GLASS”, dancers: [“Sophia Berardi”,“Sienna Deziel”,“Adrianna Forsyth”,“Marley Fram”,“Jaden Palmquist”,“Mila Santos”], age: 15 },
+{ num: 584, time: “4:39 PM”, studio: “D”, category: “Competitive| Prime| Contemporary| Small Group”, title: “ELEVATE US”, dancers: [“Syanne Brookes”,“Ella Hoang”,“Isleigh McDonald”,“Abigail Roides”,“Ava Sliwowicz”], age: 15 },
+{ num: 585, time: “4:43 PM”, studio: “D”, category: “Competitive| Prime| Acro| Small Group”, title: “TURN TO STONE”, dancers: [“Aaliyah Adams”,“Madison Alvey”,“Ashlyn Murray-Fellin”,“Harleen Tamber”,“Davia Weese”,“Carmen Williams”], age: 15 },
+{ num: 586, time: “4:47 PM”, studio: “G”, category: “Pre-Competitive| Prime| Contemporary| Duet/Trio”, title: “MISERY FELL”, dancers: [“Taylor Benson”,“Molly Spiewak”], age: 15 },
+{ num: 587, time: “4:50 PM”, studio: “A”, category: “Competitive| Cosmic| Contemporary| Large Group”, title: “TURNING TABLES”, dancers: [“Valentina Amato”,“Lea Bombard”,“Brittany Cristabella Montilla”,“Alice Fagin”,“Maya Isoufi”,“Boya Jin”,“Avery Lo”,“Alessandra Martino”,“Giuliana Martino”,“Polina Ternovska”,“Lovely Winters”,“Filomena Youssef”], age: 13 },
+{ num: 588, time: “4:54 PM”, studio: “E”, category: “Competitive| Prime| Lyrical| Duet/Trio”, title: “HOMETOWN GLORY”, dancers: [“Ava Bailey”,“Mali MacNeil”,“Sami Sawaged”], age: 15 },
+{ num: 589, time: “4:57 PM”, studio: “C”, category: “Competitive| Prime| Contemporary| Line”, title: “SUN KING”, dancers: [“Sophia Berardi”,“Adeline Boudreau”,“Sienna Deziel”,“Teagan Bryson”,“Adrianna Forsyth”,“Marley Fram”,“Sophie Goodale”,“Dylan Helm”,“Kyana Kingsley”,“Martha Langley”,“Gabriella Leduc”,“Elle Macdonald”,“Jaden Palmquist”,“Mila Santos”], age: 15 },
+{ num: 590, time: “5:01 PM”, studio: “E”, category: “Competitive| Prime| Jazz| Duet/Trio”, title: “DISCO INFERNO”, dancers: [“Zoey DeWinter”,“Makayla Tome”], age: 15 },
+{ num: 591, time: “5:04 PM”, studio: “F”, category: “Pre-Competitive| Cosmic| Jazz| Large Group”, title: “HEY YA”, dancers: [“Rory Arial”,“Harmony English”,“Jordyn Lohnes”,“Brooklyn Lohnes”,“Allyannah Roffey”,“Nikayla Whan”,“Madelyn Whan”,“Sophia Williams”,“Kristen Jade Woodward”], age: 14 },
+{ num: 592, time: “5:08 PM”, studio: “D”, category: “Competitive| Prime| Contemporary| Duet/Trio”, title: “BIRTH, LIFE, DEATH”, dancers: [“Aaliyah Adams”,“Madison Alvey”,“Carmen Williams”], age: 16 },
+{ num: 593, time: “5:11 PM”, studio: “A”, category: “Pre-Competitive| Prime| Tap| Small Group”, title: “FAB 4”, dancers: [“Valentina Amato”,“Katelyn Paiuk”,“Deea Patel”,“Alayne Williams”], age: 15 },
+{ num: 594, time: “5:15 PM”, studio: “D”, category: “Competitive| Prime| Contemporary| Duet/Trio”, title: “THE MIND”, dancers: [“Abigail Roides”,“Ava Sliwowicz”], age: 15 },
+{ num: 595, time: “5:18 PM”, studio: “C”, category: “Competitive| Prime| Contemporary| Duet/Trio”, title: “I CAN’T MAKE THE HILLS”, dancers: [“Sophia Berardi”,“Sienna Deziel”,“Mila Santos”], age: 15 },
+{ num: 596, time: “5:21 PM”, studio: “C”, category: “Competitive| Prime| Contemporary| Duet/Trio”, title: “WINTER MORNING”, dancers: [“Dylan Helm”,“Gabriella Leduc”], age: 15 },
+{ num: 597, time: “5:24 PM”, studio: “G”, category: “Pre-Competitive| Prime| Hip Hop| Small Group”, title: “HONEY”, dancers: [“Taylor Benson”,“Rachael Harnish”,“Kayla Keating”,“Molly Spiewak”,“Lyla Wannamaker”], age: 16 },
+{ num: 598, time: “5:27 PM”, studio: “D”, category: “Competitive| Cosmic| Open| Duet/Trio”, title: “GIANTS”, dancers: [“Ashlyn Murray-Fellin”,“Davia Weese”], age: 14 },
+{ num: 599, time: “5:30 PM”, studio: “F”, category: “Pre-Competitive| Cosmic| Musical Theatre| Small Group”, title: “WHAT I WAS BORN TO DO”, dancers: [“Rory Arial”,“Harmony English”,“Jordyn Lohnes”,“Allyannah Roffey”,“Nikayla Whan”,“Madelyn Whan”,“Sophia Williams”,“Kristen Jade Woodward”], age: 14 },
+{ num: 600, time: “5:34 PM”, studio: “C”, category: “Competitive| Cosmic| Contemporary| Duet/Trio”, title: “A DEAL WITH CHAOS”, dancers: [“Adriana Berardi”,“Elle Macdonald”], age: 13 },
+{ num: 601, time: “5:37 PM”, studio: “B”, category: “Pre-Competitive| Cosmic| Musical Theatre| Large Group”, title: “CHANGING LIVES”, dancers: [“Jenna Brake”,“Lilliane Gaudreau”,“Brinley Hobbs”,“Melayna Iordanoglou”,“Haylee James”,“Keira Mavor”,“Zoe Neill”,“Lillie Robbins”,“Laura Shosenberg”], age: 13 },
+{ num: 602, time: “5:41 PM”, studio: “A”, category: “Competitive| Solar| Tap| Large Group”, title: “JANET”, dancers: [“Lea Bombard”,“Brittany Cristabella Montilla”,“Alice Fagin”,“Maya Isoufi”,“Boya Jin”,“Avery Lo”,“Alessandra Martino”,“Giuliana Martino”,“Polina Ternovska”,“Lovely Winters”,“Filomena Youssef”], age: 12 },
+{ num: 603, time: “5:45 PM”, studio: “D”, category: “Pre-Competitive| Nova| Jazz| Large Group”, title: “SWING”, dancers: [“Zosia Bradshaw”,“Kristina Chatzinikolis”,“Ava Colangelo”,“Audrey Kennedy”,“Kalina Kryway”,“Valentina Melendez-Brooks”,“Abigail Navoa”,“Julia Papadopolous”,“Isla Rego”,“Charlotte Stangarone”,“Sydney Yee Shui”], age: 10 },
+{ num: 604, time: “5:49 PM”, studio: “G”, category: “Pre-Competitive| Prime| Contemporary| Solo”, title: “I’M TIRED”, dancers: [“Molly Spiewak”], age: 15 },
+{ num: 605, time: “5:52 PM”, studio: “F”, category: “Pre-Competitive| Prime| Contemporary| Solo”, title: “OVER THE LOVE”, dancers: [“Harmony English”], age: 15 },
+{ num: 606, time: “5:55 PM”, studio: “E”, category: “Competitive| Prime| Tap| Duet/Trio”, title: “STAND BY ME”, dancers: [“Ava Bailey”,“Sami Sawaged”], age: 16 },
+{ num: 607, time: “5:58 PM”, studio: “D”, category: “Competitive| Prime| Tap| Duet/Trio”, title: “RED LIGHT, GREEN LIGHT”, dancers: [“Ella Hoang”,“Isleigh McDonald”], age: 16 },
+{ num: 608, time: “6:01 PM”, studio: “C”, category: “Competitive| Prime| Tap| Line”, title: “CHIPS & DIP”, dancers: [“Sophia Berardi”,“Adeline Boudreau”,“Sienna Deziel”,“Teagan Bryson”,“Adrianna Forsyth”,“Marley Fram”,“Sophie Goodale”,“Dylan Helm”,“Kyana Kingsley”,“Martha Langley”,“Gabriella Leduc”,“Elle Macdonald”,“Jaden Palmquist”,“Mila Santos”], age: 15 },
+{ num: 609, time: “6:05 PM”, studio: “E”, category: “Competitive| Prime| Acro| Duet/Trio”, title: “HOT HONEY RAG”, dancers: [“Mali MacNeil”,“Charlie Roberts”], age: 15 },
+{ num: 610, time: “6:08 PM”, studio: “D”, category: “Competitive| Prime| Acro| Duet/Trio”, title: “WE MUST BE DREAMING”, dancers: [“Aaliyah Adams”,“Davia Weese”], age: 15 },
+{ num: 611, time: “6:11 PM”, studio: “B”, category: “Pre-Competitive| Solar| Jazz| Extended Line”, title: “LET’S GO TEAM!”, dancers: [“Aubrielle Alexander”,“Avery Beacock”,“Jenna Brake”,“Palmer Burrell-Curran”,“Spencer Burrell-Curran”,“Sadie Carson”,“Caidence Eickmeier”,“Lilliane Gaudreau”,“Brinley Hobbs”,“Briar Hobbs”,“Melayna Iordanoglou”,“Haylee James”,“Jessica Ludlow”,“Keira Mavor”,“Mallory McMahon”,“Zoe Neill”,“Grace Pashko”,“Maddie Robbins”,“Madeline Robbins”,“Eliana Shanmugabalan”,“Laura Shosenberg”,“Dora Stebbins”,“Morgan Willison”], age: 11 },
+{ num: 612, time: “6:16 PM”, studio: “G”, category: “Pre-Competitive| Prime| Hip Hop| Solo”, title: “ONE OF THESE”, dancers: [“Lyla Wannamaker”], age: 16 },
+{ num: 613, time: “6:19 PM”, studio: “F”, category: “Pre-Competitive| Prime| Hip Hop| Solo”, title: “YELLOW LEMON LICK”, dancers: [“Rory Arial”], age: 16 },
+{ num: 614, time: “6:22 PM”, studio: “G”, category: “Competitive| Solaris| Contemporary| Solo”, title: “MY MIND”, dancers: [“Kayla Keating”], age: 18 },
+{ num: 615, time: “6:25 PM”, studio: “C”, category: “Competitive| Prime| Lyrical| Small Group”, title: “ISN’T IT A PITY”, dancers: [“Teagan Bryson”,“Sophie Goodale”,“Dylan Helm”,“Kyana Kingsley”,“Martha Langley”,“Gabriella Leduc”], age: 16 },
+{ num: 616, time: “6:29 PM”, studio: “C”, category: “Competitive| Cosmic| Lyrical| Extended Line”, title: “THERE WILL BE TIME”, dancers: [“Aurora Albisi”,“Adriana Berardi”,“Sophia Berardi”,“Adeline Boudreau”,“Abigail Chretien”,“Sienna Deziel”,“Cristiana Dumencu”,“Adrianna Forsyth”,“Laela Fram”,“Marley Fram”,“Ruby Gagnon”,“Mia Gauthier”,“Elle Macdonald”,“Kiana Mechefske”,“Aila Nurmi”,“Jaden Palmquist”,“Alexis Pavacic”,“Mila Santos”,“Peyton Walker”,“Katherine Wallace”], age: 13 },
+{ num: 617, time: “6:34 PM”, studio: “D”, category: “Competitive| Prime| Jazz| Large Group”, title: “WHEN THE DOVES CRY”, dancers: [“Aaliyah Adams”,“Madison Alvey”,“Syanne Brookes”,“Valeriya Ermakova”,“Ella Hoang”,“Isleigh McDonald”,“Ashlyn Murray-Fellin”,“Abigail Roides”,“Ava Sliwowicz”,“Harleen Tamber”,“Davia Weese”,“Carmen Williams”], age: 15 },
+{ num: 0, time: “6:38 PM”, studio: “”, category: “AWARDS #13 & END OF COMPETITION!”, title: “AWARDS #13 & END OF COMPETITION!”, dancers: [], age: 0, isBreak: true },
+];
+
+const DAUGHTER_NAMES = [“Abigail Chretien”, “Alianna Chretien”];
+const SCHEDULE = [
+{ num:0,time:””,studio:””,category:“SATURDAY APRIL 11”,title:“SATURDAY APRIL 11”,dancers:[],age:0,isBreak:true,isDayHeader:true },
+…SATURDAY,
+{ num:0,time:””,studio:””,category:“SUNDAY APRIL 12”,title:“SUNDAY APRIL 12”,dancers:[],age:0,isBreak:true,isDayHeader:true },
+…SUNDAY,
+];
+const DANCE_IDX = SCHEDULE.reduce((a,e,i)=>{if(!e.isBreak)a.push(i);return a;},[]);
+const TOTAL = DANCE_IDX.length;
+let currentIdx = 1, showDetails = false;
+
+function isDaughter(e){ return e.dancers && e.dancers.some(d=>DAUGHTER_NAMES.includes(d)); }
+function whichD(e){ return e.dancers ? e.dancers.filter(d=>DAUGHTER_NAMES.includes(d)) : []; }
+function parseTime(t){ if(!t)return null; const m=t.match(/(\d+):(\d+)\s*(AM|PM)/i); if(!m)return null; let h=+m[1],mn=+m[2],ap=m[3].toUpperCase(); if(ap===“PM”&&h!==12)h+=12; if(ap===“AM”&&h===12)h=0; return h*60+mn; }
+function timeDiff(a,b){ if(a==null||b==null)return””; let d=b-a; if(d<0)d+=1440; const h=Math.floor(d/60),m=d%60; return h?`~${h}h ${m}min`:`~${m}min`; }
+function formatCat(c){ return c?c.split(”|”).map(s=>s.trim()).filter(Boolean).join(” · “):””; }
+
+function getNextDaughter(){ for(let i=currentIdx+1;i<SCHEDULE.length;i++) if(isDaughter(SCHEDULE[i])) return i; return null; }
+function countUntil(target){ let c=0; for(let i=currentIdx+1;i<=target;i++) if(!SCHEDULE[i].isBreak) c++; return c; }
+
+function save(){ try{localStorage.setItem(“dst”,JSON.stringify({currentIdx}));}catch(e){} }
+function load(){ try{const s=localStorage.getItem(“dst”); if(s){const d=JSON.parse(s); if(typeof d.currentIdx===“number”) currentIdx=Math.max(1,Math.min(d.currentIdx,SCHEDULE.length-1));}}catch(e){} }
+
+function buildList(){
+const el=document.getElementById(“list”); el.innerHTML=””;
+let lastCat=””;
+SCHEDULE.forEach((e,i)=>{
+if(!e.isBreak && (e.category!==lastCat)){
+lastCat=e.category;
+const ch=document.createElement(“div”); ch.className=“catHeader”;
+ch.innerHTML=`<span>${formatCat(e.category)}</span>`; el.appendChild(ch);
+}
+if(e.isBreak) lastCat=””;
+const d=document.createElement(“div”); d.id=“e”+i;
+d.onclick=()=>{currentIdx=i;save();updateUI();};
+if(e.isBreak){
+if(e.isDayHeader){ d.className=“dayHeader”; d.innerHTML=`<span>${e.title}</span>`; }
+else { d.className=“brk”; d.innerHTML=`<span>${e.title}</span>${e.time?`<span class="tm">${e.time}</span>`:""}`; }
+} else {
+const hl=isDaughter(e);
+d.className=“entry”+(hl?” hl”:””);
+let inner=`<div class="row"><span class="tm">${e.time}</span><div style="flex:1"><span class="ttl">${e.title}</span>`;
+if(hl) inner+=`<div>${whichD(e).map(n=>`<span class="dbadge">${n}</span>`).join("")}</div>`;
+inner+=`</div></div>`;
+inner+=`<div class="details" style="display:none">`;
+inner+=`<div class="meta"><b>#${e.num}</b> · Studio ${e.studio} · Age ${e.age}</div>`;
+if(e.dancers.length){
+const preview=e.dancers.slice(0,4);
+const rest=e.dancers.length-4;
+inner+=`<div class="dancers">${preview.map(n=>`<span class=”${DAUGHTER_NAMES.includes(n)?“d”:hl?“dhl”:””}”>${n}</span>`).join("")}</div>`;
+if(rest>0) inner+=`<button class="moreBtn" onclick="event.stopPropagation();this.style.display=\'none\';this.nextSibling.style.display=\'flex\'">+ ${rest} more</button><div class="dancers" style="display:none">${e.dancers.map(n=>`<span class=”${DAUGHTER_NAMES.includes(n)?“d”:hl?“dhl”:””}”>${n}</span>`).join("")}</div>`;
+}
+inner+=`</div>`;
+d.innerHTML=inner;
+}
+el.appendChild(d);
+});
+}
+
+function updateUI(){
+const e=SCHEDULE[currentIdx], hl=isDaughter(e);
+// Update current highlight
+document.querySelectorAll(”.entry.cur,.brk.cur”).forEach(el=>el.classList.remove(“cur”));
+const cel=document.getElementById(“e”+currentIdx);
+if(cel) { cel.classList.add(“cur”); cel.scrollIntoView({behavior:“smooth”,block:“center”}); }
+// Counter
+const di=DANCE_IDX.indexOf(currentIdx);
+document.getElementById(“counter”).textContent=(di>=0?(di+1):”-”)+”/”+TOTAL;
+// Progress
+document.getElementById(“progFill”).style.width=((di>=0?di+1:1)/TOTAL*100)+”%”;
+// Details toggle style
+const db=document.getElementById(“detailsBtn”);
+db.textContent=showDetails?“Hide Details”:“Details”;
+db.style.background=showDetails?“rgba(99,102,241,0.15)”:“rgba(255,255,255,0.05)”;
+db.style.border=showDetails?“1px solid rgba(99,102,241,0.3)”:“1px solid rgba(255,255,255,0.08)”;
+db.style.color=showDetails?”#818cf8”:”#64748b”;
+// Show/hide all details
+document.querySelectorAll(”.details”).forEach(d=>d.style.display=showDetails?“block”:“none”);
+// Banner
+const banner=document.getElementById(“banner”), bannerBtn=document.getElementById(“bannerBtn”);
+const nxt=getNextDaughter();
+if(hl){
+banner.className=“on”; banner.style.display=“block”;
+banner.querySelector(”.b1”).textContent=“ON NOW — “+whichD(e).join(” & “);
+banner.querySelector(”.b2”).textContent=e.title;
+bannerBtn.style.display=“none”;
+} else if(nxt!==null){
+banner.style.display=“none”; bannerBtn.style.display=“block”;
+const cnt=countUntil(nxt), ne=SCHEDULE[nxt];
+const td=timeDiff(parseTime(e.time),parseTime(ne.time));
+bannerBtn.querySelector(”.cnt”).textContent=cnt;
+bannerBtn.querySelector(”.b1t”).textContent=(cnt===1?” dance”:” dances”)+” until”;
+bannerBtn.querySelector(”.b1n”).textContent=ne.title;
+bannerBtn.querySelector(”.b2”).textContent=whichD(ne).join(” & “)+(td?” · “+td:””)+” · tap to jump”;
+} else { banner.style.display=“none”; bannerBtn.style.display=“none”; }
+// Nav buttons
+const pb=document.getElementById(“prevBtn”), nb=document.getElementById(“nextBtn”);
+pb.className=currentIdx<=1?“nbOff”:“nbOn”; pb.disabled=currentIdx<=1;
+nb.className=currentIdx>=SCHEDULE.length-1?“nbOff”:“nbOn”; nb.disabled=currentIdx>=SCHEDULE.length-1;
+}
+
+function goPrev(){ if(currentIdx>1){currentIdx–;save();updateUI();} }
+function goNext(){ if(currentIdx<SCHEDULE.length-1){currentIdx++;save();updateUI();} }
+function jumpNext(){ const n=getNextDaughter(); if(n!==null){currentIdx=n;save();updateUI();} }
+function toggleDetails(){ showDetails=!showDetails; updateUI(); }
+
+load(); buildList(); updateUI();
+</script>
+
+</body>
+</html>
