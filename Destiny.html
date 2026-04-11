@@ -9,8 +9,8 @@
 <title>Destiny Dance Tracker</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system,system-ui,sans-serif;overflow-x:hidden}
-#top{position:sticky;top:0;z-index:100;background:#0c0c18}
+html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system,system-ui,sans-serif;overflow-x:hidden;overflow-anchor:auto}
+#top{position:sticky;top:0;z-index:100;background:#0c0c18;overflow-anchor:none}
 #topbar{padding:14px 16px 10px;display:flex;justify-content:space-between;align-items:center}
 #topbar h1{font-size:17px;font-weight:800;color:#e2e8f0}
 #topright{display:flex;align-items:center;gap:12px}
@@ -50,7 +50,7 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 .dn span.d{background:#fbbf24;color:#1a1a2e;font-weight:700}
 .dn span.x{background:rgba(251,191,36,0.12)}
 .mb{background:none;border:none;color:#818cf8;font-size:11px;padding:6px 0 0;cursor:pointer}
-#bot{position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(to top,#0c0c18 85%,transparent);padding-top:20px}
+#bot{position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(to top,#0c0c18 85%,transparent);padding-top:20px;overflow-anchor:none}
 #bi{max-width:520px;margin:0 auto;padding:0 12px}
 #ban{padding:12px 14px;border-radius:12px;display:none;margin-bottom:8px}
 #bbtn{display:none;width:100%;padding:10px 14px;border-radius:12px;cursor:pointer;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);text-align:left;margin-bottom:6px;font-family:inherit}
@@ -60,6 +60,8 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 #nav button:active{opacity:0.7}
 .bo{background:rgba(99,102,241,0.12);color:#818cf8}
 .bx{background:rgba(255,255,255,0.03);color:#1e1e2e}
+#snapback{display:none;position:fixed;bottom:140px;left:50%;transform:translateX(-50%);z-index:150;padding:8px 16px;border-radius:20px;background:rgba(99,102,241,0.9);color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;max-width:80%;overflow:hidden;text-overflow:ellipsis}
+#snapback:active{opacity:0.7}
 #err{color:red;padding:20px;font-size:14px;display:none}
 </style>
 </head>
@@ -71,6 +73,7 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 <div id="err"></div>
 
 <div id="list"></div>
+<button id="snapback" onclick="snapToCurrent()"></button>
 <div id="bot"><div id="bi">
 <div id="ban"></div>
 <button id="bbtn" onclick="jmpNxt()"></button>
@@ -528,14 +531,62 @@ function go(i){ci=i;sv();upd();}
 function goP(){if(ci>1){ci--;sv();upd();}}
 function goN(){if(ci<S.length-1){ci++;sv();upd();}}
 function jmpNxt(){var n=gND();if(n!==null){ci=n;sv();upd();}}
-function togDet(){sd=!sd;upd();}
+function togDet(){
+  sd=!sd;
+  // Find first visible entry to anchor to
+  var anchor=null,anchorY=0;
+  var els=document.querySelectorAll('[id^="e"]');
+  for(var i=0;i<els.length;i++){
+    var t=els[i].getBoundingClientRect().top;
+    if(t>-50){anchor=els[i];anchorY=t;break;}
+  }
+  document.querySelectorAll(".dt").forEach(function(d){d.style.display=sd?"block":"none";});
+  var db=document.getElementById("detailsBtn");
+  db.textContent=sd?"Hide Details":"Details";
+  db.className=sd?"on":"";
+  // JS fallback scroll correction (supplements CSS overflow-anchor)
+  if(anchor){
+    requestAnimationFrame(function(){
+      var newY=anchor.getBoundingClientRect().top;
+      if(Math.abs(newY-anchorY)>2)window.scrollBy(0,newY-anchorY);
+    });
+  }
+}
 
-function upd(){
+var curObs=null;
+function watchCurrent(){
+  if(curObs)curObs.disconnect();
+  var cel=document.getElementById("e"+ci);
+  if(!cel)return;
+  curObs=new IntersectionObserver(function(entries){
+    var snap=document.getElementById("snapback");
+    if(entries[0].isIntersecting){
+      snap.style.display="none";
+    }else{
+      var e=S[ci];
+      snap.textContent="\u2022 "+(e.title||"Current")+(e.time?" \u00b7 "+e.time:"");
+      snap.style.display="block";
+    }
+  },{threshold:0.1});
+  curObs.observe(cel);
+}
+
+function snapToCurrent(){
+  var cel=document.getElementById("e"+ci);
+  if(cel)cel.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function upd(doScroll){
+  if(doScroll===undefined)doScroll=true;
   var e=S[ci],hl=isD(e);
   document.querySelectorAll(".en.cur,.bk.cur").forEach(function(el){el.classList.remove("cur");});
   document.querySelectorAll(".en.ss").forEach(function(el){el.classList.remove("ss");});
   var cel=document.getElementById("e"+ci);
-  if(cel){cel.classList.add("cur");cel.scrollIntoView({behavior:"smooth",block:"center"});}
+  if(cel){
+    cel.classList.add("cur");
+    if(doScroll)cel.scrollIntoView({behavior:"smooth",block:"center"});
+  }
+  watchCurrent();
 
   // Highlight same-studio dances as next daughter dance
   var nxt=gND();
