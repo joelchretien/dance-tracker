@@ -22,11 +22,19 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
 
   function observe() {
     cleanup()
-    const el = document.getElementById(`entry-${navigation.markedIndex}`)
+
+    // In My Dances mode, observe the position marker or the marked entry if it's visible
+    // In full view, observe the marked entry directly
+    let el: HTMLElement | null = null
+    if (ui.myDancesMode) {
+      el = document.getElementById('current-position-marker')
+        ?? document.getElementById(`entry-${navigation.markedIndex}`)
+    } else {
+      el = document.getElementById(`entry-${navigation.markedIndex}`)
+    }
+
     if (!el) {
-      // In My Dances mode, always show the pill since the marked entry
-      // likely isn't rendered. In full view, hide it.
-      ui.setSnapback(ui.myDancesMode)
+      ui.setSnapback(false)
       return
     }
 

@@ -138,7 +138,7 @@ function handleMarkCurrent(globalIndex: number) {
       <DayHeader v-if="li.kind === 'day-header'" :label="li.dayLabel!" />
 
       <!-- Current position marker -->
-      <div v-else-if="li.kind === 'current-marker'" class="mx-4 my-2 flex items-center gap-2">
+      <div v-else-if="li.kind === 'current-marker'" id="current-position-marker" class="mx-4 my-2 flex items-center gap-2">
         <div class="flex-1 border-t border-dashed border-indigo-400/40"></div>
         <span class="text-[10px] text-indigo-400/70 font-semibold uppercase tracking-wide shrink-0">
           ▶ {{ li.markedTime }} · {{ li.markedTitle }}
