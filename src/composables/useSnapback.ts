@@ -24,7 +24,9 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
     cleanup()
     const el = document.getElementById(`entry-${navigation.markedIndex}`)
     if (!el) {
-      ui.setSnapback(false)
+      // In My Dances mode, always show the pill since the marked entry
+      // likely isn't rendered. In full view, hide it.
+      ui.setSnapback(ui.myDancesMode)
       return
     }
 
