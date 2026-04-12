@@ -103,7 +103,7 @@ function selectResult(globalIndex: number) {
           class="flex items-baseline gap-2 w-full px-4 py-2.5 text-left hover:bg-surface-raised active:bg-surface-overlay transition-colors border-b border-gray-800/50"
           @click="selectResult(r.globalIndex)"
         >
-          <span class="text-xs text-gray-500 shrink-0 w-14">{{ r.time }}</span>
+          <span class="text-xs text-gray-500 shrink-0 w-20">{{ r.time }}</span>
           <div class="flex-1 min-w-0">
             <div class="text-sm font-medium truncate" :class="watchStore.isWatchedEntry(r.globalIndex) ? 'text-gold-400' : 'text-gray-200'">
               {{ r.title }}
@@ -125,7 +125,7 @@ function selectResult(globalIndex: number) {
           class="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-surface-raised active:bg-surface-overlay transition-colors border-b border-gray-800/50"
           @click="selectResult(a.globalIndex)"
         >
-          <span class="text-xs text-gray-500 shrink-0 w-14">{{ a.time }}</span>
+          <span class="text-xs text-gray-500 shrink-0 w-20">{{ a.time }}</span>
           <div class="flex-1 min-w-0">
             <div class="text-sm font-medium truncate" :class="a.isWatched ? 'text-gold-400' : 'text-gray-300'">
               {{ a.title }}

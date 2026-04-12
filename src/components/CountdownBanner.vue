@@ -26,7 +26,7 @@ const countdownLabel = computed(() => {
     <!-- ON NOW: dance with watched dancer -->
     <div
       v-if="styleType === 'on-now' && !isWatchedAwards"
-      class="px-3 py-2 bg-gradient-to-r from-gold-500 to-gold-400 rounded-lg mx-2 mb-1 text-center"
+      class="px-3 py-2 bg-gradient-to-r from-gold-500 to-gold-400 rounded-lg mb-1"
     >
       <div class="text-[15px] font-extrabold text-surface">
         ON NOW — {{ dancers.join(' & ') }}
@@ -39,7 +39,7 @@ const countdownLabel = computed(() => {
     <!-- ON NOW: awards block with watched dancers -->
     <div
       v-else-if="styleType === 'on-now' && isWatchedAwards"
-      class="px-3 py-2 bg-gradient-to-r from-gold-500 to-gold-400 rounded-lg mx-2 mb-1 text-center"
+      class="px-3 py-2 bg-gradient-to-r from-gold-500 to-gold-400 rounded-lg mb-1"
     >
       <div class="text-[15px] font-extrabold text-surface">{{ targetEntry?.title }}</div>
       <div class="text-[13px] font-semibold text-black/45 mt-0.5">Watched Dancers in this block</div>
@@ -48,7 +48,7 @@ const countdownLabel = computed(() => {
     <!-- Countdown / Up Next -->
     <div
       v-else
-      class="w-full px-3 py-2.5 rounded-lg mx-2 mb-1 border border-gold-400/20 bg-gold-400/10 text-left"
+      class="px-3 py-2.5 rounded-lg mb-1 border border-gold-400/20 bg-gold-400/10"
     >
       <!-- Line 1: count + title -->
       <div class="flex items-baseline gap-1.5 flex-wrap">
