@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { BreakEntry as BreakEntryType, AwardsEntry } from '@/types/schedule'
 
-defineProps<{
+const props = defineProps<{
   entry: BreakEntryType | AwardsEntry
   globalIndex: number
   isMarked: boolean
@@ -13,21 +14,32 @@ const emit = defineEmits<{
   select: []
   'mark-current': []
 }>()
+
+const borderClass = computed(() => {
+  if (props.isMarked) return 'border-indigo-500'
+  if (props.isSelected) return 'border-transparent'
+  if (props.isWatchedAwards) return 'border-gold-400/50'
+  return 'border-gray-800 border-dashed'
+})
+
+const bgClass = computed(() => {
+  if (props.isMarked) return 'bg-indigo-500/20'
+  if (props.isSelected) return 'bg-surface-overlay'
+  if (props.isWatchedAwards) return 'bg-gold-400/10'
+  return 'bg-surface-raised'
+})
+
+const ringClass = computed(() => {
+  if (props.isSelected) return 'ring-1 ring-white/20'
+  return ''
+})
 </script>
 
 <template>
   <div
     :id="`entry-${globalIndex}`"
     class="mx-2 my-0.5 px-3 py-2 rounded-lg cursor-pointer text-center transition-colors border"
-    :class="[
-      isMarked
-        ? 'bg-indigo-500/20 border-indigo-500'
-        : isSelected
-          ? 'bg-surface-highlight border-indigo-500/50'
-          : isWatchedAwards
-            ? 'bg-gold-400/10 border-gold-400/50'
-            : 'bg-surface-raised border-gray-800 border-dashed',
-    ]"
+    :class="[borderClass, bgClass, ringClass]"
     @click="emit('select')"
   >
     <div class="flex items-center justify-center gap-2">
@@ -43,7 +55,6 @@ const emit = defineEmits<{
       Your dancers are in this block
     </div>
 
-    <!-- Mark as current when selected -->
     <template v-if="isSelected">
       <button
         v-if="!isMarked"
