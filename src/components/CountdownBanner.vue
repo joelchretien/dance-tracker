@@ -42,7 +42,7 @@ const countdownLabel = computed(() => {
       class="px-3 py-2 bg-gradient-to-r from-gold-500 to-gold-400 rounded-lg mx-2 mb-1 text-center"
     >
       <div class="text-[15px] font-extrabold text-surface">{{ targetEntry?.title }}</div>
-      <div class="text-[13px] font-semibold text-black/45 mt-0.5">Watched dancers in this block</div>
+      <div class="text-[13px] font-semibold text-black/45 mt-0.5">Watched Dancers in this block</div>
     </div>
 
     <!-- Countdown / Up Next -->
@@ -67,7 +67,7 @@ const countdownLabel = computed(() => {
       <!-- Line 2: category/time info -->
       <div class="text-xs text-gold-400/50 mt-0.5">
         <template v-if="isWatchedAwards">
-          Watched dancers in this block<span v-if="time"> · {{ time }}</span><span v-if="timeDiff"> · {{ timeDiff }}</span>
+          Watched Dancers in this block<span v-if="time"> · {{ time }}</span><span v-if="timeDiff"> · {{ timeDiff }}</span>
         </template>
         <template v-else>
           <span v-if="subtitle">{{ subtitle }} · </span>{{ time }}<span v-if="timeDiff"> · {{ timeDiff }}</span>
