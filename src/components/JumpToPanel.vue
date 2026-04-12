@@ -103,7 +103,7 @@ function selectResult(globalIndex: number) {
 
       <!-- Empty state -->
       <div v-else class="text-center text-gray-500 text-sm py-12">
-        Search by dance title, entry number, or awards
+        Tap a result to jump to it in the schedule
       </div>
     </div>
   </div>
