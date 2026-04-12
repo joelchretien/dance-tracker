@@ -508,7 +508,7 @@ function isDaughterAwards(i){return !!DAWARDS[i];}
 function isD(e){if(!e.dancers)return false;for(var j=0;j<e.dancers.length;j++){if(DN.indexOf(e.dancers[j])>=0)return true;}return false;}
 function wD(e){var r=[];if(!e.dancers)return r;for(var j=0;j<e.dancers.length;j++){if(DN.indexOf(e.dancers[j])>=0)r.push(e.dancers[j]);}return r;}
 
-var ci=1,sd=false;
+var ci=1,sd=false,WS={};
 function pT(t){if(!t)return null;var m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return null;var h=parseInt(m[1]),mn=parseInt(m[2]),ap=m[3].toUpperCase();if(ap==="PM"&&h!==12)h+=12;if(ap==="AM"&&h===12)h=0;return h*60+mn;}
 function tD(a,b){if(a==null||b==null)return"";var d=b-a;if(d<0)d+=1440;var h=Math.floor(d/60),m=d%60;return h?"~"+h+"h "+m+"min":"~"+m+"min";}
 function fC(c){if(!c)return"";return c.split("|").map(function(s){return s.trim();}).filter(Boolean).join(" \u00b7 ");}
@@ -521,6 +521,11 @@ function ld(){try{var s=localStorage.getItem("dst");if(s){var d=JSON.parse(s);if
 function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
 
 function bld(){
+  // Compute studios where watched dancers perform
+  WS={};
+  for(var i=0;i<S.length;i++){
+    if(!S[i].isBreak&&S[i].studio&&isD(S[i])){WS[S[i].studio]=true;}
+  }
   var el=document.getElementById("list");
   var h="";
   var lc="";
@@ -540,7 +545,8 @@ function bld(){
       }
     }else{
       var hl=isD(e);
-      h+='<div class="en'+(hl?' hl':'')+'" id="e'+i+'" data-st="'+e.studio+'" onclick="go('+i+')">';
+      var ss=!hl&&WS[e.studio];
+      h+='<div class="en'+(hl?' hl':'')+(ss?' ss':'')+'" id="e'+i+'" data-st="'+e.studio+'" onclick="go('+i+')">';
       h+='<div class="rw"><span class="tm">'+e.time+'</span><span class="tn">#'+e.num+'</span><div style="flex:1"><span class="tt">'+esc(e.title)+'</span>';
       if(hl){h+='<div style="margin-top:4px">';var dd=wD(e);for(var j=0;j<dd.length;j++){h+='<span class="db">'+esc(dd[j])+'</span>';}h+='</div>';}
       h+='</div></div>';
@@ -679,7 +685,6 @@ function upd(doScroll){
   if(doScroll===undefined)doScroll=true;
   var e=S[ci],hl=isD(e);
   document.querySelectorAll(".en.cur,.bk.cur").forEach(function(el){el.classList.remove("cur");});
-  document.querySelectorAll(".en.ss").forEach(function(el){el.classList.remove("ss");});
   var cel=document.getElementById("e"+ci);
   if(cel){
     cel.classList.add("cur");
@@ -687,26 +692,6 @@ function upd(doScroll){
   }
   watchCurrent();
 
-  // Highlight same-studio dances as next daughter dance (skip awards)
-  var nxt=gND();
-  var nxtStudio="";
-  if(nxt!==null){
-    // If nxt is awards, look further for an actual dance
-    if(!S[nxt].studio){
-      for(var i=nxt+1;i<S.length;i++){
-        if(isD(S[i])&&S[i].studio){nxtStudio=S[i].studio;break;}
-      }
-    }else{
-      nxtStudio=S[nxt].studio;
-    }
-    if(nxtStudio){
-      document.querySelectorAll('.en[data-st="'+nxtStudio+'"]').forEach(function(el){
-        if(!el.classList.contains("hl")){
-          el.classList.add("ss");
-        }
-      });
-    }
-  }
   var di=DI.indexOf(ci);
   document.getElementById("progFill").style.width=((di>=0?di+1:1)/TOT*100)+"%";
   var db=document.getElementById("detailsBtn");
