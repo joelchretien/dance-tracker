@@ -61,9 +61,10 @@ src/
 
 ## Adding a New Competition
 
-1. Create a schedule JSON file matching the format in `public/schedules/destiny-rising-2025.json`
-2. Add it to `public/schedules/index.json`
-3. Push to main — GitHub Actions deploys automatically
+1. Upload the competition's schedule PDF to Claude and use the skill in `skills/convert-schedule.md`
+2. Claude will generate the schedule JSON and update the manifest
+3. Place the JSON in `public/schedules/` and update `public/schedules/index.json`
+4. Push to main — GitHub Actions deploys automatically
 
 ### Schedule JSON Format
 
@@ -84,7 +85,7 @@ src/
 }
 ```
 
-The `scripts/convert-schedule.js` script was used to convert the original vanilla HTML schedule into this JSON format. For future competitions, you can either use the script as a template or create the JSON directly.
+The schedule JSON format is fully documented in `skills/convert-schedule.md`.
 
 ## Development
 
