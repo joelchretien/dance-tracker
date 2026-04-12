@@ -16,7 +16,7 @@ const hasWatched = computed(() => watchStore.watchedDancers.length > 0)
 </script>
 
 <template>
-  <div class="sticky top-0 z-30 bg-surface border-b border-gray-800">
+  <div class="sticky top-0 z-30 bg-surface border-b border-gray-800" style="padding-top: env(safe-area-inset-top, 0px)">
     <div class="flex items-center justify-between px-3 py-2">
       <div class="text-sm font-semibold truncate flex-1 mr-2">{{ title }}</div>
       <div class="flex items-center gap-1">
