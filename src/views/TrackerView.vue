@@ -7,15 +7,14 @@ import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 import { useSnapback } from '@/composables/useSnapback'
 import TopBar from '@/components/TopBar.vue'
-import AwardsNav from '@/components/AwardsNav.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ScheduleStatus from '@/components/ScheduleStatus.vue'
 import ScheduleList from '@/components/ScheduleList.vue'
 import MyDancesList from '@/components/MyDancesList.vue'
 import SnapbackPill from '@/components/SnapbackPill.vue'
 import BottomBar from '@/components/BottomBar.vue'
-import WatchPanel from '@/components/WatchPanel.vue'
-import SearchPanel from '@/components/SearchPanel.vue'
+import JumpToPanel from '@/components/JumpToPanel.vue'
+import SettingsPanel from '@/components/SettingsPanel.vue'
 import ToastNotification from '@/components/ToastNotification.vue'
 
 const props = defineProps<{ scheduleId: string }>()
@@ -39,7 +38,6 @@ onMounted(async () => {
   scrollToEntry(navigation.markedIndex, false)
 })
 
-// 30-second schedule status refresh
 const { pause } = useIntervalFn(() => {
   ui.updateScheduleStatus()
 }, 30000)
@@ -48,7 +46,6 @@ onUnmounted(() => {
   pause()
 })
 
-// When the marked (current) dance changes, update status and scroll to it
 watch(() => navigation.markedIndex, () => {
   ui.updateScheduleStatus()
   nextTick(() => scrollToEntry(navigation.markedIndex, true))
@@ -61,7 +58,6 @@ function scrollToEntry(index: number, smooth: boolean) {
   }
 }
 
-/** "Jump to now" — scroll to the entry closest to current wall clock time */
 function handleJumpToNow() {
   const result = navigation.jumpToNow()
   if (result !== null) {
@@ -69,20 +65,10 @@ function handleJumpToNow() {
   }
 }
 
-// Countdown banner tap: scroll to next watched entry without changing selection
 function handleJumpToNext() {
   if (watchStore.nextTargetIndex !== null) {
     scrollToEntry(watchStore.nextTargetIndex, true)
   }
-}
-
-function handleCycleFontSize() {
-  const msg = navigation.cycleFontSize()
-  ui.showToast(msg)
-}
-
-function handleSearchJump(index: number) {
-  nextTick(() => scrollToEntry(index, true))
 }
 
 function handleToggleMyDances() {
@@ -90,7 +76,7 @@ function handleToggleMyDances() {
   ui.showToast(msg)
 }
 
-function handleAwardsJump(index: number) {
+function handlePanelJump(index: number) {
   nextTick(() => scrollToEntry(index, true))
 }
 </script>
@@ -105,10 +91,8 @@ function handleAwardsJump(index: number) {
   <div v-else-if="schedule.isLoaded" class="flex flex-col h-dvh">
     <TopBar
       :title="schedule.meta?.name ?? ''"
-      @cycle-font-size="handleCycleFontSize"
       @toggle-my-dances="handleToggleMyDances"
     />
-    <AwardsNav v-if="ui.awardsNavOpen" @jump-to="handleAwardsJump" />
     <ProgressBar :percent="navigation.progressPercent" />
     <ScheduleStatus :status="ui.scheduleStatus" />
 
@@ -123,8 +107,8 @@ function handleAwardsJump(index: number) {
     />
 
     <BottomBar @jump-to-next="handleJumpToNext" />
-    <WatchPanel v-if="ui.watchPanelOpen" />
-    <SearchPanel v-if="ui.searchPanelOpen" @jump-to="handleSearchJump" />
+    <JumpToPanel v-if="ui.jumpToPanelOpen" @jump-to="handlePanelJump" />
+    <SettingsPanel v-if="ui.settingsPanelOpen" />
     <ToastNotification v-if="ui.toastMessage" :message="ui.toastMessage" />
   </div>
 </template>
