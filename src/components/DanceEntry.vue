@@ -58,7 +58,7 @@ const outlineStyle = computed(() => {
     >▶ current</span>
 
     <div class="flex items-baseline gap-2">
-      <span class="fs-time text-gray-400 shrink-0 w-16">{{ entry.time }}</span>
+      <span class="fs-time text-gray-400 shrink-0 w-20">{{ entry.time }}</span>
       <span class="fs-title font-medium flex-1" :class="[isWatched ? 'text-gold-400' : '', isSelected ? '' : 'truncate']">
         {{ entry.title }}
       </span>
