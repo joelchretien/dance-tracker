@@ -52,19 +52,6 @@ const searchResults = computed<SearchResult[]>(() => {
   return scored.slice(0, 20)
 })
 
-// Awards list
-const awardsList = computed(() =>
-  schedule.awardsIndices.map(gi => {
-    const item = schedule.flatEntries[gi]
-    return {
-      globalIndex: gi,
-      title: item.entry.title,
-      time: item.entry.time,
-      isWatched: watchStore.watchedAwardsSet.has(gi),
-    }
-  })
-)
-
 function selectResult(globalIndex: number) {
   navigation.select(globalIndex)
   ui.closeJumpToPanel()
@@ -114,26 +101,10 @@ function selectResult(globalIndex: number) {
         </button>
       </template>
 
-      <!-- Awards list when not searching -->
-      <template v-else>
-        <div class="px-4 pt-3 pb-2">
-          <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Awards</div>
-        </div>
-        <button
-          v-for="a in awardsList"
-          :key="a.globalIndex"
-          class="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-surface-raised active:bg-surface-overlay transition-colors border-b border-gray-800/50"
-          @click="selectResult(a.globalIndex)"
-        >
-          <span class="text-xs text-gray-500 shrink-0 w-20">{{ a.time }}</span>
-          <div class="flex-1 min-w-0">
-            <div class="text-sm font-medium truncate" :class="a.isWatched ? 'text-gold-400' : 'text-gray-300'">
-              {{ a.title }}
-            </div>
-            <div v-if="a.isWatched" class="text-[10px] text-gold-400/60">Watched Dancers in this block</div>
-          </div>
-        </button>
-      </template>
+      <!-- Empty state -->
+      <div v-else class="text-center text-gray-500 text-sm py-12">
+        Search by dance title, entry number, or awards
+      </div>
     </div>
   </div>
 </template>
