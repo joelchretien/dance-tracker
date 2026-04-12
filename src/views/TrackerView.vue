@@ -13,6 +13,7 @@ import ScheduleList from '@/components/ScheduleList.vue'
 import SnapbackPill from '@/components/SnapbackPill.vue'
 import BottomBar from '@/components/BottomBar.vue'
 import WatchPanel from '@/components/WatchPanel.vue'
+import SearchPanel from '@/components/SearchPanel.vue'
 import ToastNotification from '@/components/ToastNotification.vue'
 
 const props = defineProps<{ scheduleId: string }>()
@@ -78,6 +79,10 @@ function handleCycleFontSize() {
   const msg = navigation.cycleFontSize()
   ui.showToast(msg)
 }
+
+function handleSearchJump(index: number) {
+  nextTick(() => scrollToEntry(index, true))
+}
 </script>
 
 <template>
@@ -106,6 +111,7 @@ function handleCycleFontSize() {
 
     <BottomBar @jump-to-next="handleJumpToNext" />
     <WatchPanel v-if="ui.watchPanelOpen" />
+    <SearchPanel v-if="ui.searchPanelOpen" @jump-to="handleSearchJump" />
     <ToastNotification v-if="ui.toastMessage" :message="ui.toastMessage" />
   </div>
 </template>

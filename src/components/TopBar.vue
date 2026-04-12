@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ALargeSmall, Star } from 'lucide-vue-next'
+import { ALargeSmall, Star, Search } from 'lucide-vue-next'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 
@@ -20,6 +20,13 @@ const hasWatched = computed(() => watchStore.watchedDancers.length > 0)
     <div class="flex items-center justify-between px-3 py-2">
       <div class="text-sm font-semibold truncate flex-1 mr-2">{{ title }}</div>
       <div class="flex items-center gap-1">
+        <button
+          class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
+          title="Search dances"
+          @click="ui.openSearchPanel()"
+        >
+          <Search :size="20" class="text-gray-300" />
+        </button>
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
           title="Font size"

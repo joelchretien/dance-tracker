@@ -9,6 +9,8 @@ import type { ScheduleStatus } from '@/types/schedule'
 export const useUiStore = defineStore('ui', () => {
   const watchPanelOpen = ref(false)
   const watchSearchQuery = ref('')
+  const searchPanelOpen = ref(false)
+  const searchQuery = ref('')
   const toastMessage = ref('')
   const toastTimerId = ref<ReturnType<typeof setTimeout> | null>(null)
   const snapbackVisible = ref(false)
@@ -42,6 +44,16 @@ export const useUiStore = defineStore('ui', () => {
     watchSearchQuery.value = ''
   }
 
+  function openSearchPanel() {
+    searchPanelOpen.value = true
+    searchQuery.value = ''
+  }
+
+  function closeSearchPanel() {
+    searchPanelOpen.value = false
+    searchQuery.value = ''
+  }
+
   function setSnapback(visible: boolean) {
     snapbackVisible.value = visible
   }
@@ -64,11 +76,13 @@ export const useUiStore = defineStore('ui', () => {
 
   return {
     watchPanelOpen, watchSearchQuery,
+    searchPanelOpen, searchQuery,
     toastMessage, toastTimerId,
     snapbackVisible, snapbackDirection,
     scheduleStatus,
     showToast, clearToast,
     openWatchPanel, closeWatchPanel,
+    openSearchPanel, closeSearchPanel,
     setSnapback, updateScheduleStatus,
   }
 })
