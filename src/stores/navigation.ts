@@ -157,6 +157,15 @@ export const useNavigationStore = defineStore('navigation', () => {
     return { index: idx, toast }
   }
 
+  // The entry closest to current wall clock time (updated periodically)
+  const nowIndex = ref<number | null>(null)
+
+  function updateNowIndex() {
+    const dayIdx = todayDayIndex(schedule.dayDates)
+    const now = currentTimeMinutes()
+    nowIndex.value = findNowIndex(schedule.flatEntries, now, dayIdx)
+  }
+
   const markedTimeOfEntry = computed(() => {
     const entry = markedEntry.value?.entry
     if (!entry) return -1
@@ -177,5 +186,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     initForSchedule, select, markAsCurrent, advance, retreat,
     canIncreaseFontSize, canDecreaseFontSize,
     increaseFontSize, decreaseFontSize, cycleFontSize, jumpToNow,
+    nowIndex, updateNowIndex,
   }
 })

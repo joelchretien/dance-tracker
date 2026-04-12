@@ -33,6 +33,7 @@ onMounted(async () => {
   navigation.initForSchedule(props.scheduleId)
   watchStore.initForSchedule(props.scheduleId)
   ui.updateScheduleStatus()
+  navigation.updateNowIndex()
 
   await nextTick()
   scrollToEntry(navigation.markedIndex, false)
@@ -40,6 +41,7 @@ onMounted(async () => {
 
 const { pause } = useIntervalFn(() => {
   ui.updateScheduleStatus()
+  navigation.updateNowIndex()
 }, 30000)
 
 onUnmounted(() => {

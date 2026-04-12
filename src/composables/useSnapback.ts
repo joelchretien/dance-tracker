@@ -3,9 +3,9 @@ import { useNavigationStore } from '@/stores/navigation'
 import { useUiStore } from '@/stores/ui'
 
 /**
- * Shows a "Jump to now" pill when the user scrolls away from the
- * currently-marked entry. The pill triggers a scroll to the entry
- * closest to the current wall-clock time.
+ * Shows a "Jump to now" pill when the entry closest to the current
+ * wall-clock time is not visible on screen. In Watched Dances mode,
+ * tracks the current-position marker instead.
  */
 export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
   const navigation = useNavigationStore()
@@ -23,14 +23,16 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
   function observe() {
     cleanup()
 
-    // In Watched Dances mode, observe the position marker or the marked entry if it's visible
-    // In full view, observe the marked entry directly
     let el: HTMLElement | null = null
     if (ui.myDancesMode) {
+      // In Watched Dances mode, observe the position marker or the marked entry
       el = document.getElementById('current-position-marker')
         ?? document.getElementById(`entry-${navigation.markedIndex}`)
     } else {
-      el = document.getElementById(`entry-${navigation.markedIndex}`)
+      // In full view, observe the entry closest to current wall-clock time
+      if (navigation.nowIndex !== null) {
+        el = document.getElementById(`entry-${navigation.nowIndex}`)
+      }
     }
 
     if (!el) {
@@ -51,10 +53,12 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
     observer.observe(el)
   }
 
-  // Re-attach whenever the marked entry changes or the view mode changes
-  watch([() => navigation.markedIndex, () => ui.myDancesMode], () => {
-    requestAnimationFrame(observe)
-  }, { immediate: true })
+  // Re-observe when nowIndex updates, mode changes, or marked entry changes
+  watch(
+    [() => navigation.nowIndex, () => navigation.markedIndex, () => ui.myDancesMode],
+    () => { requestAnimationFrame(observe) },
+    { immediate: true },
+  )
 
   watch(scrollContainer, (container, _, onCleanup) => {
     if (container) {
