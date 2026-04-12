@@ -55,7 +55,7 @@ const outlineStyle = computed(() => {
       <!-- ▶ indicator for marked/current dance — shape cue -->
       <span v-if="isMarked" class="text-indigo-400 text-[10px] shrink-0 -ml-1 mr--1">▶</span>
       <span class="fs-time text-gray-400 shrink-0 w-16">{{ entry.time }}</span>
-      <span class="fs-title font-medium flex-1 truncate" :class="isWatched ? 'text-gold-400' : ''">
+      <span class="fs-title font-medium flex-1" :class="[isWatched ? 'text-gold-400' : '', isSelected ? '' : 'truncate']">
         {{ entry.title }}
       </span>
       <span v-if="entry.num" class="fs-time text-gray-500 shrink-0">#{{ entry.num }}</span>
