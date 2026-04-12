@@ -62,12 +62,18 @@ function scrollToEntry(index: number, smooth: boolean) {
 
 function handleJumpToNow() {
   if (ui.myDancesMode) {
-    // In filtered mode, scroll to the current-position marker or the marked entry if visible
-    const marker = document.getElementById('current-position-marker')
-      ?? document.getElementById(`entry-${navigation.markedIndex}`)
-    if (marker) {
-      marker.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    // Find the watched entry nearest to current time and scroll to it
+    const now = navigation.nowIndex
+    if (now === null) return
+    const indices = watchStore.watchedEntryIndices
+    if (indices.length === 0) return
+    let best = indices[0]
+    let bestDist = Math.abs(best - now)
+    for (const gi of indices) {
+      const dist = Math.abs(gi - now)
+      if (dist < bestDist) { best = gi; bestDist = dist }
     }
+    nextTick(() => scrollToEntry(best, true))
   } else {
     const result = navigation.jumpToNow()
     if (result !== null) {
