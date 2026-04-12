@@ -1,9 +1,9 @@
 {
   "schedules": [
     {
-      "id": "destiny-2025",
+      "id": "destiny-2026",
       "name": "Destiny",
-      "file": "destiny-2025.json"
+      "file": "destiny-2026.json"
     },
     {
       "id": "destiny-rising-2025",
