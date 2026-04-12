@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
+import { onMounted, onUnmounted, ref, computed, watch, nextTick } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
 import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
@@ -28,8 +28,15 @@ const scrollContainer = ref<HTMLElement | null>(null)
 
 useSnapback(scrollContainer)
 
+const multipleSchedules = computed(() =>
+  (schedule.manifest?.schedules.length ?? 0) > 1
+)
+
 onMounted(async () => {
-  await schedule.loadSchedule(props.scheduleId)
+  await Promise.all([
+    schedule.loadSchedule(props.scheduleId),
+    schedule.manifest ? Promise.resolve() : schedule.loadManifest(),
+  ])
   navigation.initForSchedule(props.scheduleId)
   watchStore.initForSchedule(props.scheduleId)
   ui.updateScheduleStatus()
@@ -100,6 +107,7 @@ function handlePanelJump(index: number) {
   <div v-else-if="schedule.isLoaded" class="flex flex-col h-dvh">
     <TopBar
       :title="schedule.meta?.name ?? ''"
+      :show-back="multipleSchedules"
       @toggle-watched-dances="handleToggleWatchedDances"
     />
     <ScheduleStatus :status="ui.scheduleStatus" />

@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router'
 import { Search, ListFilter, Settings, ChevronLeft } from 'lucide-vue-next'
 import { useUiStore } from '@/stores/ui'
 
-defineProps<{ title: string }>()
+defineProps<{ title: string; showBack: boolean }>()
 const emit = defineEmits<{
   'toggle-watched-dances': []
 }>()
@@ -14,8 +14,9 @@ const ui = useUiStore()
 
 <template>
   <div class="sticky top-0 z-30 bg-surface border-b border-gray-800 relative" style="padding-top: env(safe-area-inset-top, 0px)">
-    <div class="flex items-center justify-between px-1 py-2">
+    <div class="flex items-center justify-between py-2" :class="showBack ? 'px-1' : 'px-3'">
       <button
+        v-if="showBack"
         class="p-1.5 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors shrink-0"
         title="Back to schedule list"
         @click="router.push('/')"
