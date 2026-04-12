@@ -15,20 +15,13 @@ function shouldShowCategoryHeader(index: number): boolean {
   const item = schedule.flatEntries[index]
   if (!item || item.entry.type !== 'dance' || !item.entry.category) return false
 
-  // Show if it's the first entry
   if (index === 0) return true
-
-  // Show after a day boundary
   if (index > 0 && item.dayIndex !== schedule.flatEntries[index - 1].dayIndex) return true
 
-  // Find previous dance entry
   for (let i = index - 1; i >= 0; i--) {
     const prev = schedule.flatEntries[i]
-    // Reset after break/awards
     if (prev.entry.type !== 'dance') return true
-    // Same day, check category change
     if (prev.entry.type === 'dance' && prev.entry.category !== item.entry.category) return true
-    // Same category
     return false
   }
   return true
@@ -40,7 +33,11 @@ function isNewDay(index: number): boolean {
 }
 
 function handleSelect(globalIndex: number) {
-  navigation.goTo(globalIndex)
+  navigation.select(globalIndex)
+}
+
+function handleMarkCurrent(globalIndex: number) {
+  navigation.markAsCurrent(globalIndex)
 }
 </script>
 
@@ -62,12 +59,13 @@ function handleSelect(globalIndex: number) {
         :id="`entry-${item.globalIndex}`"
         :entry="item.entry"
         :global-index="item.globalIndex"
-        :is-current="item.globalIndex === navigation.currentIndex"
+        :is-marked="item.globalIndex === navigation.markedIndex"
+        :is-selected="item.globalIndex === navigation.selectedIndex"
         :is-watched="watchStore.isWatchedEntry(item.globalIndex)"
         :watched-dancers="watchStore.getWatchedDancersForEntry(item.globalIndex)"
         :same-studio="!!(item.entry.studio && watchStore.watchedStudios.has(item.entry.studio))"
-        :show-details="navigation.showDetails"
         @select="handleSelect(item.globalIndex)"
+        @mark-current="handleMarkCurrent(item.globalIndex)"
       />
 
       <BreakEntry
@@ -75,9 +73,11 @@ function handleSelect(globalIndex: number) {
         :id="`entry-${item.globalIndex}`"
         :entry="item.entry"
         :global-index="item.globalIndex"
-        :is-current="item.globalIndex === navigation.currentIndex"
+        :is-marked="item.globalIndex === navigation.markedIndex"
+        :is-selected="item.globalIndex === navigation.selectedIndex"
         :is-watched-awards="item.entry.type === 'awards' && watchStore.watchedAwardsSet.has(item.globalIndex)"
         @select="handleSelect(item.globalIndex)"
+        @mark-current="handleMarkCurrent(item.globalIndex)"
       />
     </template>
   </div>

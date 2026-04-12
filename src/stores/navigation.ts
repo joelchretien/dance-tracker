@@ -15,25 +15,26 @@ const FS_LABELS: Record<FontSize, string> = {
 export const useNavigationStore = defineStore('navigation', () => {
   const schedule = useScheduleStore()
 
-  const currentIndex = ref(0)
-  const showDetails = ref(false)
+  // "Current dance" — the dance the competition is currently on.
+  // Advance/Back operate on this. Persisted across sessions.
+  const markedIndex = ref(0)
+
+  // "Selected dance" — the dance the user tapped to inspect.
+  // Shows details inline. Transient (not persisted). null = nothing selected.
+  const selectedIndex = ref<number | null>(null)
+
   const fontSize = ref<FontSize>('default')
 
-  // Persistent storage refs (set up when schedule loads)
   let navStorage: ReturnType<typeof useLocalStorage<number>> | null = null
   let fsStorage: ReturnType<typeof useLocalStorage<FontSize>> | null = null
 
   function initForSchedule(id: string) {
     navStorage = useLocalStorage(`dt:${id}:nav`, 0)
     fsStorage = useLocalStorage<FontSize>(`dt:${id}:fontSize`, 'default')
-
-    // Migrate legacy keys
     migrateLegacyKeys(id)
-
-    currentIndex.value = navStorage.value
+    markedIndex.value = navStorage.value
     fontSize.value = fsStorage.value
-    showDetails.value = false
-
+    selectedIndex.value = null
     applyFontSize()
   }
 
@@ -51,94 +52,58 @@ export const useNavigationStore = defineStore('navigation', () => {
         const map: Record<string, FontSize> = { '0': 'default', '1': 'medium', '2': 'large' }
         fsStorage!.value = map[legacyFs] ?? 'default'
       }
-    } catch {
-      // Ignore migration errors
-    }
+    } catch { /* ignore */ }
   }
 
-  // Sync to localStorage
-  watch(currentIndex, (val) => { if (navStorage) navStorage.value = val })
+  watch(markedIndex, (val) => { if (navStorage) navStorage.value = val })
   watch(fontSize, (val) => { if (fsStorage) fsStorage.value = val })
 
-  const currentEntry = computed(() => schedule.flatEntries[currentIndex.value] ?? null)
-  const currentDayIndex = computed(() => currentEntry.value?.dayIndex ?? 0)
+  const markedEntry = computed(() => schedule.flatEntries[markedIndex.value] ?? null)
+  const markedDayIndex = computed(() => markedEntry.value?.dayIndex ?? 0)
 
-  const currentDanceNumber = computed(() => {
-    const idx = schedule.danceIndices.indexOf(currentIndex.value)
+  const markedDanceNumber = computed(() => {
+    const idx = schedule.danceIndices.indexOf(markedIndex.value)
     return idx >= 0 ? idx + 1 : null
   })
 
-  // Progress: 1-indexed to match original ((di+1)/TOT * 100)
   const progressPercent = computed(() => {
     if (schedule.totalDances === 0) return 0
-    const idx = schedule.danceIndices.indexOf(currentIndex.value)
+    const idx = schedule.danceIndices.indexOf(markedIndex.value)
     if (idx >= 0) {
       return ((idx + 1) / schedule.totalDances) * 100
     }
-    // For non-dance entries, find the closest dance before
     let closestIdx = 0
     for (let i = 0; i < schedule.danceIndices.length; i++) {
-      if (schedule.danceIndices[i] <= currentIndex.value) closestIdx = i + 1
+      if (schedule.danceIndices[i] <= markedIndex.value) closestIdx = i + 1
       else break
     }
     return (closestIdx / schedule.totalDances) * 100
   })
 
-  const canGoPrev = computed(() => currentIndex.value > 0)
-  const canGoNext = computed(() => currentIndex.value < schedule.flatEntries.length - 1)
+  const canGoBack = computed(() => markedIndex.value > 0)
+  const canAdvance = computed(() => markedIndex.value < schedule.flatEntries.length - 1)
 
-  function goTo(i: number) {
-    if (i >= 0 && i < schedule.flatEntries.length) {
-      currentIndex.value = i
+  /** Select (tap to inspect) a dance. Toggles off if tapping the same one. */
+  function select(i: number) {
+    selectedIndex.value = selectedIndex.value === i ? null : i
+  }
+
+  /** Mark a dance as the current dance (what Advance/Back operate on). */
+  function markAsCurrent(i?: number) {
+    const target = i ?? selectedIndex.value
+    if (target !== null && target !== undefined && target >= 0 && target < schedule.flatEntries.length) {
+      markedIndex.value = target
     }
   }
 
-  function goNext() {
-    if (canGoNext.value) currentIndex.value++
+  function advance() {
+    if (canAdvance.value) markedIndex.value++
   }
 
-  function goPrev() {
-    if (canGoPrev.value) currentIndex.value--
+  function retreat() {
+    if (canGoBack.value) markedIndex.value--
   }
 
-  /**
-   * Toggle details with scroll preservation.
-   * Returns toast message string for the caller to display.
-   */
-  function toggleDetails(): string {
-    // Find the first visible entry to anchor to
-    let anchor: HTMLElement | null = null
-    let anchorY = 0
-    const els = document.querySelectorAll<HTMLElement>('[id^="entry-"]')
-    for (const el of els) {
-      const top = el.getBoundingClientRect().top
-      if (top > -50) {
-        anchor = el
-        anchorY = top
-        break
-      }
-    }
-
-    showDetails.value = !showDetails.value
-
-    // Correct scroll position after DOM updates
-    if (anchor) {
-      const a = anchor
-      const ay = anchorY
-      requestAnimationFrame(() => {
-        const newY = a.getBoundingClientRect().top
-        if (Math.abs(newY - ay) > 2) {
-          window.scrollBy(0, newY - ay)
-        }
-      })
-    }
-
-    return showDetails.value ? 'ⓘ Details shown' : 'ⓘ Details hidden'
-  }
-
-  /**
-   * Cycle font size. Returns toast message string.
-   */
   function cycleFontSize(): string {
     const order: FontSize[] = ['default', 'medium', 'large']
     const idx = order.indexOf(fontSize.value)
@@ -164,16 +129,24 @@ export const useNavigationStore = defineStore('navigation', () => {
     return { index: idx, toast }
   }
 
-  const currentTimeOfEntry = computed(() => {
-    const entry = currentEntry.value?.entry
+  const markedTimeOfEntry = computed(() => {
+    const entry = markedEntry.value?.entry
     if (!entry) return -1
     return parseTime(entry.time)
   })
 
+  // Backward-compat aliases used by watch store + ui store
+  const currentIndex = computed(() => markedIndex.value)
+  const currentEntry = computed(() => markedEntry.value)
+  const currentDayIndex = computed(() => markedDayIndex.value)
+  const currentTimeOfEntry = computed(() => markedTimeOfEntry.value)
+
   return {
-    currentIndex, showDetails, fontSize,
-    currentEntry, currentDayIndex, currentDanceNumber,
-    progressPercent, canGoPrev, canGoNext, currentTimeOfEntry,
-    initForSchedule, goTo, goNext, goPrev, toggleDetails, cycleFontSize, jumpToNow,
+    markedIndex, selectedIndex, fontSize,
+    markedEntry, markedDayIndex, markedDanceNumber,
+    progressPercent, canGoBack, canAdvance, markedTimeOfEntry,
+    currentIndex, currentEntry, currentDayIndex, currentTimeOfEntry,
+    initForSchedule, select, markAsCurrent, advance, retreat,
+    cycleFontSize, jumpToNow,
   }
 })

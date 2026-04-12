@@ -42,9 +42,8 @@ export const useUiStore = defineStore('ui', () => {
     watchSearchQuery.value = ''
   }
 
-  function setSnapback(visible: boolean, direction: 'up' | 'down' = 'down') {
+  function setSnapback(visible: boolean) {
     snapbackVisible.value = visible
-    snapbackDirection.value = direction
   }
 
   function updateScheduleStatus() {

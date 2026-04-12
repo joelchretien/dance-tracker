@@ -6,14 +6,17 @@ import DanceDetails from './DanceDetails.vue'
 defineProps<{
   entry: DanceEntryType
   globalIndex: number
-  isCurrent: boolean
+  isMarked: boolean
+  isSelected: boolean
   isWatched: boolean
   watchedDancers: string[]
   sameStudio: boolean
-  showDetails: boolean
 }>()
 
-const emit = defineEmits<{ select: [] }>()
+const emit = defineEmits<{
+  select: []
+  'mark-current': []
+}>()
 </script>
 
 <template>
@@ -21,13 +24,15 @@ const emit = defineEmits<{ select: [] }>()
     :id="`entry-${globalIndex}`"
     class="mx-2 my-0.5 px-3 py-2 rounded-lg cursor-pointer transition-colors border-l-2"
     :class="[
-      isCurrent
+      isMarked
         ? 'bg-indigo-500/20 border-l-indigo-500'
-        : isWatched
-          ? 'bg-gold-400/10 border-l-gold-400'
-          : sameStudio
-            ? 'bg-surface-raised border-l-cyan-400/40'
-            : 'bg-surface-raised border-l-transparent',
+        : isSelected
+          ? 'bg-surface-highlight border-l-indigo-500/50'
+          : isWatched
+            ? 'bg-gold-400/10 border-l-gold-400'
+            : sameStudio
+              ? 'bg-surface-raised border-l-cyan-400/40'
+              : 'bg-surface-raised border-l-transparent',
     ]"
     @click="emit('select')"
   >
@@ -43,6 +48,19 @@ const emit = defineEmits<{ select: [] }>()
       <DancerBadge v-for="name in watchedDancers" :key="name" :name="name" />
     </div>
 
-    <DanceDetails v-if="showDetails" :entry="entry" />
+    <!-- Details shown when this specific entry is selected -->
+    <template v-if="isSelected">
+      <DanceDetails :entry="entry" />
+      <button
+        v-if="!isMarked"
+        class="mt-2 w-full py-1.5 rounded-md text-xs font-semibold bg-indigo-500/30 text-indigo-300 active:bg-indigo-500/50 transition-colors"
+        @click.stop="emit('mark-current')"
+      >
+        Mark as current dance
+      </button>
+      <div v-else class="mt-1.5 text-[11px] text-indigo-400/60 text-center">
+        ✓ Current dance
+      </div>
+    </template>
   </div>
 </template>

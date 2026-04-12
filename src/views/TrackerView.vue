@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, computed, watch, nextTick } from 'vue'
+import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
 import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
@@ -33,7 +33,7 @@ onMounted(async () => {
   ui.updateScheduleStatus()
 
   await nextTick()
-  scrollToCurrentEntry(false)
+  scrollToEntry(navigation.markedIndex, false)
 })
 
 // 30-second schedule status refresh
@@ -45,39 +45,32 @@ onUnmounted(() => {
   pause()
 })
 
-watch(() => navigation.currentIndex, () => {
+// When the marked (current) dance changes, update status and scroll to it
+watch(() => navigation.markedIndex, () => {
   ui.updateScheduleStatus()
-  nextTick(() => scrollToCurrentEntry(true))
+  nextTick(() => scrollToEntry(navigation.markedIndex, true))
 })
 
-function scrollToCurrentEntry(smooth: boolean) {
-  const el = document.getElementById(`entry-${navigation.currentIndex}`)
+function scrollToEntry(index: number, smooth: boolean) {
+  const el = document.getElementById(`entry-${index}`)
   if (el) {
     el.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant', block: 'center' })
   }
 }
 
-function snapToCurrent() {
-  scrollToCurrentEntry(true)
-}
-
+/** "Jump to now" — scroll to the entry closest to current wall clock time */
 function handleJumpToNow() {
   const result = navigation.jumpToNow()
   if (result !== null) {
     ui.showToast(result.toast)
-    nextTick(() => {
-      const el = document.getElementById(`entry-${result.index}`)
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    })
+    nextTick(() => scrollToEntry(result.index, true))
   }
 }
 
 // Countdown banner tap: scroll to next watched entry without changing selection
-// (matches original jmpNxt behavior)
 function handleJumpToNext() {
   if (watchStore.nextTargetIndex !== null) {
-    const el = document.getElementById(`entry-${watchStore.nextTargetIndex}`)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    scrollToEntry(watchStore.nextTargetIndex, true)
   }
 }
 
@@ -85,23 +78,6 @@ function handleCycleFontSize() {
   const msg = navigation.cycleFontSize()
   ui.showToast(msg)
 }
-
-function handleToggleDetails() {
-  const msg = navigation.toggleDetails()
-  ui.showToast(msg)
-}
-
-const currentEntryTitle = computed(() => {
-  const entry = navigation.currentEntry?.entry
-  if (!entry) return ''
-  return entry.title
-})
-
-const currentEntryTime = computed(() => {
-  const entry = navigation.currentEntry?.entry
-  if (!entry) return ''
-  return entry.time
-})
 </script>
 
 <template>
@@ -114,9 +90,7 @@ const currentEntryTime = computed(() => {
   <div v-else-if="schedule.isLoaded" class="flex flex-col h-dvh">
     <TopBar
       :title="schedule.meta?.name ?? ''"
-      @jump-to-now="handleJumpToNow"
       @cycle-font-size="handleCycleFontSize"
-      @toggle-details="handleToggleDetails"
     />
     <ProgressBar :percent="navigation.progressPercent" />
     <ScheduleStatus :status="ui.scheduleStatus" />
@@ -127,10 +101,7 @@ const currentEntryTime = computed(() => {
 
     <SnapbackPill
       v-if="ui.snapbackVisible"
-      :direction="ui.snapbackDirection"
-      :title="currentEntryTitle"
-      :time="currentEntryTime"
-      @click="snapToCurrent"
+      @click="handleJumpToNow"
     />
 
     <BottomBar @jump-to-next="handleJumpToNext" />
