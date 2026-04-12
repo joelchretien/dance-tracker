@@ -690,8 +690,19 @@ function updSched(){
   var e=S[ci];
   var t=pT(e.time);
   if(t===null){el.textContent="";return;}
+  // Determine if selected entry is Saturday or Sunday
+  var sunIdx=0;
+  for(var i=0;i<S.length;i++){if(S[i].isDH&&S[i].title.indexOf("SUNDAY")>=0){sunIdx=i;break;}}
+  var entryDay=(ci>=sunIdx)?0:6; // 0=Sun, 6=Sat
   var now=new Date();
+  var today=now.getDay();
   var nowMin=now.getHours()*60+now.getMinutes();
+  // Only show schedule indicator if we're on the same day
+  if(today!==entryDay){
+    el.style.color="#4b5563";
+    el.textContent=entryDay===0?"Sunday schedule":"Saturday schedule";
+    return;
+  }
   var diff=nowMin-t;
   var ad=Math.abs(diff);
   if(ad<=5){
