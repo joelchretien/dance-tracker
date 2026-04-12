@@ -104,6 +104,34 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (canGoBack.value) markedIndex.value--
   }
 
+  const FS_ORDER: FontSize[] = ['default', 'medium', 'large']
+
+  const canIncreaseFontSize = computed(() => {
+    const idx = FS_ORDER.indexOf(fontSize.value)
+    return idx < FS_ORDER.length - 1
+  })
+
+  const canDecreaseFontSize = computed(() => {
+    const idx = FS_ORDER.indexOf(fontSize.value)
+    return idx > 0
+  })
+
+  function increaseFontSize() {
+    const idx = FS_ORDER.indexOf(fontSize.value)
+    if (idx < FS_ORDER.length - 1) {
+      fontSize.value = FS_ORDER[idx + 1]
+      applyFontSize()
+    }
+  }
+
+  function decreaseFontSize() {
+    const idx = FS_ORDER.indexOf(fontSize.value)
+    if (idx > 0) {
+      fontSize.value = FS_ORDER[idx - 1]
+      applyFontSize()
+    }
+  }
+
   function cycleFontSize(): string {
     const order: FontSize[] = ['default', 'medium', 'large']
     const idx = order.indexOf(fontSize.value)
@@ -147,6 +175,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     progressPercent, canGoBack, canAdvance, markedTimeOfEntry,
     currentIndex, currentEntry, currentDayIndex, currentTimeOfEntry,
     initForSchedule, select, markAsCurrent, advance, retreat,
-    cycleFontSize, jumpToNow,
+    canIncreaseFontSize, canDecreaseFontSize,
+    increaseFontSize, decreaseFontSize, cycleFontSize, jumpToNow,
   }
 })

@@ -10,8 +10,9 @@ export const useUiStore = defineStore('ui', () => {
   // Panels
   const jumpToPanelOpen = ref(false)
   const jumpToQuery = ref('')
-  const settingsPanelOpen = ref(false)
-  const settingsWatchQuery = ref('')
+  const watchPanelOpen = ref(false)
+  const watchSearchQuery = ref('')
+  const settingsDropdownOpen = ref(false)
 
   // View mode
   const myDancesMode = ref(false)
@@ -53,14 +54,23 @@ export const useUiStore = defineStore('ui', () => {
     jumpToQuery.value = ''
   }
 
-  function openSettingsPanel() {
-    settingsPanelOpen.value = true
-    settingsWatchQuery.value = ''
+  function openWatchPanel() {
+    settingsDropdownOpen.value = false
+    watchPanelOpen.value = true
+    watchSearchQuery.value = ''
   }
 
-  function closeSettingsPanel() {
-    settingsPanelOpen.value = false
-    settingsWatchQuery.value = ''
+  function closeWatchPanel() {
+    watchPanelOpen.value = false
+    watchSearchQuery.value = ''
+  }
+
+  function toggleSettingsDropdown() {
+    settingsDropdownOpen.value = !settingsDropdownOpen.value
+  }
+
+  function closeSettingsDropdown() {
+    settingsDropdownOpen.value = false
   }
 
   function toggleMyDancesMode(): string {
@@ -89,14 +99,16 @@ export const useUiStore = defineStore('ui', () => {
 
   return {
     jumpToPanelOpen, jumpToQuery,
-    settingsPanelOpen, settingsWatchQuery,
+    watchPanelOpen, watchSearchQuery,
+    settingsDropdownOpen,
     myDancesMode,
     toastMessage, toastTimerId,
     snapbackVisible,
     scheduleStatus,
     showToast, clearToast,
     openJumpToPanel, closeJumpToPanel,
-    openSettingsPanel, closeSettingsPanel,
+    openWatchPanel, closeWatchPanel,
+    toggleSettingsDropdown, closeSettingsDropdown,
     toggleMyDancesMode,
     setSnapback, updateScheduleStatus,
   }

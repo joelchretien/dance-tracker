@@ -12,8 +12,9 @@ import ScheduleList from '@/components/ScheduleList.vue'
 import MyDancesList from '@/components/MyDancesList.vue'
 import SnapbackPill from '@/components/SnapbackPill.vue'
 import BottomBar from '@/components/BottomBar.vue'
+import SettingsDropdown from '@/components/SettingsDropdown.vue'
+import WatchPanel from '@/components/WatchPanel.vue'
 import JumpToPanel from '@/components/JumpToPanel.vue'
-import SettingsPanel from '@/components/SettingsPanel.vue'
 import ToastNotification from '@/components/ToastNotification.vue'
 
 const props = defineProps<{ scheduleId: string }>()
@@ -105,8 +106,9 @@ function handlePanelJump(index: number) {
     />
 
     <BottomBar @jump-to-next="handleJumpToNext" />
+    <SettingsDropdown v-if="ui.settingsDropdownOpen" />
+    <WatchPanel v-if="ui.watchPanelOpen" />
     <JumpToPanel v-if="ui.jumpToPanelOpen" @jump-to="handlePanelJump" />
-    <SettingsPanel v-if="ui.settingsPanelOpen" />
     <ToastNotification v-if="ui.toastMessage" :message="ui.toastMessage" />
   </div>
 </template>

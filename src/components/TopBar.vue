@@ -11,7 +11,7 @@ const ui = useUiStore()
 </script>
 
 <template>
-  <div class="sticky top-0 z-30 bg-surface border-b border-gray-800" style="padding-top: env(safe-area-inset-top, 0px)">
+  <div class="sticky top-0 z-30 bg-surface border-b border-gray-800 relative" style="padding-top: env(safe-area-inset-top, 0px)">
     <div class="flex items-center justify-between px-3 py-2">
       <div class="text-sm font-semibold truncate flex-1 mr-2">{{ title }}</div>
       <div class="flex items-center gap-1">
@@ -32,9 +32,9 @@ const ui = useUiStore()
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
           title="Settings"
-          @click="ui.openSettingsPanel()"
+          @click="ui.toggleSettingsDropdown()"
         >
-          <Settings :size="20" class="text-gray-300" />
+          <Settings :size="20" :class="ui.settingsDropdownOpen ? 'text-gray-100' : 'text-gray-300'" />
         </button>
       </div>
     </div>
