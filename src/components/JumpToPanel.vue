@@ -30,10 +30,10 @@ const searchResults = computed<SearchResult[]>(() => {
 
   const scored: SearchResult[] = []
   for (const item of schedule.flatEntries) {
-    if (item.entry.type !== 'dance') continue
     const entry = item.entry
+    if (entry.type !== 'dance' && entry.type !== 'awards') continue
     const titleScore = fuzzyScore(q, entry.title)
-    const numStr = entry.num ? String(entry.num) : ''
+    const numStr = entry.type === 'dance' && entry.num ? String(entry.num) : ''
     const numScore = numStr && q === numStr ? 50 : 0
     const best = Math.max(titleScore, numScore)
     if (best > 0) {
@@ -41,8 +41,8 @@ const searchResults = computed<SearchResult[]>(() => {
         globalIndex: item.globalIndex,
         title: entry.title,
         time: entry.time,
-        num: entry.num,
-        subtitle: extractSubtitle(entry.category),
+        num: entry.type === 'dance' ? entry.num : undefined,
+        subtitle: entry.type === 'dance' ? extractSubtitle(entry.category) : 'Awards',
         score: best,
       })
     }
