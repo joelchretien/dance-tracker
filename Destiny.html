@@ -687,10 +687,18 @@ function upd(doScroll){
   }
   watchCurrent();
 
-  // Highlight same-studio dances as next daughter dance
+  // Highlight same-studio dances as next daughter dance (skip awards)
   var nxt=gND();
+  var nxtStudio="";
   if(nxt!==null){
-    var nxtStudio=S[nxt].studio;
+    // If nxt is awards, look further for an actual dance
+    if(!S[nxt].studio){
+      for(var i=nxt+1;i<S.length;i++){
+        if(isD(S[i])&&S[i].studio){nxtStudio=S[i].studio;break;}
+      }
+    }else{
+      nxtStudio=S[nxt].studio;
+    }
     if(nxtStudio){
       document.querySelectorAll('.en[data-st="'+nxtStudio+'"]').forEach(function(el){
         if(!el.classList.contains("hl")){
