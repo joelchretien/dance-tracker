@@ -592,7 +592,7 @@ function jumpToNow(){
   var cel=document.getElementById("e"+best);
   if(cel){cel.scrollIntoView({behavior:"smooth",block:"center"});}
   var be=S[best];
-  showToast("\u25F7 "+(be.title||"Now")+(be.time?" \u00b7 "+be.time:""));
+  showToast("Scrolled to now \u00b7 "+(be.time||"")+" \u00b7 "+(be.title||""));
 }
 function togDet(){
   sd=!sd;
