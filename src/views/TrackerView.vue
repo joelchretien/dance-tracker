@@ -7,6 +7,7 @@ import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 import { useSnapback } from '@/composables/useSnapback'
 import TopBar from '@/components/TopBar.vue'
+import AwardsNav from '@/components/AwardsNav.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ScheduleStatus from '@/components/ScheduleStatus.vue'
 import ScheduleList from '@/components/ScheduleList.vue'
@@ -88,6 +89,10 @@ function handleToggleMyDances() {
   const msg = ui.toggleMyDancesMode()
   ui.showToast(msg)
 }
+
+function handleAwardsJump(index: number) {
+  nextTick(() => scrollToEntry(index, true))
+}
 </script>
 
 <template>
@@ -103,6 +108,7 @@ function handleToggleMyDances() {
       @cycle-font-size="handleCycleFontSize"
       @toggle-my-dances="handleToggleMyDances"
     />
+    <AwardsNav v-if="ui.awardsNavOpen" @jump-to="handleAwardsJump" />
     <ProgressBar :percent="navigation.progressPercent" />
     <ScheduleStatus :status="ui.scheduleStatus" />
 

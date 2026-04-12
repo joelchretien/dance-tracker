@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ALargeSmall, Star, Search, ListFilter } from 'lucide-vue-next'
+import { ALargeSmall, Star, Search, ListFilter, Trophy } from 'lucide-vue-next'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 
@@ -34,6 +34,13 @@ const hasWatched = computed(() => watchStore.watchedDancers.length > 0)
           @click="emit('toggle-my-dances')"
         >
           <ListFilter :size="20" :class="ui.myDancesMode ? 'text-gold-400' : 'text-gray-300'" />
+        </button>
+        <button
+          class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
+          title="Awards"
+          @click="ui.toggleAwardsNav()"
+        >
+          <Trophy :size="20" :class="ui.awardsNavOpen ? 'text-gold-400' : 'text-gray-300'" />
         </button>
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"

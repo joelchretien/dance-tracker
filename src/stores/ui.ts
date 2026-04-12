@@ -12,6 +12,7 @@ export const useUiStore = defineStore('ui', () => {
   const searchPanelOpen = ref(false)
   const searchQuery = ref('')
   const myDancesMode = ref(false)
+  const awardsNavOpen = ref(false)
   const toastMessage = ref('')
   const toastTimerId = ref<ReturnType<typeof setTimeout> | null>(null)
   const snapbackVisible = ref(false)
@@ -60,6 +61,10 @@ export const useUiStore = defineStore('ui', () => {
     return myDancesMode.value ? '★ My Dances' : '☰ All Dances'
   }
 
+  function toggleAwardsNav() {
+    awardsNavOpen.value = !awardsNavOpen.value
+  }
+
   function setSnapback(visible: boolean) {
     snapbackVisible.value = visible
   }
@@ -83,14 +88,14 @@ export const useUiStore = defineStore('ui', () => {
   return {
     watchPanelOpen, watchSearchQuery,
     searchPanelOpen, searchQuery,
-    myDancesMode,
+    myDancesMode, awardsNavOpen,
     toastMessage, toastTimerId,
     snapbackVisible, snapbackDirection,
     scheduleStatus,
     showToast, clearToast,
     openWatchPanel, closeWatchPanel,
     openSearchPanel, closeSearchPanel,
-    toggleMyDancesMode,
+    toggleMyDancesMode, toggleAwardsNav,
     setSnapback, updateScheduleStatus,
   }
 })
