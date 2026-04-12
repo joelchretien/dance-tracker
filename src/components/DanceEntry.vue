@@ -46,8 +46,8 @@ const outlineStyle = computed(() => {
 <template>
   <div
     :id="`entry-${globalIndex}`"
-    class="mx-2 my-0.5 px-3 py-2 rounded-lg cursor-pointer transition-colors border-l-[3px] relative"
-    :class="[borderClass, bgClass]"
+    class="mx-2 my-0.5 rounded-lg cursor-pointer transition-colors border-l-[3px] relative"
+    :class="[borderClass, bgClass, isMarked ? 'px-3 pt-5 pb-2' : 'px-3 py-2']"
     :style="outlineStyle"
     @click="emit('select')"
   >
