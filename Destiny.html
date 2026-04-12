@@ -67,7 +67,7 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 #nav button:active{opacity:0.7}
 .bo{background:rgba(99,102,241,0.12);color:#818cf8}
 .bx{background:rgba(255,255,255,0.03);color:#1e1e2e}
-#snapback{display:none;position:fixed;bottom:140px;left:50%;transform:translateX(-50%);z-index:150;padding:8px 16px;border-radius:20px;background:rgba(99,102,241,0.9);color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;max-width:80%;overflow:hidden;text-overflow:ellipsis;transition:bottom 0.15s}
+#snapback{display:none;position:fixed;bottom:140px;right:12px;z-index:150;padding:6px 14px;border-radius:16px;background:rgba(99,102,241,0.9);color:#fff;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;max-width:60%;overflow:hidden;text-overflow:ellipsis;transition:bottom 0.15s}
 #snapback:active{opacity:0.7}
 #err{color:red;padding:20px;font-size:14px;display:none}
 #toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);z-index:600;padding:10px 20px;border-radius:12px;background:rgba(30,30,50,0.95);color:#e2e8f0;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,0.1);box-shadow:0 4px 20px rgba(0,0,0,0.5);opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;white-space:nowrap}
@@ -673,13 +673,16 @@ function updSched(){
   if(ad<=5){
     el.style.color="#4ade80";
     el.textContent="\u2713 On schedule";
-  }else if(diff>0&&diff<=15){
-    el.style.color="#94a3b8";
-    el.textContent="~"+diff+" min behind";
+  }else if(diff>30){
+    el.style.color="#4b5563";
+    el.textContent="Selection is ~"+diff+" min ago \u2014 tap Now to sync";
   }else if(diff>15){
     el.style.color="#fb923c";
     el.textContent="~"+diff+" min behind schedule";
-  }else if(diff<0&&ad<=15){
+  }else if(diff>0){
+    el.style.color="#94a3b8";
+    el.textContent="~"+diff+" min behind";
+  }else if(ad<=15){
     el.style.color="#94a3b8";
     el.textContent="~"+ad+" min ahead";
   }else{
