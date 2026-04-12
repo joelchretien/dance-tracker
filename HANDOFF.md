@@ -1,5 +1,7 @@
 # Dance Competition Tracker — Staff Engineer Handoff
 
+> **Note:** This document describes the original vanilla JS version (`Destiny.html`). The app has since been rebuilt in Vue 3. See `README.md` for current architecture and documentation.
+
 ## Executive Summary
 
 A mobile-first web app that lets parents track their children through a multi-day dance competition schedule of 350+ entries. The parent advances through the schedule manually and the app tells them what's coming next for their kids, how far behind/ahead schedule the competition is running, and which studio to watch.
