@@ -15,7 +15,7 @@ export const useUiStore = defineStore('ui', () => {
   const settingsDropdownOpen = ref(false)
 
   // View mode
-  const myDancesMode = ref(false)
+  const watchedDancesMode = ref(false)
 
   // Toast
   const toastMessage = ref('')
@@ -67,8 +67,8 @@ export const useUiStore = defineStore('ui', () => {
   }
 
   function toggleMyDancesMode(): string {
-    myDancesMode.value = !myDancesMode.value
-    return myDancesMode.value ? '★ Watched Dances' : '☰ All Dances'
+    watchedDancesMode.value = !watchedDancesMode.value
+    return watchedDancesMode.value ? '★ Watched Dances' : '☰ All Dances'
   }
 
   function setSnapback(visible: boolean) {
@@ -78,10 +78,10 @@ export const useUiStore = defineStore('ui', () => {
   function updateScheduleStatus() {
     const schedule = useScheduleStore()
     const nav = useNavigationStore()
-    const entryTime = nav.currentTimeOfEntry
+    const entryTime = nav.markedTimeOfEntry
     const now = currentTimeMinutes()
 
-    const entryDayIndex = nav.currentDayIndex
+    const entryDayIndex = nav.markedDayIndex
     const entryDate = schedule.days[entryDayIndex]?.date
     const today = new Date().toISOString().slice(0, 10)
     const sameDay = entryDate === today
@@ -94,7 +94,7 @@ export const useUiStore = defineStore('ui', () => {
     jumpToPanelOpen, jumpToQuery,
     watchPanelOpen, watchSearchQuery,
     settingsDropdownOpen,
-    myDancesMode,
+    watchedDancesMode,
     toastMessage, toastTimerId,
     snapbackVisible,
     scheduleStatus,

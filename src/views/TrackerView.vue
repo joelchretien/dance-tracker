@@ -9,7 +9,7 @@ import { useSnapback } from '@/composables/useSnapback'
 import TopBar from '@/components/TopBar.vue'
 import ScheduleStatus from '@/components/ScheduleStatus.vue'
 import ScheduleList from '@/components/ScheduleList.vue'
-import MyDancesList from '@/components/MyDancesList.vue'
+import WatchedDancesList from '@/components/WatchedDancesList.vue'
 import SnapbackPill from '@/components/SnapbackPill.vue'
 import BottomBar from '@/components/BottomBar.vue'
 import SettingsDropdown from '@/components/SettingsDropdown.vue'
@@ -61,7 +61,7 @@ function scrollToEntry(index: number, smooth: boolean) {
 }
 
 function handleJumpToNow() {
-  if (ui.myDancesMode) {
+  if (ui.watchedDancesMode) {
     const nearest = watchStore.nearestWatchedToNow()
     if (nearest !== null) {
       nextTick(() => scrollToEntry(nearest, true))
@@ -80,7 +80,7 @@ function handleJumpToNext() {
   }
 }
 
-function handleToggleMyDances() {
+function handleToggleWatchedDances() {
   const msg = ui.toggleMyDancesMode()
   ui.showToast(msg)
 }
@@ -100,12 +100,12 @@ function handlePanelJump(index: number) {
   <div v-else-if="schedule.isLoaded" class="flex flex-col h-dvh">
     <TopBar
       :title="schedule.meta?.name ?? ''"
-      @toggle-my-dances="handleToggleMyDances"
+      @toggle-watched-dances="handleToggleWatchedDances"
     />
     <ScheduleStatus :status="ui.scheduleStatus" />
 
     <div ref="scrollContainer" class="flex-1 overflow-y-auto pb-40">
-      <MyDancesList v-if="ui.myDancesMode" />
+      <WatchedDancesList v-if="ui.watchedDancesMode" />
       <ScheduleList v-else />
     </div>
 

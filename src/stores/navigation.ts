@@ -139,16 +139,9 @@ export const useNavigationStore = defineStore('navigation', () => {
     return parseTime(entry.time)
   })
 
-  // Backward-compat aliases used by watch store + ui store
-  const currentIndex = computed(() => markedIndex.value)
-  const currentEntry = computed(() => markedEntry.value)
-  const currentDayIndex = computed(() => markedDayIndex.value)
-  const currentTimeOfEntry = computed(() => markedTimeOfEntry.value)
-
   return {
     markedIndex, selectedIndex, fontSize,
     markedEntry, markedDayIndex, canGoBack, canAdvance, markedTimeOfEntry,
-    currentIndex, currentEntry, currentDayIndex, currentTimeOfEntry,
     initForSchedule, select, markAsCurrent, advance, retreat,
     canIncreaseFontSize, canDecreaseFontSize,
     increaseFontSize, decreaseFontSize, jumpToNow,

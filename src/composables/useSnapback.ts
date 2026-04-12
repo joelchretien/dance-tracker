@@ -25,7 +25,7 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
     cleanup()
 
     let el: HTMLElement | null = null
-    if (ui.myDancesMode) {
+    if (ui.watchedDancesMode) {
       const nearest = watchStore.nearestWatchedToNow()
       if (nearest !== null) {
         el = document.getElementById(`entry-${nearest}`)
@@ -55,7 +55,7 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
   }
 
   watch(
-    [() => navigation.nowIndex, () => navigation.markedIndex, () => ui.myDancesMode],
+    [() => navigation.nowIndex, () => navigation.markedIndex, () => ui.watchedDancesMode],
     () => { requestAnimationFrame(observe) },
     { immediate: true },
   )

@@ -4,7 +4,7 @@ import { useUiStore } from '@/stores/ui'
 
 defineProps<{ title: string }>()
 const emit = defineEmits<{
-  'toggle-my-dances': []
+  'toggle-watched-dances': []
 }>()
 
 const ui = useUiStore()
@@ -25,9 +25,9 @@ const ui = useUiStore()
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
           title="Watched dances"
-          @click="emit('toggle-my-dances')"
+          @click="emit('toggle-watched-dances')"
         >
-          <ListFilter :size="20" :class="ui.myDancesMode ? 'text-gold-400' : 'text-gray-300'" />
+          <ListFilter :size="20" :class="ui.watchedDancesMode ? 'text-gold-400' : 'text-gray-300'" />
         </button>
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
