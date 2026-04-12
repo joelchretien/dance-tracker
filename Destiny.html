@@ -25,6 +25,24 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 #progFill{height:2px;background:linear-gradient(90deg,#6366f1,#818cf8);border-radius:1px;transition:width 0.3s;width:0%}
 #sched{text-align:center;padding:4px 0 2px;font-size:11px;font-weight:600;min-height:18px}
 #list{padding:4px 10px 210px}
+html.fs-m .tm{font-size:16px}
+html.fs-m .tt{font-size:20px}
+html.fs-m .tn{font-size:13px}
+html.fs-m .ch span{font-size:13px}
+html.fs-m .bk span{font-size:15px}
+html.fs-m .bk .t{font-size:15px}
+html.fs-m .db{font-size:13px}
+html.fs-m .dh span{font-size:16px}
+html.fs-m #sched{font-size:13px}
+html.fs-l .tm{font-size:18px}
+html.fs-l .tt{font-size:23px}
+html.fs-l .tn{font-size:15px}
+html.fs-l .ch span{font-size:14px}
+html.fs-l .bk span{font-size:17px}
+html.fs-l .bk .t{font-size:17px}
+html.fs-l .db{font-size:15px}
+html.fs-l .dh span{font-size:18px}
+html.fs-l #sched{font-size:15px}
 .ch{padding:8px 14px 4px;margin-top:10px;border-top:1px solid rgba(255,255,255,0.04)}
 .ch span{font-size:11px;font-weight:500;color:#475569;letter-spacing:0.3px}
 .dh{padding:20px 16px;text-align:center;margin:12px 0 2px;border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08)}
@@ -96,7 +114,7 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 <div id="_dbg" style="display:none;position:fixed;top:50px;left:10px;right:10px;z-index:9999;background:#300;color:#f88;font-size:13px;padding:12px;border-radius:8px;font-family:monospace;max-height:40vh;overflow:auto"></div>
 <script>window.onerror=function(m,u,l,c){var d=document.getElementById("_dbg");d.style.display="block";d.textContent+="ERR: "+m+" @L"+l+"\n";};</script>
 <div id="top">
-<div id="topbar"><h1>Destiny</h1><div id="topright"><button class="tbtn" id="nowBtn" onclick="jumpToNow()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button><button class="tbtn" id="watchBtn" onclick="showWatch()"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button><button class="tbtn" id="detailsBtn" onclick="togDet()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div></div>
+<div id="topbar"><h1>Destiny</h1><div id="topright"><button class="tbtn" id="fsBtn" onclick="cycleFS()"><svg viewBox="0 0 24 24" style="stroke:none;fill:currentColor"><text x="3" y="20" font-size="18" font-weight="700">A</text><text x="15" y="20" font-size="12" font-weight="700">A</text></svg></button><button class="tbtn" id="nowBtn" onclick="jumpToNow()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button><button class="tbtn" id="watchBtn" onclick="showWatch()"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button><button class="tbtn" id="detailsBtn" onclick="togDet()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div></div>
 <div id="progBg"><div id="progFill"></div></div>
 <div id="sched"></div>
 </div>
@@ -510,6 +528,12 @@ function isD(e){if(!e.dancers)return false;for(var j=0;j<e.dancers.length;j++){i
 function wD(e){var r=[];if(!e.dancers)return r;for(var j=0;j<e.dancers.length;j++){if(DN.indexOf(e.dancers[j])>=0)r.push(e.dancers[j]);}return r;}
 
 var ci=1,sd=false,WS={};
+var FS_LEVELS=["","fs-m","fs-l"];
+var FS_LABELS=["Default","Medium","Large"];
+var fsIdx=0;
+function loadFS(){try{var s=localStorage.getItem("dfs");if(s){fsIdx=parseInt(s)||0;if(fsIdx>=FS_LEVELS.length)fsIdx=0;}applyFS();}catch(e){}}
+function applyFS(){document.documentElement.className=FS_LEVELS[fsIdx];}
+function cycleFS(){fsIdx=(fsIdx+1)%FS_LEVELS.length;applyFS();try{localStorage.setItem("dfs",""+fsIdx);}catch(e){}showToast("Text: "+FS_LABELS[fsIdx]);}
 function pT(t){if(!t)return null;var m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return null;var h=parseInt(m[1]),mn=parseInt(m[2]),ap=m[3].toUpperCase();if(ap==="PM"&&h!==12)h+=12;if(ap==="AM"&&h===12)h=0;return h*60+mn;}
 function tD(a,b){if(a==null||b==null)return"";var d=b-a;if(d<0)d+=1440;var h=Math.floor(d/60),m=d%60;return h?"~"+h+"h "+m+"min":"~"+m+"min";}
 function fC(c){if(!c)return"";return c.split("|").map(function(s){return s.trim();}).filter(Boolean).join(" \u00b7 ");}
@@ -830,6 +854,7 @@ function updWatchBtn(){
   wb.className=DN.length>0?"tbtn active":"tbtn";
 }
 
+loadFS();
 loadWatched();
 recomputeAwards();
 ld();
