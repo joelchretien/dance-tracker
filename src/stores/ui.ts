@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useScheduleStore } from './schedule'
 import { useNavigationStore } from './navigation'
 import { classifyScheduleStatus } from '@/lib/schedule-status'
-import { currentTimeMinutes } from '@/lib/time'
+import { currentTimeMinutes, localDateString } from '@/lib/time'
 import type { ScheduleStatus } from '@/types/schedule'
 
 export const useUiStore = defineStore('ui', () => {
@@ -83,7 +83,7 @@ export const useUiStore = defineStore('ui', () => {
 
     const entryDayIndex = nav.markedDayIndex
     const entryDate = schedule.days[entryDayIndex]?.date
-    const today = new Date().toLocaleDateString('en-CA')
+    const today = localDateString()
     const sameDay = entryDate === today
     const dayLabel = schedule.days[entryDayIndex]?.label ?? ''
 

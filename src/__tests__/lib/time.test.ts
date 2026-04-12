@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseTime, formatTimeDiff } from '@/lib/time'
+import { parseTime, formatTimeDiff, localDateString } from '@/lib/time'
 
 describe('parseTime', () => {
   it('parses morning time', () => {
@@ -43,5 +43,15 @@ describe('formatTimeDiff', () => {
   it('returns empty for invalid times', () => {
     expect(formatTimeDiff(-1, 100)).toBe('')
     expect(formatTimeDiff(100, -1)).toBe('')
+  })
+})
+
+describe('localDateString', () => {
+  it('formats a date as YYYY-MM-DD', () => {
+    expect(localDateString(new Date(2026, 3, 12))).toBe('2026-04-12')
+  })
+
+  it('pads single-digit month and day', () => {
+    expect(localDateString(new Date(2026, 0, 5))).toBe('2026-01-05')
   })
 })

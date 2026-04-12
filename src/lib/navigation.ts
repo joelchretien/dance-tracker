@@ -1,5 +1,5 @@
 import type { IndexedEntry } from '@/types/schedule'
-import { parseTime } from './time'
+import { parseTime, localDateString } from './time'
 
 /**
  * Find the entry index closest to the current time for a given day.
@@ -30,7 +30,7 @@ export function findNowIndex(
  * Returns 0 for first day, 1 for second day, etc.
  */
 export function todayDayIndex(dayDates: string[], todayOverride?: string): number {
-  const today = todayOverride ?? new Date().toLocaleDateString('en-CA')
+  const today = todayOverride ?? localDateString()
   const idx = dayDates.indexOf(today)
   if (idx >= 0) return idx
   // Default to last day if today is after all days, or first day otherwise

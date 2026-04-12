@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, computed, watch, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { useIntervalFn } from '@vueuse/core'
 import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
@@ -19,6 +20,7 @@ import ToastNotification from '@/components/ToastNotification.vue'
 
 const props = defineProps<{ scheduleId: string }>()
 
+const router = useRouter()
 const schedule = useScheduleStore()
 const navigation = useNavigationStore()
 const watchStore = useWatchStore()
@@ -101,8 +103,15 @@ function handlePanelJump(index: number) {
   <div v-if="schedule.loading" class="flex items-center justify-center min-h-screen">
     <div class="text-gray-400">Loading schedule...</div>
   </div>
-  <div v-else-if="schedule.error" class="flex items-center justify-center min-h-screen">
-    <div class="text-red-400">{{ schedule.error }}</div>
+  <div v-else-if="schedule.error" class="flex items-center justify-center min-h-screen px-6">
+    <div class="text-center">
+      <div class="text-lg font-semibold text-gray-300 mb-2">Schedule not found</div>
+      <div class="text-sm text-gray-500 mb-6">{{ schedule.error }}</div>
+      <button
+        class="px-5 py-2.5 bg-indigo-600 rounded-lg text-sm font-medium active:bg-indigo-700"
+        @click="router.push('/')"
+      >Back to schedule list</button>
+    </div>
   </div>
   <div v-else-if="schedule.isLoaded" class="flex flex-col h-dvh">
     <TopBar

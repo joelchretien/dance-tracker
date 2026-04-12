@@ -16,6 +16,13 @@ export function currentTimeMinutes(): number {
   return now.getHours() * 60 + now.getMinutes()
 }
 
+/** Today's date as 'YYYY-MM-DD' in local timezone */
+export function localDateString(d: Date = new Date()): string {
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0')
+}
+
 /**
  * Format the difference between two minute-values as a human-readable string.
  * Wraps around midnight (adds 1440 if negative, matching original tD behavior).

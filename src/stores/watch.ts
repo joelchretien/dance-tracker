@@ -5,6 +5,7 @@ import { useScheduleStore } from './schedule'
 import { useNavigationStore } from './navigation'
 import { computeAwardsBlocks } from '@/lib/awards'
 import { findNextTarget, countDancesUntil } from '@/lib/countdown'
+import { todayDayIndex } from '@/lib/navigation'
 import { extractSubtitle } from '@/lib/category'
 import { parseTime, formatTimeDiff, currentTimeMinutes } from '@/lib/time'
 import type { AwardsBlock } from '@/types/schedule'
@@ -160,14 +161,17 @@ export const useWatchStore = defineStore('watch', () => {
     return indices
   })
 
-  /** Find the watched entry index closest to the current wall-clock time */
+  /** Find the watched entry index closest to the current wall-clock time (today only) */
   function nearestWatchedToNow(): number | null {
     const indices = watchedEntryIndices.value
     if (indices.length === 0) return null
+    const dayIdx = todayDayIndex(schedule.dayDates)
+    const todayIndices = indices.filter(gi => schedule.flatEntries[gi].dayIndex === dayIdx)
+    if (todayIndices.length === 0) return null
     const now = currentTimeMinutes()
-    let best = indices[0]
+    let best = todayIndices[0]
     let bestDist = Math.abs(parseTime(schedule.flatEntries[best].entry.time) - now)
-    for (const gi of indices) {
+    for (const gi of todayIndices) {
       const dist = Math.abs(parseTime(schedule.flatEntries[gi].entry.time) - now)
       if (dist < bestDist) { best = gi; bestDist = dist }
     }
