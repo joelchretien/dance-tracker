@@ -23,7 +23,10 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
   function observe() {
     cleanup()
     const el = document.getElementById(`entry-${navigation.markedIndex}`)
-    if (!el) return
+    if (!el) {
+      ui.setSnapback(false)
+      return
+    }
 
     observer = new IntersectionObserver(
       ([entry]) => {
@@ -38,8 +41,8 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
     observer.observe(el)
   }
 
-  // Re-attach whenever the marked entry changes
-  watch(() => navigation.markedIndex, () => {
+  // Re-attach whenever the marked entry changes or the view mode changes
+  watch([() => navigation.markedIndex, () => ui.myDancesMode], () => {
     requestAnimationFrame(observe)
   }, { immediate: true })
 
