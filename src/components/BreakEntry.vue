@@ -58,7 +58,7 @@ const outlineStyle = computed(() => {
         {{ entry.title }}
       </span>
     </div>
-    <div v-if="isWatchedAwards" class="text-xs text-gold-400/70 mt-0.5 ml-[4.5rem]">
+    <div v-if="isWatchedAwards" class="text-xs text-gold-400/70 mt-0.5 ml-[5.5rem]">
       Watched Dancers in this block
     </div>
 

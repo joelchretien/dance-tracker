@@ -126,7 +126,7 @@ function handleMarkCurrent(globalIndex: number) {
   <div class="pb-4">
     <div v-if="watchStore.watchedDancers.length === 0" class="text-center text-gray-500 py-12 px-4">
       <div class="text-sm">No dancers watched yet</div>
-      <div class="text-xs mt-1">Tap the ★ button to add dancers</div>
+      <div class="text-xs mt-1">Open Settings to add dancers</div>
     </div>
 
     <div v-else-if="watchStore.watchedEntryIndices.length === 0" class="text-center text-gray-500 py-12 px-4">

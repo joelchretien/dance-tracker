@@ -49,7 +49,6 @@ const countdownLabel = computed(() => {
     <div
       v-else
       class="w-full px-3 py-2.5 rounded-lg mx-2 mb-1 border border-gold-400/20 bg-gold-400/10 text-left"
-      style="max-width: calc(100% - 1rem)"
     >
       <!-- Line 1: count + title -->
       <div class="flex items-baseline gap-1.5 flex-wrap">

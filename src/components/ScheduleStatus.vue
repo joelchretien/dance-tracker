@@ -15,7 +15,7 @@ const text = computed(() => {
       return props.status.minutes > 15
         ? `~${props.status.minutes} min ahead of schedule`
         : `~${props.status.minutes} min ahead`
-    case 'way-behind': return `Selection is ~${props.status.minutes} min ago — tap Now to sync`
+    case 'way-behind': return `Current is ~${props.status.minutes} min ago`
     case 'wrong-day': return props.status.dayLabel
     case 'not-started': return ''
     case 'finished': return 'Competition finished'
