@@ -29,8 +29,8 @@ export function findNowIndex(
  * Determine which day index to use based on today's date and the schedule days.
  * Returns 0 for first day, 1 for second day, etc.
  */
-export function todayDayIndex(dayDates: string[]): number {
-  const today = new Date().toISOString().slice(0, 10)
+export function todayDayIndex(dayDates: string[], todayOverride?: string): number {
+  const today = todayOverride ?? new Date().toISOString().slice(0, 10)
   const idx = dayDates.indexOf(today)
   if (idx >= 0) return idx
   // Default to last day if today is after all days, or first day otherwise

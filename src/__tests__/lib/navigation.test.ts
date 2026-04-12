@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { findNowIndex } from '@/lib/navigation'
+import { findNowIndex, todayDayIndex } from '@/lib/navigation'
 import type { IndexedEntry } from '@/types/schedule'
 
 function entry(i: number, time: string, dayIndex: number): IndexedEntry {
@@ -33,5 +33,33 @@ describe('findNowIndex', () => {
 
   it('returns null if no entries for day', () => {
     expect(findNowIndex(entries, 8 * 60, 5)).toBeNull()
+  })
+})
+
+describe('todayDayIndex', () => {
+  const days = ['2025-04-11', '2025-04-12']
+
+  it('returns matching day index', () => {
+    expect(todayDayIndex(days, '2025-04-11')).toBe(0)
+    expect(todayDayIndex(days, '2025-04-12')).toBe(1)
+  })
+
+  it('returns last day when today is after all days', () => {
+    expect(todayDayIndex(days, '2025-04-15')).toBe(1)
+  })
+
+  it('returns 0 when today is before all days', () => {
+    expect(todayDayIndex(days, '2025-04-01')).toBe(0)
+  })
+
+  it('returns closest earlier day when between days', () => {
+    const spread = ['2025-04-05', '2025-04-10', '2025-04-15']
+    expect(todayDayIndex(spread, '2025-04-12')).toBe(1)
+  })
+
+  it('handles single day schedule', () => {
+    expect(todayDayIndex(['2025-04-11'], '2025-04-11')).toBe(0)
+    expect(todayDayIndex(['2025-04-11'], '2025-04-15')).toBe(0)
+    expect(todayDayIndex(['2025-04-11'], '2025-04-01')).toBe(0)
   })
 })
