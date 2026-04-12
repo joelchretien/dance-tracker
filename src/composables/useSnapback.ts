@@ -60,11 +60,5 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
     { immediate: true },
   )
 
-  watch(scrollContainer, (container, _, onCleanup) => {
-    if (container) {
-      onCleanup(() => {})
-    }
-  }, { immediate: true })
-
   onBeforeUnmount(cleanup)
 }

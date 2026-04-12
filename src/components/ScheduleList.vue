@@ -2,6 +2,7 @@
 import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
+import type { DanceEntry as DanceEntryType } from '@/types/schedule'
 import DayHeader from './DayHeader.vue'
 import CategoryHeader from './CategoryHeader.vue'
 import DanceEntry from './DanceEntry.vue'
@@ -51,7 +52,7 @@ function handleMarkCurrent(globalIndex: number) {
 
       <CategoryHeader
         v-if="shouldShowCategoryHeader(i)"
-        :category="(item.entry as any).category"
+        :category="(item.entry as DanceEntryType).category ?? ''"
       />
 
       <DanceEntry

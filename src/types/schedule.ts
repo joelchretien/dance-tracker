@@ -49,7 +49,6 @@ export type ScheduleStatus =
   | { kind: 'ahead'; minutes: number }
   | { kind: 'way-behind'; minutes: number }
   | { kind: 'not-started' }
-  | { kind: 'finished' }
   | { kind: 'wrong-day'; dayLabel: string }
 
 export type FontSize = 'default' | 'medium' | 'large'

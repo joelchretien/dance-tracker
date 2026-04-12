@@ -55,7 +55,11 @@ export const useScheduleStore = defineStore('schedule', () => {
     try {
       const base = import.meta.env.BASE_URL
       const res = await fetch(`${base}schedules/index.json`)
-      manifest.value = await res.json()
+      const data = await res.json()
+      if (!data?.schedules || !Array.isArray(data.schedules)) {
+        throw new Error('Invalid manifest: missing schedules array')
+      }
+      manifest.value = data
     } catch (e) {
       console.error('Failed to load schedule list:', e)
       error.value = 'Failed to load schedule list'
@@ -69,7 +73,11 @@ export const useScheduleStore = defineStore('schedule', () => {
       const base = import.meta.env.BASE_URL
       const res = await fetch(`${base}schedules/${id}.json`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      scheduleFile.value = await res.json()
+      const data = await res.json()
+      if (!data?.meta || !Array.isArray(data?.days)) {
+        throw new Error('Invalid schedule: missing meta or days')
+      }
+      scheduleFile.value = data
     } catch (e) {
       console.error('Failed to load schedule:', id, e)
       error.value = `Failed to load schedule: ${id}`

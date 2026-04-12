@@ -5,6 +5,7 @@ import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
 import { parseTime, formatTimeDiff } from '@/lib/time'
 import { countDancesUntil } from '@/lib/countdown'
+import type { DanceEntry as DanceEntryType, BreakEntry as BreakEntryType, AwardsEntry } from '@/types/schedule'
 import DanceEntry from './DanceEntry.vue'
 import BreakEntry from './BreakEntry.vue'
 import DayHeader from './DayHeader.vue'
@@ -133,7 +134,7 @@ function handleMarkCurrent(globalIndex: number) {
       <div class="text-sm">No dances found for watched dancers</div>
     </div>
 
-    <template v-else v-for="(li, i) in listItems" :key="i">
+    <template v-else v-for="(li, i) in listItems" :key="`${li.kind}-${li.globalIndex ?? i}`">
       <!-- Day header -->
       <DayHeader v-if="li.kind === 'day-header'" :label="li.dayLabel!" />
 
@@ -161,7 +162,7 @@ function handleMarkCurrent(globalIndex: number) {
       <template v-else-if="li.kind === 'entry'">
         <DanceEntry
           v-if="schedule.flatEntries[li.globalIndex!].entry.type === 'dance'"
-          :entry="(schedule.flatEntries[li.globalIndex!].entry as any)"
+          :entry="(schedule.flatEntries[li.globalIndex!].entry as DanceEntryType)"
           :global-index="li.globalIndex!"
           :is-marked="li.globalIndex === navigation.markedIndex"
           :is-selected="li.globalIndex === navigation.selectedIndex"
@@ -173,7 +174,7 @@ function handleMarkCurrent(globalIndex: number) {
         />
         <BreakEntry
           v-else
-          :entry="(schedule.flatEntries[li.globalIndex!].entry as any)"
+          :entry="(schedule.flatEntries[li.globalIndex!].entry as BreakEntryType | AwardsEntry)"
           :global-index="li.globalIndex!"
           :is-marked="li.globalIndex === navigation.markedIndex"
           :is-selected="li.globalIndex === navigation.selectedIndex"

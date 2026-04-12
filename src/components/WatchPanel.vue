@@ -30,7 +30,7 @@ function toggle(name: string) {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-40 bg-surface flex flex-col" style="padding-top: env(safe-area-inset-top, 0px)">
+  <div role="dialog" aria-modal="true" class="fixed inset-0 z-40 bg-surface flex flex-col" style="padding-top: env(safe-area-inset-top, 0px)">
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-800">
       <h2 class="text-lg font-semibold">Watched Dancers</h2>
       <button
