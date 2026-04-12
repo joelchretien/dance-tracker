@@ -39,7 +39,7 @@ const outlineStyle = computed(() => {
 <template>
   <div
     :id="`entry-${globalIndex}`"
-    class="mx-2 my-0.5 rounded-lg cursor-pointer text-center transition-colors border relative"
+    class="mx-2 my-0.5 rounded-lg cursor-pointer transition-colors border relative"
     :class="[borderClass, bgClass, isMarked ? 'px-3 pt-5 pb-2' : 'px-3 py-2']"
     :style="outlineStyle"
     @click="emit('select')"
@@ -49,8 +49,8 @@ const outlineStyle = computed(() => {
       class="absolute top-1.5 right-2 text-[9px] font-bold tracking-wider text-indigo-400/70 uppercase"
     >▶ current</span>
 
-    <div class="flex items-center justify-center gap-2">
-      <span class="fs-time text-gray-400">{{ entry.time }}</span>
+    <div class="flex items-baseline gap-2">
+      <span class="fs-time text-gray-400 shrink-0 w-16">{{ entry.time }}</span>
       <span
         class="fs-title font-medium"
         :class="isWatchedAwards ? 'text-gold-400' : 'text-gray-400'"
@@ -58,7 +58,7 @@ const outlineStyle = computed(() => {
         {{ entry.title }}
       </span>
     </div>
-    <div v-if="isWatchedAwards" class="text-xs text-gold-400/70 mt-0.5">
+    <div v-if="isWatchedAwards" class="text-xs text-gold-400/70 mt-0.5 ml-[4.5rem]">
       Watched Dancers in this block
     </div>
 
