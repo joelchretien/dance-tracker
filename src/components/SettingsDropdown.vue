@@ -19,7 +19,7 @@ const FS_LABELS: Record<string, string> = {
 
 <template>
   <!-- Backdrop -->
-  <div class="fixed inset-0 z-30" @click="ui.closeSettingsDropdown()"></div>
+  <div class="fixed inset-0 z-30 bg-black/30" @click="ui.closeSettingsDropdown()"></div>
 
   <!-- Dropdown -->
   <div class="absolute right-2 z-40 w-56 bg-surface-raised border border-gray-700 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] overflow-hidden" style="top: calc(env(safe-area-inset-top, 0px) + 48px)">

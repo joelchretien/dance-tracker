@@ -62,7 +62,7 @@ const outlineStyle = computed(() => {
       <span class="fs-title font-medium flex-1" :class="[isWatched ? 'text-gold-400' : '', isSelected ? '' : 'truncate']">
         {{ entry.title }}
       </span>
-      <span v-if="entry.num && !isMarked" class="fs-time text-gray-500 shrink-0">#{{ entry.num }}</span>
+      <span v-if="entry.num" class="fs-time text-gray-500 shrink-0">#{{ entry.num }}</span>
     </div>
 
     <div v-if="watchedDancers.length > 0" class="flex flex-wrap gap-1 mt-1">
