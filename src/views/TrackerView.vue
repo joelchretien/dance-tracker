@@ -59,9 +59,18 @@ function scrollToEntry(index: number, smooth: boolean) {
 }
 
 function handleJumpToNow() {
-  const result = navigation.jumpToNow()
-  if (result !== null) {
-    nextTick(() => scrollToEntry(result.index, true))
+  if (ui.myDancesMode) {
+    // In filtered mode, scroll to the current-position marker or the marked entry if visible
+    const marker = document.getElementById('current-position-marker')
+      ?? document.getElementById(`entry-${navigation.markedIndex}`)
+    if (marker) {
+      marker.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  } else {
+    const result = navigation.jumpToNow()
+    if (result !== null) {
+      nextTick(() => scrollToEntry(result.index, true))
+    }
   }
 }
 
