@@ -23,5 +23,7 @@ if ('serviceWorker' in navigator) {
         window.location.reload()
       }
     })
+  }).catch(err => {
+    console.error('Service worker registration failed:', err)
   })
 }

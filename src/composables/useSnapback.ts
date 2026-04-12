@@ -21,37 +21,16 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
     }
   }
 
-  /** Find the watched entry closest to nowIndex */
-  function nearestWatchedToNow(): number | null {
-    const now = navigation.nowIndex
-    if (now === null) return null
-    const indices = watchStore.watchedEntryIndices
-    if (indices.length === 0) return null
-
-    let best = indices[0]
-    let bestDist = Math.abs(best - now)
-    for (const gi of indices) {
-      const dist = Math.abs(gi - now)
-      if (dist < bestDist) {
-        best = gi
-        bestDist = dist
-      }
-    }
-    return best
-  }
-
   function observe() {
     cleanup()
 
     let el: HTMLElement | null = null
     if (ui.myDancesMode) {
-      // In Watched Dances mode, observe the watched entry nearest to current time
-      const nearest = nearestWatchedToNow()
+      const nearest = watchStore.nearestWatchedToNow()
       if (nearest !== null) {
         el = document.getElementById(`entry-${nearest}`)
       }
     } else {
-      // In full view, observe the entry closest to current wall-clock time
       if (navigation.nowIndex !== null) {
         el = document.getElementById(`entry-${navigation.nowIndex}`)
       }

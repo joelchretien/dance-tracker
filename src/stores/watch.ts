@@ -84,10 +84,6 @@ export const useWatchStore = defineStore('watch', () => {
     return entry.dancers.filter(d => watchedDancerSet.value.has(d))
   })
 
-  const nextTargetIsAwards = computed(() =>
-    nextTargetEntry.value?.type === 'awards'
-  )
-
   const nextTargetIsWatchedAwards = computed(() => {
     if (nextTargetIndex.value === null) return false
     return watchedAwardsSet.value.has(nextTargetIndex.value)
@@ -164,13 +160,27 @@ export const useWatchStore = defineStore('watch', () => {
     return indices
   })
 
+  /** Find the watched entry index closest to the current wall-clock time */
+  function nearestWatchedToNow(): number | null {
+    if (navigation.nowIndex === null) return null
+    const indices = watchedEntryIndices.value
+    if (indices.length === 0) return null
+    let best = indices[0]
+    let bestDist = Math.abs(best - navigation.nowIndex)
+    for (const gi of indices) {
+      const dist = Math.abs(gi - navigation.nowIndex)
+      if (dist < bestDist) { best = gi; bestDist = dist }
+    }
+    return best
+  }
+
   return {
     watchedDancers, watchedDancerSet, watchedStudios,
     awardsBlocks, watchedAwardsSet,
     nextTargetIndex, dancesUntilTarget, nextTargetEntry,
-    nextTargetWatchedDancers, nextTargetIsAwards, nextTargetIsWatchedAwards,
+    nextTargetWatchedDancers, nextTargetIsWatchedAwards,
     nextTargetStyleType, nextTargetSubtitle, nextTargetTime, nextTargetTimeDiff,
     initForSchedule, toggleDancer, isWatchedEntry, getWatchedDancersForEntry,
-    watchedEntryIndices,
+    watchedEntryIndices, nearestWatchedToNow,
   }
 })

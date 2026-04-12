@@ -62,18 +62,10 @@ function scrollToEntry(index: number, smooth: boolean) {
 
 function handleJumpToNow() {
   if (ui.myDancesMode) {
-    // Find the watched entry nearest to current time and scroll to it
-    const now = navigation.nowIndex
-    if (now === null) return
-    const indices = watchStore.watchedEntryIndices
-    if (indices.length === 0) return
-    let best = indices[0]
-    let bestDist = Math.abs(best - now)
-    for (const gi of indices) {
-      const dist = Math.abs(gi - now)
-      if (dist < bestDist) { best = gi; bestDist = dist }
+    const nearest = watchStore.nearestWatchedToNow()
+    if (nearest !== null) {
+      nextTick(() => scrollToEntry(nearest, true))
     }
-    nextTick(() => scrollToEntry(best, true))
   } else {
     const result = navigation.jumpToNow()
     if (result !== null) {

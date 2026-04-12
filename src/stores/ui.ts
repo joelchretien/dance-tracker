@@ -36,13 +36,6 @@ export const useUiStore = defineStore('ui', () => {
     }, 1800)
   }
 
-  function clearToast() {
-    toastMessage.value = ''
-    if (toastTimerId.value) {
-      clearTimeout(toastTimerId.value)
-      toastTimerId.value = null
-    }
-  }
 
   function openJumpToPanel() {
     jumpToPanelOpen.value = true
@@ -105,7 +98,7 @@ export const useUiStore = defineStore('ui', () => {
     toastMessage, toastTimerId,
     snapbackVisible,
     scheduleStatus,
-    showToast, clearToast,
+    showToast,
     openJumpToPanel, closeJumpToPanel,
     openWatchPanel, closeWatchPanel,
     toggleSettingsDropdown, closeSettingsDropdown,

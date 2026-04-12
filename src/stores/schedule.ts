@@ -57,6 +57,7 @@ export const useScheduleStore = defineStore('schedule', () => {
       const res = await fetch(`${base}schedules/index.json`)
       manifest.value = await res.json()
     } catch (e) {
+      console.error('Failed to load schedule list:', e)
       error.value = 'Failed to load schedule list'
     }
   }
@@ -70,6 +71,7 @@ export const useScheduleStore = defineStore('schedule', () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       scheduleFile.value = await res.json()
     } catch (e) {
+      console.error('Failed to load schedule:', id, e)
       error.value = `Failed to load schedule: ${id}`
     } finally {
       loading.value = false

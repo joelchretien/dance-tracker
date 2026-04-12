@@ -6,12 +6,6 @@ import { findNowIndex, todayDayIndex } from '@/lib/navigation'
 import { parseTime, currentTimeMinutes } from '@/lib/time'
 import type { FontSize } from '@/types/schedule'
 
-const FS_LABELS: Record<FontSize, string> = {
-  default: 'Default',
-  medium: 'Medium',
-  large: 'Large',
-}
-
 export const useNavigationStore = defineStore('navigation', () => {
   const schedule = useScheduleStore()
 
@@ -60,25 +54,6 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   const markedEntry = computed(() => schedule.flatEntries[markedIndex.value] ?? null)
   const markedDayIndex = computed(() => markedEntry.value?.dayIndex ?? 0)
-
-  const markedDanceNumber = computed(() => {
-    const idx = schedule.danceIndices.indexOf(markedIndex.value)
-    return idx >= 0 ? idx + 1 : null
-  })
-
-  const progressPercent = computed(() => {
-    if (schedule.totalDances === 0) return 0
-    const idx = schedule.danceIndices.indexOf(markedIndex.value)
-    if (idx >= 0) {
-      return ((idx + 1) / schedule.totalDances) * 100
-    }
-    let closestIdx = 0
-    for (let i = 0; i < schedule.danceIndices.length; i++) {
-      if (schedule.danceIndices[i] <= markedIndex.value) closestIdx = i + 1
-      else break
-    }
-    return (closestIdx / schedule.totalDances) * 100
-  })
 
   const canGoBack = computed(() => markedIndex.value > 0)
   const canAdvance = computed(() => markedIndex.value < schedule.flatEntries.length - 1)
@@ -132,14 +107,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     }
   }
 
-  function cycleFontSize(): string {
-    const order: FontSize[] = ['default', 'medium', 'large']
-    const idx = order.indexOf(fontSize.value)
-    fontSize.value = order[(idx + 1) % 3]
-    applyFontSize()
-    return `Text: ${FS_LABELS[fontSize.value]}`
-  }
-
   function applyFontSize() {
     const html = document.documentElement
     html.classList.remove('fs-medium', 'fs-large')
@@ -180,12 +147,11 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   return {
     markedIndex, selectedIndex, fontSize,
-    markedEntry, markedDayIndex, markedDanceNumber,
-    progressPercent, canGoBack, canAdvance, markedTimeOfEntry,
+    markedEntry, markedDayIndex, canGoBack, canAdvance, markedTimeOfEntry,
     currentIndex, currentEntry, currentDayIndex, currentTimeOfEntry,
     initForSchedule, select, markAsCurrent, advance, retreat,
     canIncreaseFontSize, canDecreaseFontSize,
-    increaseFontSize, decreaseFontSize, cycleFontSize, jumpToNow,
+    increaseFontSize, decreaseFontSize, jumpToNow,
     nowIndex, updateNowIndex,
   }
 })
