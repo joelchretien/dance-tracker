@@ -34,6 +34,13 @@ const remainingCount = computed(() => (props.entry.dancers?.length ?? 0) - SHOW_
       >
         +{{ remainingCount }} more
       </button>
+      <button
+        v-if="expanded && (entry.dancers?.length ?? 0) > SHOW_LIMIT"
+        class="text-indigo-400 ml-1"
+        @click.stop="expanded = false"
+      >
+        show less
+      </button>
     </div>
   </div>
 </template>
