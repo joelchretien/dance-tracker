@@ -6,7 +6,7 @@ const emit = defineEmits<{ 'jump-to-next': [] }>()
 </script>
 
 <template>
-  <div id="bottom-bar" class="fixed bottom-0 left-0 right-0 z-20 bg-surface border-t border-gray-800">
+  <div id="bottom-bar" class="fixed bottom-0 left-0 right-0 z-20 bg-surface border-t border-gray-700 shadow-[0_-8px_24px_rgba(0,0,0,0.6)]">
     <div class="px-2 pt-2 pb-1.5 space-y-2">
       <div @click="emit('jump-to-next')">
         <CountdownBanner />
