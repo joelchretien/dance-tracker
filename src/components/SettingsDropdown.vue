@@ -8,6 +8,8 @@ const navigation = useNavigationStore()
 const watchStore = useWatchStore()
 const ui = useUiStore()
 
+const gitHash = __GIT_HASH__
+
 const FS_LABELS: Record<string, string> = {
   default: 'Default',
   medium: 'Medium',
@@ -62,5 +64,8 @@ const FS_LABELS: Record<string, string> = {
         {{ watchStore.watchedDancers.length }}
       </span>
     </button>
+
+    <div class="border-t border-gray-700"></div>
+    <div class="px-3 py-1.5 text-[10px] text-gray-600 text-right">{{ gitHash }}</div>
   </div>
 </template>
