@@ -63,7 +63,6 @@ function scrollToEntry(index: number, smooth: boolean) {
 function handleJumpToNow() {
   const result = navigation.jumpToNow()
   if (result !== null) {
-    ui.showToast(result.toast)
     nextTick(() => scrollToEntry(result.index, true))
   }
 }
