@@ -10,6 +10,7 @@ import TopBar from '@/components/TopBar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ScheduleStatus from '@/components/ScheduleStatus.vue'
 import ScheduleList from '@/components/ScheduleList.vue'
+import MyDancesList from '@/components/MyDancesList.vue'
 import SnapbackPill from '@/components/SnapbackPill.vue'
 import BottomBar from '@/components/BottomBar.vue'
 import WatchPanel from '@/components/WatchPanel.vue'
@@ -82,6 +83,11 @@ function handleCycleFontSize() {
 function handleSearchJump(index: number) {
   nextTick(() => scrollToEntry(index, true))
 }
+
+function handleToggleMyDances() {
+  const msg = ui.toggleMyDancesMode()
+  ui.showToast(msg)
+}
 </script>
 
 <template>
@@ -95,12 +101,14 @@ function handleSearchJump(index: number) {
     <TopBar
       :title="schedule.meta?.name ?? ''"
       @cycle-font-size="handleCycleFontSize"
+      @toggle-my-dances="handleToggleMyDances"
     />
     <ProgressBar :percent="navigation.progressPercent" />
     <ScheduleStatus :status="ui.scheduleStatus" />
 
     <div ref="scrollContainer" class="flex-1 overflow-y-auto pb-40">
-      <ScheduleList />
+      <MyDancesList v-if="ui.myDancesMode" />
+      <ScheduleList v-else />
     </div>
 
     <SnapbackPill

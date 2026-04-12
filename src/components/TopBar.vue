@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ALargeSmall, Star, Search } from 'lucide-vue-next'
+import { ALargeSmall, Star, Search, ListFilter } from 'lucide-vue-next'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 
 defineProps<{ title: string }>()
 const emit = defineEmits<{
   'cycle-font-size': []
+  'toggle-my-dances': []
 }>()
 
 const watchStore = useWatchStore()
@@ -26,6 +27,13 @@ const hasWatched = computed(() => watchStore.watchedDancers.length > 0)
           @click="ui.openSearchPanel()"
         >
           <Search :size="20" class="text-gray-300" />
+        </button>
+        <button
+          class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
+          title="My dances"
+          @click="emit('toggle-my-dances')"
+        >
+          <ListFilter :size="20" :class="ui.myDancesMode ? 'text-gold-400' : 'text-gray-300'" />
         </button>
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"

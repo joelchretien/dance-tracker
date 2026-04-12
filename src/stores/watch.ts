@@ -150,6 +150,20 @@ export const useWatchStore = defineStore('watch', () => {
     return item.entry.dancers.filter(d => watchedDancerSet.value.has(d))
   }
 
+  /** Sorted global indices of all watched dances + watched awards */
+  const watchedEntryIndices = computed<number[]>(() => {
+    const indices: number[] = []
+    for (const item of schedule.flatEntries) {
+      const e = item.entry
+      if (e.type === 'dance' && e.dancers?.some(d => watchedDancerSet.value.has(d))) {
+        indices.push(item.globalIndex)
+      } else if (e.type === 'awards' && watchedAwardsSet.value.has(item.globalIndex)) {
+        indices.push(item.globalIndex)
+      }
+    }
+    return indices
+  })
+
   return {
     watchedDancers, watchedDancerSet, watchedStudios,
     awardsBlocks, watchedAwardsSet,
@@ -157,5 +171,6 @@ export const useWatchStore = defineStore('watch', () => {
     nextTargetWatchedDancers, nextTargetIsAwards, nextTargetIsWatchedAwards,
     nextTargetStyleType, nextTargetSubtitle, nextTargetTime, nextTargetTimeDiff,
     initForSchedule, toggleDancer, isWatchedEntry, getWatchedDancersForEntry,
+    watchedEntryIndices,
   }
 })
