@@ -11,7 +11,7 @@ app.mount('#app')
 
 // Register service worker for offline support + cache busting
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/dance-tracker/sw.js').then(reg => {
+  navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).then(reg => {
     // Check for updates every 60 seconds
     setInterval(() => reg.update(), 60_000)
 

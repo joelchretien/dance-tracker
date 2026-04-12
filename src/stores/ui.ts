@@ -83,7 +83,7 @@ export const useUiStore = defineStore('ui', () => {
 
     const entryDayIndex = nav.markedDayIndex
     const entryDate = schedule.days[entryDayIndex]?.date
-    const today = new Date().toISOString().slice(0, 10)
+    const today = new Date().toLocaleDateString('en-CA')
     const sameDay = entryDate === today
     const dayLabel = schedule.days[entryDayIndex]?.label ?? ''
 

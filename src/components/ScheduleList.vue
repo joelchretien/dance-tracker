@@ -17,15 +17,10 @@ function shouldShowCategoryHeader(index: number): boolean {
   if (!item || item.entry.type !== 'dance' || !item.entry.category) return false
 
   if (index === 0) return true
-  if (index > 0 && item.dayIndex !== schedule.flatEntries[index - 1].dayIndex) return true
-
-  for (let i = index - 1; i >= 0; i--) {
-    const prev = schedule.flatEntries[i]
-    if (prev.entry.type !== 'dance') return true
-    if (prev.entry.type === 'dance' && prev.entry.category !== item.entry.category) return true
-    return false
-  }
-  return true
+  const prev = schedule.flatEntries[index - 1]
+  if (prev.dayIndex !== item.dayIndex) return true
+  if (prev.entry.type !== 'dance') return true
+  return prev.entry.category !== item.entry.category
 }
 
 function isNewDay(index: number): boolean {
