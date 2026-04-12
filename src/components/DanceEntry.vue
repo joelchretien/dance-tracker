@@ -64,15 +64,17 @@ const ringClass = computed(() => {
     <!-- Details shown when this specific entry is selected -->
     <template v-if="isSelected">
       <DanceDetails :entry="entry" />
-      <button
-        v-if="!isMarked"
-        class="mt-2 w-full py-1.5 rounded-md text-xs font-semibold bg-indigo-500/30 text-indigo-300 active:bg-indigo-500/50 transition-colors"
-        @click.stop="emit('mark-current')"
-      >
-        Mark as current dance
-      </button>
-      <div v-else class="mt-1.5 text-[11px] text-indigo-400/60 text-center">
-        ✓ Current dance
+      <div class="flex justify-end mt-1">
+        <button
+          v-if="!isMarked"
+          class="text-[11px] text-indigo-400/70 active:text-indigo-300 transition-colors"
+          @click.stop="emit('mark-current')"
+        >
+          Set as current ›
+        </button>
+        <span v-else class="text-[11px] text-indigo-400/50">
+          ✓ Current
+        </span>
       </div>
     </template>
   </div>
