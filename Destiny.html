@@ -27,7 +27,7 @@ html,body{height:100%;background:#0c0c18;color:#cbd5e1;font-family:-apple-system
 #list{padding:4px 10px 210px}
 .ch{padding:8px 14px 4px;margin-top:10px;border-top:1px solid rgba(255,255,255,0.04)}
 .ch span{font-size:11px;font-weight:500;color:#475569;letter-spacing:0.3px}
-.dh{padding:24px 16px;text-align:center;margin:20px 0 8px;border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08)}
+.dh{padding:20px 16px;text-align:center;margin:12px 0 2px;border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08)}
 .dh span{font-size:14px;font-weight:700;color:#94a3b8;letter-spacing:2px;text-transform:uppercase}
 .bk{padding:12px 16px;text-align:center;margin:6px 0;border-radius:8px;border:1px dashed rgba(255,255,255,0.06)}
 .bk.cur{background:rgba(99,102,241,0.12);border:2px solid rgba(99,102,241,0.5)}
@@ -669,15 +669,22 @@ function updSched(){
   var now=new Date();
   var nowMin=now.getHours()*60+now.getMinutes();
   var diff=nowMin-t;
-  if(Math.abs(diff)<=2){
+  var ad=Math.abs(diff);
+  if(ad<=5){
     el.style.color="#4ade80";
     el.textContent="\u2713 On schedule";
-  }else if(diff>0){
+  }else if(diff>0&&diff<=15){
+    el.style.color="#94a3b8";
+    el.textContent="~"+diff+" min behind";
+  }else if(diff>15){
     el.style.color="#fb923c";
     el.textContent="~"+diff+" min behind schedule";
+  }else if(diff<0&&ad<=15){
+    el.style.color="#94a3b8";
+    el.textContent="~"+ad+" min ahead";
   }else{
     el.style.color="#38bdf8";
-    el.textContent="~"+Math.abs(diff)+" min ahead of schedule";
+    el.textContent="~"+ad+" min ahead of schedule";
   }
 }
 setInterval(updSched,30000);
@@ -720,7 +727,12 @@ function upd(doScroll){
     var cnt=cU(nxt),ne=S[nxt];
     var td=tD(pT(e.time),pT(ne.time));
     var isNxtAwd=isDaughterAwards(nxt);
-    var line1='<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:22px;font-weight:800;color:#fbbf24;line-height:1">'+cnt+'</span><span style="font-size:14px;color:#fbbf24;font-weight:600">'+(cnt===1?"dance":"dances")+' until</span><span style="font-size:14px;color:#fbbf24;font-weight:800">'+esc(ne.title)+'</span></div>';
+    var line1;
+    if(cnt===0){
+      line1='<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:14px;color:#fbbf24;font-weight:600">Up next \u2192</span><span style="font-size:14px;color:#fbbf24;font-weight:800">'+esc(ne.title)+'</span></div>';
+    }else{
+      line1='<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:22px;font-weight:800;color:#fbbf24;line-height:1">'+cnt+'</span><span style="font-size:14px;color:#fbbf24;font-weight:600">'+(cnt===1?"dance":"dances")+' until</span><span style="font-size:14px;color:#fbbf24;font-weight:800">'+esc(ne.title)+'</span></div>';
+    }
     var line2,line3;
     if(isNxtAwd){
       line2='<div style="font-size:12px;color:rgba(251,191,36,0.5);margin-top:3px">Your dancers are in this block'+(ne.time?' \u00b7 '+ne.time:'')+(td?' \u00b7 '+td:'')+'</div>';
