@@ -75,7 +75,7 @@ export const useUiStore = defineStore('ui', () => {
 
   function toggleMyDancesMode(): string {
     myDancesMode.value = !myDancesMode.value
-    return myDancesMode.value ? '★ My Dances' : '☰ All Dances'
+    return myDancesMode.value ? '★ Watched Dances' : '☰ All Dances'
   }
 
   function setSnapback(visible: boolean) {

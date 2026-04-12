@@ -130,7 +130,7 @@ function selectResult(globalIndex: number) {
             <div class="text-sm font-medium truncate" :class="a.isWatched ? 'text-gold-400' : 'text-gray-300'">
               {{ a.title }}
             </div>
-            <div v-if="a.isWatched" class="text-[10px] text-gold-400/60">Your dancers in this block</div>
+            <div v-if="a.isWatched" class="text-[10px] text-gold-400/60">Watched dancers in this block</div>
           </div>
         </button>
       </template>

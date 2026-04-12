@@ -59,7 +59,7 @@ const outlineStyle = computed(() => {
       </span>
     </div>
     <div v-if="isWatchedAwards" class="text-xs text-gold-400/70 mt-0.5">
-      Your dancers are in this block
+      Watched dancers in this block
     </div>
 
     <template v-if="isSelected">

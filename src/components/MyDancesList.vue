@@ -130,7 +130,7 @@ function handleMarkCurrent(globalIndex: number) {
     </div>
 
     <div v-else-if="watchStore.watchedEntryIndices.length === 0" class="text-center text-gray-500 py-12 px-4">
-      <div class="text-sm">No dances found for your watched dancers</div>
+      <div class="text-sm">No dances found for watched dancers</div>
     </div>
 
     <template v-else v-for="(li, i) in listItems" :key="i">

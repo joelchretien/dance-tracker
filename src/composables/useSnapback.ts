@@ -23,7 +23,7 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
   function observe() {
     cleanup()
 
-    // In My Dances mode, observe the position marker or the marked entry if it's visible
+    // In Watched Dances mode, observe the position marker or the marked entry if it's visible
     // In full view, observe the marked entry directly
     let el: HTMLElement | null = null
     if (ui.myDancesMode) {

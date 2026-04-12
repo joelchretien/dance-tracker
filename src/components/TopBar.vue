@@ -24,7 +24,7 @@ const ui = useUiStore()
         </button>
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
-          title="My dances"
+          title="Watched dances"
           @click="emit('toggle-my-dances')"
         >
           <ListFilter :size="20" :class="ui.myDancesMode ? 'text-gold-400' : 'text-gray-300'" />
