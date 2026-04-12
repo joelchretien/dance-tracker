@@ -80,7 +80,7 @@ function selectResult(globalIndex: number) {
         ref="inputRef"
         v-model="ui.jumpToQuery"
         type="text"
-        placeholder="Search dances..."
+        placeholder="Search dances/awards..."
         class="flex-1 bg-transparent text-sm text-gray-100 placeholder-gray-500 focus:outline-none"
       />
       <button
