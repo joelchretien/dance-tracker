@@ -74,12 +74,6 @@ const countdownLabel = computed(() => {
       </div>
 
       <!-- Line 3: dancer names + tap hint -->
-      <div class="text-[11px] text-gold-400/35 mt-0.5">
-        <template v-if="isWatchedAwards">tap to jump</template>
-        <template v-else>
-          {{ dancers.join(' & ') }}<span v-if="dancers.length"> · </span>tap to jump
-        </template>
-      </div>
     </div>
   </div>
 </template>
