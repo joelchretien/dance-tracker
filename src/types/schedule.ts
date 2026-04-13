@@ -5,7 +5,6 @@ export interface ScheduleManifest {
 export interface ScheduleManifestEntry {
   id: string
   name: string
-  file: string
 }
 
 export interface ScheduleFile {

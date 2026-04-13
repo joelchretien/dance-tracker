@@ -5,6 +5,7 @@ import TrackerView from './views/TrackerView.vue'
 const routes = [
   { path: '/', component: HomeView },
   { path: '/:scheduleId', component: TrackerView, props: true },
+  { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 
 export const router = createRouter({

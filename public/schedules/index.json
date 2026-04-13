@@ -2,13 +2,11 @@
   "schedules": [
     {
       "id": "destiny-2026",
-      "name": "Destiny",
-      "file": "destiny-2026.json"
+      "name": "Destiny"
     },
     {
       "id": "destiny-rising-2025",
-      "name": "Destiny (old)",
-      "file": "destiny-rising-2025.json"
+      "name": "Destiny (old)"
     }
   ]
 }

@@ -19,15 +19,6 @@ export const useWatchStore = defineStore('watch', () => {
 
   function initForSchedule(id: string) {
     storage = useLocalStorage<string[]>(`dt:${id}:watch`, [])
-
-    // Migrate legacy "dw" key
-    try {
-      const legacy = localStorage.getItem('dw')
-      if (legacy && !localStorage.getItem(`dt:${id}:watch`)) {
-        storage.value = JSON.parse(legacy)
-      }
-    } catch { /* ignore */ }
-
     watchedDancers.value = storage.value
   }
 

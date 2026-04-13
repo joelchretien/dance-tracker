@@ -25,28 +25,10 @@ export const useNavigationStore = defineStore('navigation', () => {
   function initForSchedule(id: string) {
     navStorage = useLocalStorage(`dt:${id}:nav`, 0)
     fsStorage = useLocalStorage<FontSize>(`dt:${id}:fontSize`, 'default')
-    migrateLegacyKeys(id)
     markedIndex.value = navStorage.value
     fontSize.value = fsStorage.value
     selectedIndex.value = null
     applyFontSize()
-  }
-
-  function migrateLegacyKeys(id: string) {
-    try {
-      const legacyNav = localStorage.getItem('dst')
-      if (legacyNav && !localStorage.getItem(`dt:${id}:nav`)) {
-        const parsed = JSON.parse(legacyNav)
-        if (parsed?.ci !== undefined) {
-          navStorage!.value = parsed.ci
-        }
-      }
-      const legacyFs = localStorage.getItem('dfs')
-      if (legacyFs && !localStorage.getItem(`dt:${id}:fontSize`)) {
-        const map: Record<string, FontSize> = { '0': 'default', '1': 'medium', '2': 'large' }
-        fsStorage!.value = map[legacyFs] ?? 'default'
-      }
-    } catch { /* ignore */ }
   }
 
   watch(markedIndex, (val) => { if (navStorage) navStorage.value = val })

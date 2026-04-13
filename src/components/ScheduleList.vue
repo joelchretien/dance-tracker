@@ -52,7 +52,6 @@ function handleMarkCurrent(globalIndex: number) {
 
       <DanceEntry
         v-if="item.entry.type === 'dance'"
-        :id="`entry-${item.globalIndex}`"
         :entry="item.entry"
         :global-index="item.globalIndex"
         :is-marked="item.globalIndex === navigation.markedIndex"
@@ -66,7 +65,6 @@ function handleMarkCurrent(globalIndex: number) {
 
       <BreakEntry
         v-else
-        :id="`entry-${item.globalIndex}`"
         :entry="item.entry"
         :global-index="item.globalIndex"
         :is-marked="item.globalIndex === navigation.markedIndex"
