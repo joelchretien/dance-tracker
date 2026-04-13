@@ -18,7 +18,7 @@ const ui = useUiStore()
       <button
         v-if="showBack"
         class="p-1.5 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors shrink-0"
-        title="Back to schedule list"
+        title="Back to schedule list" aria-label="Back to schedule list"
         @click="router.push('/')"
       >
         <ChevronLeft :size="22" class="text-gray-400" />
@@ -27,21 +27,21 @@ const ui = useUiStore()
       <div class="flex items-center gap-1">
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
-          title="Jump to"
+          title="Jump to" aria-label="Search"
           @click="ui.openJumpToPanel()"
         >
           <Search :size="20" class="text-gray-300" />
         </button>
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
-          title="Watched dances"
+          title="Watched dances" aria-label="Filter watched dances"
           @click="emit('toggle-watched-dances')"
         >
           <ListFilter :size="20" :class="ui.watchedDancesMode ? 'text-gold-400' : 'text-gray-300'" />
         </button>
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
-          title="Settings"
+          title="Settings" aria-label="Settings"
           @click="ui.toggleSettingsDropdown()"
         >
           <Settings :size="20" :class="ui.settingsDropdownOpen ? 'text-gray-100' : 'text-gray-300'" />
