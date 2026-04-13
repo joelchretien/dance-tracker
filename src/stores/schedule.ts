@@ -55,6 +55,7 @@ export const useScheduleStore = defineStore('schedule', () => {
     try {
       const base = import.meta.env.BASE_URL
       const res = await fetch(`${base}schedules/index.json`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       if (!data?.schedules || !Array.isArray(data.schedules)) {
         throw new Error('Invalid manifest: missing schedules array')

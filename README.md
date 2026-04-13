@@ -39,7 +39,7 @@ src/
 │   ├── DanceEntry.vue    Individual dance row
 │   ├── BreakEntry.vue    Awards/break row
 │   ├── ScheduleList.vue  Full schedule rendering
-│   ├── MyDancesList.vue  Filtered watched-only view
+│   ├── WatchedDancesList.vue  Filtered watched-only view
 │   ├── CountdownBanner.vue  Next watched dance countdown
 │   ├── JumpToPanel.vue   Search + jump-to overlay
 │   ├── SettingsDropdown.vue  Font size + watch dancers
@@ -92,7 +92,7 @@ The schedule JSON format is fully documented in `skills/convert-schedule.md`.
 ```bash
 npm install
 npm run dev      # Vite dev server
-npm test         # Run tests (55 tests, 7 files)
+npm test         # Run tests (57 tests, 7 files)
 npm run build    # Type-check + production build
 ```
 

@@ -98,7 +98,7 @@ Add an entry to `public/schedules/index.json`:
 ```json
 {
   "schedules": [
-    { "id": "competition-name-2025", "name": "Competition Name", "file": "competition-name-2025.json" }
+    { "id": "competition-name-2025", "name": "Competition Name" }
   ]
 }
 ```
