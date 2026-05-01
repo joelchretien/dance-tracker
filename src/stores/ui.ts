@@ -78,10 +78,10 @@ export const useUiStore = defineStore('ui', () => {
   function updateScheduleStatus() {
     const schedule = useScheduleStore()
     const nav = useNavigationStore()
-    const entryTime = nav.markedTimeOfEntry
+    const entryTime = nav.activeTimeOfEntry
     const now = currentTimeMinutes()
 
-    const entryDayIndex = nav.markedDayIndex
+    const entryDayIndex = nav.activeDayIndex
     const entryDate = schedule.days[entryDayIndex]?.date
     const today = localDateString()
     const sameDay = entryDate === today

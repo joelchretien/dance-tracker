@@ -3,15 +3,33 @@ import { ref, computed, watch } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 import { useScheduleStore } from './schedule'
 import { findNowIndex, todayDayIndex } from '@/lib/navigation'
+import { findLikelyCurrentIndex } from '@/lib/auto-advance'
 import { parseTime, currentTimeMinutes } from '@/lib/time'
 import type { FontSize } from '@/types/schedule'
 
 export const useNavigationStore = defineStore('navigation', () => {
   const schedule = useScheduleStore()
 
-  // "Current dance" — the dance the competition is currently on.
-  // Advance/Back operate on this. Persisted across sessions.
+  // "Current dance" — the dance the user last manually set as current.
+  // Persisted across sessions.
   const markedIndex = ref(0)
+
+  // Wall-clock minutes when the user last manually set the current dance.
+  // Used to compute the offset between wall clock and schedule time.
+  // null = no anchor yet (auto-advance disabled).
+  const anchorWallMinutes = ref<number | null>(null)
+
+  // Auto-advance: the index the timer thinks we're on, based on offset.
+  // null = no anchor set yet, so no auto-advance.
+  const likelyIndex = ref<number | null>(null)
+
+  // The effective "current" index — what everything should reference.
+  const activeIndex = computed(() => likelyIndex.value ?? markedIndex.value)
+
+  // Is the active entry auto-estimated (vs manually confirmed)?
+  const activeIsLikely = computed(() =>
+    likelyIndex.value !== null && likelyIndex.value !== markedIndex.value
+  )
 
   // "Selected dance" — the dance the user tapped to inspect.
   // Shows details inline. Transient (not persisted). null = nothing selected.
@@ -20,45 +38,62 @@ export const useNavigationStore = defineStore('navigation', () => {
   const fontSize = ref<FontSize>('default')
 
   let navStorage: ReturnType<typeof useLocalStorage<number>> | null = null
+  let anchorStorage: ReturnType<typeof useLocalStorage<number | null>> | null = null
   let fsStorage: ReturnType<typeof useLocalStorage<FontSize>> | null = null
 
   function initForSchedule(id: string) {
     navStorage = useLocalStorage(`dt:${id}:nav`, 0)
+    anchorStorage = useLocalStorage<number | null>(`dt:${id}:anchor`, null)
     fsStorage = useLocalStorage<FontSize>(`dt:${id}:fontSize`, 'default')
     markedIndex.value = navStorage.value
+    anchorWallMinutes.value = anchorStorage.value
     fontSize.value = fsStorage.value
     selectedIndex.value = null
     applyFontSize()
+
+    // Restore auto-advance from persisted anchor
+    if (anchorWallMinutes.value !== null) {
+      updateLikelyCurrent()
+    }
   }
 
   watch(markedIndex, (val) => { if (navStorage) navStorage.value = val })
+  watch(anchorWallMinutes, (val) => { if (anchorStorage) anchorStorage.value = val })
   watch(fontSize, (val) => { if (fsStorage) fsStorage.value = val })
 
-  const markedEntry = computed(() => schedule.flatEntries[markedIndex.value] ?? null)
-  const markedDayIndex = computed(() => markedEntry.value?.dayIndex ?? 0)
-
-  const canGoBack = computed(() => markedIndex.value > 0)
-  const canAdvance = computed(() => markedIndex.value < schedule.flatEntries.length - 1)
+  // Active entry and derived values (used by other stores and components)
+  const activeEntry = computed(() => schedule.flatEntries[activeIndex.value] ?? null)
+  const activeDayIndex = computed(() => activeEntry.value?.dayIndex ?? 0)
+  const activeTimeOfEntry = computed(() => {
+    const entry = activeEntry.value?.entry
+    if (!entry) return -1
+    return parseTime(entry.time)
+  })
 
   /** Select (tap to inspect) a dance. Toggles off if tapping the same one. */
   function select(i: number) {
     selectedIndex.value = selectedIndex.value === i ? null : i
   }
 
-  /** Mark a dance as the current dance (what Advance/Back operate on). */
+  /** Manually mark a dance as current. Records anchor for auto-advance. */
   function markAsCurrent(i?: number) {
     const target = i ?? selectedIndex.value
     if (target !== null && target !== undefined && target >= 0 && target < schedule.flatEntries.length) {
       markedIndex.value = target
+      anchorWallMinutes.value = currentTimeMinutes()
+      likelyIndex.value = target // immediately matches manual
     }
   }
 
-  function advance() {
-    if (canAdvance.value) markedIndex.value++
-  }
-
-  function retreat() {
-    if (canGoBack.value) markedIndex.value--
+  /** Recompute the likely-current index from the time offset. Called every 10s. */
+  function updateLikelyCurrent() {
+    if (anchorWallMinutes.value === null) return
+    likelyIndex.value = findLikelyCurrentIndex(
+      schedule.flatEntries,
+      markedIndex.value,
+      anchorWallMinutes.value,
+      currentTimeMinutes(),
+    )
   }
 
   const FS_ORDER: FontSize[] = ['default', 'medium', 'large']
@@ -115,16 +150,12 @@ export const useNavigationStore = defineStore('navigation', () => {
     nowIndex.value = findNowIndex(schedule.flatEntries, now, dayIdx)
   }
 
-  const markedTimeOfEntry = computed(() => {
-    const entry = markedEntry.value?.entry
-    if (!entry) return -1
-    return parseTime(entry.time)
-  })
-
   return {
-    markedIndex, selectedIndex, fontSize,
-    markedEntry, markedDayIndex, canGoBack, canAdvance, markedTimeOfEntry,
-    initForSchedule, select, markAsCurrent, advance, retreat,
+    markedIndex, activeIndex, activeIsLikely,
+    selectedIndex, fontSize,
+    activeEntry, activeDayIndex, activeTimeOfEntry,
+    initForSchedule, select, markAsCurrent,
+    updateLikelyCurrent,
     canIncreaseFontSize, canDecreaseFontSize,
     increaseFontSize, decreaseFontSize, jumpToNow,
     nowIndex, updateNowIndex,

@@ -53,7 +53,7 @@ export const useWatchStore = defineStore('watch', () => {
   const nextTargetIndex = computed<number | null>(() =>
     findNextTarget(
       schedule.flatEntries,
-      navigation.markedIndex,
+      navigation.activeIndex,
       watchedDancerSet.value,
       watchedAwardsSet.value,
     )
@@ -61,8 +61,8 @@ export const useWatchStore = defineStore('watch', () => {
 
   const dancesUntilTarget = computed<number | null>(() => {
     if (nextTargetIndex.value === null) return null
-    if (nextTargetIndex.value === navigation.markedIndex) return 0
-    return countDancesUntil(schedule.flatEntries, navigation.markedIndex, nextTargetIndex.value)
+    if (nextTargetIndex.value === navigation.activeIndex) return 0
+    return countDancesUntil(schedule.flatEntries, navigation.activeIndex, nextTargetIndex.value)
   })
 
   const nextTargetEntry = computed(() => {
@@ -83,7 +83,7 @@ export const useWatchStore = defineStore('watch', () => {
 
   const nextTargetStyleType = computed<string>(() => {
     if (nextTargetIndex.value === null) return ''
-    if (nextTargetIndex.value === navigation.markedIndex) return 'on-now'
+    if (nextTargetIndex.value === navigation.activeIndex) return 'on-now'
     if (dancesUntilTarget.value === 0) return 'up-next'
     return 'countdown'
   })
@@ -100,7 +100,7 @@ export const useWatchStore = defineStore('watch', () => {
 
   /** Time difference string between current entry and next target (e.g., "~15min") */
   const nextTargetTimeDiff = computed<string>(() => {
-    const curEntry = navigation.markedEntry?.entry
+    const curEntry = navigation.activeEntry?.entry
     const nxtEntry = nextTargetEntry.value
     if (!curEntry || !nxtEntry) return ''
     const from = parseTime(curEntry.time)

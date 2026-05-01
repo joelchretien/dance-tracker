@@ -6,6 +6,7 @@ const props = defineProps<{
   entry: BreakEntryType | AwardsEntry
   globalIndex: number
   isMarked: boolean
+  isLikely: boolean
   isSelected: boolean
   isWatchedAwards: boolean
 }>()
@@ -47,7 +48,7 @@ const outlineStyle = computed(() => {
     <span
       v-if="isMarked"
       class="absolute top-1.5 right-2 text-[9px] font-bold tracking-wider text-indigo-400/70 uppercase"
-    >▶ current</span>
+    >▶ {{ isLikely ? 'likely current' : 'current' }}</span>
 
     <div class="flex items-baseline gap-2">
       <span class="fs-time text-gray-300 shrink-0 w-20">{{ entry.time }}</span>

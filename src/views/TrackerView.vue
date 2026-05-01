@@ -12,7 +12,6 @@ import ScheduleStatus from '@/components/ScheduleStatus.vue'
 import ScheduleList from '@/components/ScheduleList.vue'
 import WatchedDancesList from '@/components/WatchedDancesList.vue'
 import SnapbackPill from '@/components/SnapbackPill.vue'
-import BottomBar from '@/components/BottomBar.vue'
 import SettingsDropdown from '@/components/SettingsDropdown.vue'
 import WatchPanel from '@/components/WatchPanel.vue'
 import JumpToPanel from '@/components/JumpToPanel.vue'
@@ -52,21 +51,23 @@ onMounted(async () => {
   navigation.updateNowIndex()
 
   await nextTick()
-  scrollToEntry(navigation.markedIndex, false)
+  scrollToEntry(navigation.activeIndex, false)
 })
 
+// Auto-advance + status update every 10 seconds
 const { pause } = useIntervalFn(() => {
+  navigation.updateLikelyCurrent()
   ui.updateScheduleStatus()
   navigation.updateNowIndex()
-}, 30000)
+}, 10000)
 
 onUnmounted(() => {
   pause()
 })
 
-watch(() => navigation.markedIndex, () => {
+watch(() => navigation.activeIndex, () => {
   ui.updateScheduleStatus()
-  nextTick(() => scrollToEntry(navigation.markedIndex, true))
+  nextTick(() => scrollToEntry(navigation.activeIndex, true))
 })
 
 function scrollToEntry(index: number, smooth: boolean) {
@@ -87,12 +88,6 @@ function handleJumpToNow() {
     if (result !== null) {
       nextTick(() => scrollToEntry(result.index, true))
     }
-  }
-}
-
-function handleJumpToNext() {
-  if (watchStore.nextTargetIndex !== null) {
-    scrollToEntry(watchStore.nextTargetIndex, true)
   }
 }
 
@@ -118,7 +113,7 @@ function handlePanelJump(index: number) {
     />
     <ScheduleStatus :status="ui.scheduleStatus" />
 
-    <div ref="scrollContainer" class="flex-1 overflow-y-auto pb-40">
+    <div ref="scrollContainer" class="flex-1 overflow-y-auto pb-20">
       <WatchedDancesList v-if="ui.watchedDancesMode" />
       <ScheduleList v-else />
     </div>
@@ -128,7 +123,6 @@ function handlePanelJump(index: number) {
       @click="handleJumpToNow"
     />
 
-    <BottomBar @jump-to-next="handleJumpToNext" />
     <SettingsDropdown v-if="ui.settingsDropdownOpen" />
     <WatchPanel v-if="ui.watchPanelOpen" />
     <JumpToPanel v-if="ui.jumpToPanelOpen" @jump-to="handlePanelJump" />

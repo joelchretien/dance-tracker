@@ -34,7 +34,7 @@ const listItems = computed<ListItem[]>(() => {
   if (indices.length === 0) return []
 
   const items: ListItem[] = []
-  const markedIdx = navigation.markedIndex
+  const markedIdx = navigation.activeIndex
 
   for (let i = 0; i < indices.length; i++) {
     const gi = indices[i]
@@ -164,7 +164,8 @@ function handleMarkCurrent(globalIndex: number) {
           v-if="schedule.flatEntries[li.globalIndex!].entry.type === 'dance'"
           :entry="(schedule.flatEntries[li.globalIndex!].entry as DanceEntryType)"
           :global-index="li.globalIndex!"
-          :is-marked="li.globalIndex === navigation.markedIndex"
+          :is-marked="li.globalIndex === navigation.activeIndex"
+          :is-likely="navigation.activeIsLikely"
           :is-selected="li.globalIndex === navigation.selectedIndex"
           :is-watched="true"
           :watched-dancers="watchStore.getWatchedDancersForEntry(li.globalIndex!)"
@@ -176,7 +177,8 @@ function handleMarkCurrent(globalIndex: number) {
           v-else
           :entry="(schedule.flatEntries[li.globalIndex!].entry as BreakEntryType | AwardsEntry)"
           :global-index="li.globalIndex!"
-          :is-marked="li.globalIndex === navigation.markedIndex"
+          :is-marked="li.globalIndex === navigation.activeIndex"
+          :is-likely="navigation.activeIsLikely"
           :is-selected="li.globalIndex === navigation.selectedIndex"
           :is-watched-awards="true"
           @select="handleSelect(li.globalIndex!)"
