@@ -811,7 +811,7 @@ E|761|9:14 AM|LEPIDOPTERA|K|12
 S|Large Group|Competitive|1|8|Lyrical
 E|762|9:18 AM|GIRLS|K|15
 S|Large Group|Competitive|2|10|Acrobatics
-E|763|9:22 AM|BATHING BEAUTIES|F|15
+E|763|9:22 AM|BATHING BEAUTIES|F|15|Alianna Chretien;Aubrey Allen;Audrey Dewar;Bethany Shewchuk;Brooklyn Migrino;Brynn McColeman;Charlotte Villeneuve;Claire Lafortune;Claire Peng;Elin Nurmi;Ellie Fram;Emilie Paul;Julia Albudane;Kensie Brunette;Maddison Beauchamp
 E|764|9:25 AM|17 GLIMPSES OF SPRING|C|12
 S|Large Group|Competitive|3|12|Ballet
 E|765|9:29 AM|RED|D|14
