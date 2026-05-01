@@ -5,7 +5,7 @@
  * Compact data format, parsed at the bottom of this file:
  *   D|YYYY-MM-DD|LABEL          - day header
  *   S|Group|Level|Div|Age|Style - section header (Age can be empty)
- *   E|num|time|title|studio|count[|dancer] - entry (dancer optional for groups)
+ *   E|num|time|title|studio|count[|dancer[;dancer2;...]] - entry (dancers ;-separated; optional for groups)
  *   A|time|title                - awards entry
  *   B|time|title                - break entry
  *
@@ -478,7 +478,7 @@ A|10:12 AM|AWARDS
 S|Small Group|Competitive|2|11|Hip Hop
 E|546|10:22 AM|SUIT & TIE|K|8
 S|Small Group|Competitive|4|16|Jazz
-E|547|10:25 AM|NEW DORP NEW YORK|F|6
+E|547|10:25 AM|NEW DORP NEW YORK|F|6|Teagan Bryson;Sophie Goodale;Dylan Helm;Kyana Kingsley;Martha Langley;Gabriella Leduc
 S|Small Group|Competitive|3|13|Contemporary
 E|548|10:29 AM|CRYING|G|9
 S|Small Group|Competitive|1|8|Jazz
@@ -490,13 +490,13 @@ E|552|10:43 AM|THE DEVIL WEARS PRADA|J|9
 E|553|10:46 AM|NEW YORK, NEW YORK|C|7
 E|554|10:50 AM|ROCKET TO THE MOON|G|5
 S|Line|Competitive|3|13|Jazz
-E|555|10:53 AM|VIVA|F|20
+E|555|10:53 AM|VIVA|F|20|Aurora Albisi;Adriana Berardi;Sophia Berardi;Adeline Boudreau;Abigail Chretien;Sienna Deziel;Cristiana Dumencu;Adrianna Forsyth;Laela Fram;Marley Fram;Ruby Gagnon;Mia Gauthier;Elle Macdonald;Kiana Mechefske;Aila Nurmi;Jaden Palmquist;Alexis Pavacic;Mila Santos;Peyton Walker;Katherine Wallace
 S|Small Group|Competitive|2|11|Jazz
 E|556|10:58 AM|ALL THAT JAZZ|C|5
 E|557|11:01 AM|MR. BLUE SKY|E|5
 E|558|11:05 AM|BEYOND THE SEA|K|7
 S|Small Group|Competitive|4|16|Lyrical
-E|559|11:08 AM|ISN'T IT A PITY|F|6
+E|559|11:08 AM|ISN'T IT A PITY|F|6|Teagan Bryson;Sophie Goodale;Dylan Helm;Kyana Kingsley;Martha Langley;Gabriella Leduc
 E|560|11:12 AM|COMPLEX|G|8
 S|Small Group|Competitive|2|11|Lyrical
 E|561|11:15 AM|MY WAY|A|9
@@ -511,11 +511,11 @@ E|566|11:33 AM|FREAK SHOW|E|7
 S|Small Group|Competitive|3|12|Ballet
 E|567|11:36 AM|GRAND PAS RAYMONDA|C|9
 S|Line|Competitive|3|13|Lyrical
-E|568|11:44 AM|THERE WILL BE TIME|F|20
+E|568|11:44 AM|THERE WILL BE TIME|F|20|Aurora Albisi;Adriana Berardi;Sophia Berardi;Adeline Boudreau;Abigail Chretien;Sienna Deziel;Cristiana Dumencu;Adrianna Forsyth;Laela Fram;Marley Fram;Ruby Gagnon;Mia Gauthier;Elle Macdonald;Kiana Mechefske;Aila Nurmi;Jaden Palmquist;Alexis Pavacic;Mila Santos;Peyton Walker;Katherine Wallace
 S|Small Group|Competitive|3|14|Contemporary
 E|569|11:47 AM|MI SCUSI|K|9
 S|Small Group|Competitive|4|16|Open
-E|570|11:51 AM|EARTH DIED SCREAMING|F|6
+E|570|11:51 AM|EARTH DIED SCREAMING|F|6|Teagan Bryson;Sophie Goodale;Dylan Helm;Kyana Kingsley;Martha Langley;Gabriella Leduc
 E|571|11:54 AM|MATCHMAKER FOR THE UNDESIRABLES|G|8
 S|Small Group|Competitive|2|9|Open
 E|572|12:00 PM|LONELY PEOPLE|G|6
@@ -530,11 +530,11 @@ E|576|12:14 PM|HEY PACHUCO!|E|7
 S|Small Group|Competitive|3|12|Lyrical
 E|577|12:17 PM|EVERYTHING STILL|C|8
 S|Small Group|Competitive|3|14|Open
-E|578|12:21 PM|WHY|F|8
+E|578|12:21 PM|WHY|F|8|Sophia Berardi;Adeline Boudreau;Sienna Deziel;Adrianna Forsyth;Marley Fram;Elle Macdonald;Jaden Palmquist;Mila Santos
 S|Extended Line|Competitive|2|11|Open
-E|579|12:24 PM|I'M ALIVE|F|27
+E|579|12:24 PM|I'M ALIVE|F|27|Aurora Albisi;Julia Albudane;Aubrey Allen;Maddison Beauchamp;Adriana Berardi;Kensie Brunette;Alianna Chretien;Abigail Chretien;Audrey Dewar;Cristiana Dumencu;Ellie Fram;Laela Fram;Ruby Gagnon;Mia Gauthier;Claire Lafortune;Brynn McColeman;Kiana Mechefske;Brooklyn Migrino;Aila Nurmi;Elin Nurmi;Emilie Paul;Alexis Pavacic;Claire Peng;Bethany Shewchuk;Charlotte Villeneuve;Peyton Walker;Katherine Wallace
 S|Small Group|Competitive|4||Contemporary
-E|580|12:28 PM|GOODBYE STRANGER|F|5
+E|580|12:28 PM|GOODBYE STRANGER|F|5|Avery Cook;Sophie Goodale;Kyana Kingsley;Martha Langley;Gabriella Leduc
 S|Small Group|Competitive|4|15|Acrobatics
 E|581|12:32 PM|CREEP|D|5
 E|582|12:35 PM|TIME|A|7
@@ -553,10 +553,10 @@ S|Small Group|Competitive|4||Contemporary
 E|590|1:03 PM|CALIFORNIA DREAMING|G|9
 E|591|1:09 PM|LET ME ENFOLD YOU|D|4
 S|Extended Line|Competitive|2|11|Ballet
-E|592|1:12 PM|SEASONS|F|50
+E|592|1:12 PM|SEASONS|F|50|Aurora Albisi;Julia Albudane;Aubrey Allen;Evelyn Arnold;Maddison Beauchamp;Adriana Berardi;Sophia Berardi;Adeline Boudreau;Kensie Brunette;Teagan Bryson;Alianna Chretien;Abigail Chretien;Meadow Condo;Vera Denniston;Audrey Dewar;Sienna Deziel;Cristiana Dumencu;Collins Eamer;Charlotte Eibl;Adrianna Forsyth;Ellie Fram;Laela Fram;Ruby Gagnon;Mia Gauthier;Sophie Goodale;Dylan Helm;Kyana Kingsley;Claire Lafortune;Martha Langley;Gabriella Leduc;Daria-Zabella M Louis-Jean;Elle Macdonald;Brynn McColeman;Kiana Mechefske;Aria Mechefske;Ella Migrino;Brooklyn Migrino;Aila Nurmi;Elin Nurmi;Emilie Paul;Alexis Pavacic;Claire Peng;Jessa Prince;Mila Santos;Bethany Shewchuk;Margot Todd;Charlotte Villeneuve;Peyton Walker;Katherine Wallace
 A|1:17 PM|AWARDS AND LUNCH
 S|Production|Competitive|2|11|Production
-E|593|1:42 PM|FROM SCREEN TO STAGE|F|79
+E|593|1:42 PM|FROM SCREEN TO STAGE|F|79|Aurora Albisi;Julia Albudane;Luiza Albudane;Aubrey Allen;Evelyn Arnold;Harloe Bardeggia;Lyla Beauchamp;Maddison Beauchamp;Autumn Bell;Adriana Berardi;Lylah Bonhomme;Sophia Berardi;Adeline Boudreau;Kensie Brunette;Teagan Bryson;Alianna Chretien;Abigail Chretien;Meadow Condo;Avery Cook;Aaliya Corbiere;Alice Cropper;Vera Denniston;Blake Desjardins;Audrey Dewar;Sienna Deziel;Madelyn Deziel;Vada Doring;Cristiana Dumencu;Collins Eamer;Charlotte Eibl;Elizabeth Eibl;Adrianna Forsyth;Ellie Fram;Laela Fram;Marley Fram;Ruby Gagnon;Kailey Gagnon;Vicky Ha;Dylan Helm;Sophie Goodale;Nora Keith;Kyana Kingsley;Claire Lafortune;Martha Langley;Gabriella Leduc;Daria-Zabella M Louis-Jean;Elle Macdonald;Amelia Maddigan;Irradessa Mallick-Taylor;Alexis Marcotte;Brynn McColeman;Mila McLean;Kiana Mechefske;Aria Mechefske;Ella Migrino;Brooklyn Migrino;Aila Nurmi;Elin Nurmi;Evelyn Nuttall;Jaden Palmquist;Mara Parnell;Emilie Paul;Alexis Pavacic;Claire Peng;Camila Pimentel;Sophia Pittman-Carmichael;Jessa Prince;Camryn Roy;Mila Santos;Bethany Shewchuk;Colton Shewchuk;Taylor Tammi;Margot Todd;Allie Truskoski;Charlotte Villeneuve;Peyton Walker;Rowen Walker;Katherine Wallace
 B|2:03 PM|PROP SET UP
 S|Extended Line|Competitive|1|7|Jazz
 E|594|2:08 PM|LUCKY 7|J|31
@@ -569,7 +569,7 @@ E|597|2:20 PM|PHANTOMS|K|20
 S|Small Group|Competitive|4|15|Open
 E|598|2:24 PM|SHADOWS OF THE MIND|A|8
 S|Line|Competitive|3|13|Hip Hop
-E|599|2:28 PM|MARSHALL|F|18
+E|599|2:28 PM|MARSHALL|F|18|Aurora Albisi;Adeline Boudreau;Abigail Chretien;Sienna Deziel;Adrianna Forsyth;Ruby Gagnon;Mia Gauthier;Dylan Helm;Sophie Goodale;Martha Langley;Gabriella Leduc;Kiana Mechefske;Aila Nurmi;Alexis Pavacic;Peyton Walker;Katherine Wallace
 S|Line|Competitive|2|10|Hip Hop
 E|600|2:32 PM|MARY POPPINS|C|19
 S|Extended Line|Competitive|2|11|Musical Theatre
@@ -579,7 +579,7 @@ E|602|2:41 PM|BEETLEJUICE|G|7
 S|Small Group|Competitive|3|13|Open
 E|603|2:44 PM|TOM'S DINER|G|9
 S|Line|Competitive|2|9|Hip Hop
-E|604|2:48 PM|NEW PHONE WHO DIS|F|17
+E|604|2:48 PM|NEW PHONE WHO DIS|F|17|Julia Albudane;Aubrey Allen;Evelyn Arnold;Maddison Beauchamp;Kensie Brunette;Alianna Chretien;Meadow Condo;Audrey Dewar;Collins Eamer;Ellie Fram;Claire Lafortune;Brynn McColeman;Aria Mechefske;Elin Nurmi;Emilie Paul;Margot Todd;Charlotte Villeneuve
 S|Extended Line|Competitive|3|14|Contemporary
 E|605|2:52 PM|AFTER US|D|28
 S|Large Group|Competitive|1|7|Tap
@@ -590,17 +590,17 @@ S|Line|Competitive|3|14|Lyrical
 E|608|3:04 PM|HEARTS A MESS|K|20
 S|Small Group|Competitive|4||Contemporary
 E|609|3:09 PM|SEVEN BIRDS|A|8
-E|610|3:12 PM|HEART OF GLASS|F|6
+E|610|3:12 PM|HEART OF GLASS|F|6|Sophia Berardi;Sienna Deziel;Adrianna Forsyth;Marley Fram;Jaden Palmquist;Mila Santos
 B|3:16 PM|PROP SET UP
 S|Extended Line|Competitive|2|10|Jazz
 E|611|3:19 PM|NOW YOU SEE ME|C|21
 E|612|3:25 PM|CANNED HEAT|E|35
 S|Small Group|Competitive|4|16|Modern
-E|613|3:29 PM|THE END OF LOVE|F|6
+E|613|3:29 PM|THE END OF LOVE|F|6|Teagan Bryson;Sophie Goodale;Dylan Helm;Kyana Kingsley;Martha Langley;Gabriella Leduc
 S|Extended Line|Competitive|3|13|Open
 E|614|3:33 PM|MAYHEM|G|29
 S|Extended Line|Competitive|2|11|Tap
-E|615|3:39 PM|MR. BLUE SKY|F|27
+E|615|3:39 PM|MR. BLUE SKY|F|27|Aurora Albisi;Julia Albudane;Aubrey Allen;Maddison Beauchamp;Adriana Berardi;Kensie Brunette;Alianna Chretien;Abigail Chretien;Audrey Dewar;Cristiana Dumencu;Ellie Fram;Laela Fram;Ruby Gagnon;Mia Gauthier;Claire Lafortune;Brynn McColeman;Kiana Mechefske;Brooklyn Migrino;Aila Nurmi;Elin Nurmi;Emilie Paul;Alexis Pavacic;Claire Peng;Bethany Shewchuk;Charlotte Villeneuve;Peyton Walker;Katherine Wallace
 S|Extended Line|Competitive|2|11|Jazz
 E|616|3:45 PM|LA DOLCE VITA|D|52
 S|Large Group|Adult|5|38|Tap
@@ -784,7 +784,7 @@ E|746|8:26 AM|BIBBIDI BOBBIDI BOO|D|3
 S|Duet/Trio|Competitive|2|9|Contemporary
 E|747|8:29 AM|ME AND MY SHADOW|J|2
 S|Duet/Trio|Competitive|2|11|Contemporary
-E|748|8:32 AM|THREADS BETWEEN US|F|2
+E|748|8:32 AM|THREADS BETWEEN US|F|2|Ellie Fram;Laela Fram
 E|749|8:35 AM|LOST IN THE NIGHT|E|2
 E|750|8:38 AM|BETTER DAYS|C|2
 S|Large Group|Competitive|2|11|Jazz
@@ -832,9 +832,9 @@ E|772|10:12 AM|ABRACADABRA|K|15
 S|Large Group|Competitive|1|7|Lyrical
 E|773|10:16 AM|SMALL MOMENTS|F|10
 S|Large Group|Competitive|4|15|Tap
-E|774|10:20 AM|CHIPS & DIP|F|14
+E|774|10:20 AM|CHIPS & DIP|F|14|Sophia Berardi;Adeline Boudreau;Sienna Deziel;Teagan Bryson;Adrianna Forsyth;Marley Fram;Sophie Goodale;Dylan Helm;Kyana Kingsley;Martha Langley;Gabriella Leduc;Elle Macdonald;Jaden Palmquist;Mila Santos
 S|Large Group|Competitive|3|12|Contemporary
-E|775|10:24 AM|STATE OF MIND|F|12
+E|775|10:24 AM|STATE OF MIND|F|12|Aurora Albisi;Adriana Berardi;Abigail Chretien;Cristiana Dumencu;Laela Fram;Ruby Gagnon;Mia Gauthier;Kiana Mechefske;Aila Nurmi;Alexis Pavacic;Peyton Walker;Katherine Wallace
 E|776|10:28 AM|LA VIE EN ROSE|D|14
 S|Large Group|Competitive|3|14|Lyrical
 E|777|10:32 AM|ARROW|K|10
@@ -844,7 +844,7 @@ S|Large Group|Competitive|2|11|Lyrical
 E|779|10:40 AM|FOLLOW THE SUN|K|12
 E|780|10:43 AM|THE UPSIDE DOWN|E|16
 S|Large Group|Competitive|2|10|Contemporary
-E|781|10:46 AM|ALL THE LONELY PEOPLE|F|15
+E|781|10:46 AM|ALL THE LONELY PEOPLE|F|15|Julia Albudane;Aubrey Allen;Maddison Beauchamp;Kensie Brunette;Alianna Chretien;Audrey Dewar;Ellie Fram;Claire Lafortune;Brynn McColeman;Brooklyn Migrino;Elin Nurmi;Emilie Paul;Claire Peng;Bethany Shewchuk;Charlotte Villeneuve
 S|Large Group|Competitive|2|11|Open
 E|782|10:50 AM|VERSAILLES|G|16
 S|Large Group|Competitive|1|8|Ballet
@@ -852,7 +852,7 @@ E|783|10:54 AM|THE BIRTHDAY|K|15
 S|Large Group|Competitive|3|12|Jazz
 E|784|10:58 AM|I GOTCHA|D|14
 S|Large Group|Competitive|3|14|Contemporary
-E|785|11:01 AM|61|F|10
+E|785|11:01 AM|61|F|10|Sophia Berardi;Adeline Boudreau;Sienna Deziel;Adrianna Forsyth;Laela Fram;Marley Fram;Elle Macdonald;Jaden Palmquist;Mila Santos;Katherine Wallace
 S|Large Group|Competitive|3|14|Jazz
 E|786|11:05 AM|NOTHING FROM NOTHING|K|10
 S|Large Group|Competitive|4|16|Contemporary
@@ -871,11 +871,11 @@ E|795|11:36 AM|TANGO|F|1|ALEXIS PAVACIC
 S|Large Group|Competitive|4|16|Ballet
 E|796|11:39 AM|SOAR|D|14
 S|Large Group|Competitive|4|15|Contemporary
-E|797|11:43 AM|SUN KING|F|14
+E|797|11:43 AM|SUN KING|F|14|Sophia Berardi;Adeline Boudreau;Sienna Deziel;Teagan Bryson;Adrianna Forsyth;Marley Fram;Sophie Goodale;Dylan Helm;Kyana Kingsley;Martha Langley;Gabriella Leduc;Elle Macdonald;Jaden Palmquist;Mila Santos
 S|Large Group|Competitive|3|14|Jazz
 E|798|11:47 AM|UNDER PRESSURE|K|12
 S|Large Group|Competitive|2|10|Lyrical
-E|799|11:51 AM|THIS ONE'S FOR YOU|F|15
+E|799|11:51 AM|THIS ONE'S FOR YOU|F|15|Julia Albudane;Aubrey Allen;Maddison Beauchamp;Kensie Brunette;Alianna Chretien;Audrey Dewar;Ellie Fram;Claire Lafortune;Brynn McColeman;Brooklyn Migrino;Elin Nurmi;Emilie Paul;Claire Peng;Bethany Shewchuk;Charlotte Villeneuve
 E|800|11:55 AM|LITTLE BOXES|K|13
 S|Large Group|Competitive|3|12|Lyrical
 E|801|11:59 AM|2 STEPS AWAY|D|14
@@ -893,7 +893,7 @@ E|807|12:27 PM|HIT MY PHONE|D|14
 S|Large Group|Competitive|3|14|Tap
 E|808|12:31 PM|CRABBUCKIT|K|15
 S|Large Group|Competitive|2|10|Jazz
-E|809|12:35 PM|YA YA|F|15
+E|809|12:35 PM|YA YA|F|15|Julia Albudane;Aubrey Allen;Maddison Beauchamp;Kensie Brunette;Alianna Chretien;Audrey Dewar;Ellie Fram;Claire Lafortune;Brynn McColeman;Brooklyn Migrino;Elin Nurmi;Emilie Paul;Claire Peng;Bethany Shewchuk;Charlotte Villeneuve
 E|810|12:39 PM|UNDEAD AND WED|K|16
 S|Solo|Competitive|3|12|Open
 E|811|12:43 PM|GLORY OF LOVE|K|1|TÉAH PELLETIER
@@ -910,7 +910,7 @@ E|819|1:07 PM|JUST FINE|D|1|KYLIE SOUSA
 E|820|1:10 PM|BOOM CLAP|F|1|ABIGAIL CHRETIEN
 E|821|1:13 PM|HAPPY TOGETHER|G|1|ALEXIS LENSCHEN
 S|Large Group|Competitive|3|13|Acrobatics
-E|822|1:16 PM|FALLEN ANGEL|F|10
+E|822|1:16 PM|FALLEN ANGEL|F|10|Adeline Boudreau;Alianna Chretien;Adrianna Forsyth;Ellie Fram;Laela Fram;Marley Fram;Dylan Helm;Kiana Mechefske;Jaden Palmquist;Peyton Walker
 S|Large Group|Competitive|2|11|Tap
 E|823|1:20 PM|ONCE UPON A DREAM|K|12
 S|Large Group|Competitive|4|16|Jazz
@@ -1009,12 +1009,12 @@ E|898|5:38 PM|MUNGOJERRIE AND RUUMPELTEAZER|E|2
 S|Duet/Trio|Competitive|4|15|Contemporary
 E|899|5:41 PM|WITH OLD FRIENDS|I|2
 E|900|5:44 PM|WALK ON|I|2
-E|901|5:47 PM|WINTER MORNING|F|2
-E|902|5:50 PM|I CAN'T MAKE THE HILLS|F|3
+E|901|5:47 PM|WINTER MORNING|F|2|Dylan Helm;Gabriella Leduc
+E|902|5:50 PM|I CAN'T MAKE THE HILLS|F|3|Sophia Berardi;Sienna Deziel;Mila Santos
 S|Duet/Trio|Competitive|4|16|Jazz
 E|903|5:53 PM|HOT STUFF|D|3
 S|Duet/Trio|Competitive|3||Contemporary
-E|904|5:56 PM|A DEAL WITH CHAOS|F|2
+E|904|5:56 PM|A DEAL WITH CHAOS|F|2|Adriana Berardi;Elle Macdonald
 E|905|5:59 PM|WE'RE NOT DIFFERENT|I|2
 E|906|6:02 PM|MONSTERA|A|3
 S|Duet/Trio|Competitive|3|13|Jazz
@@ -1027,13 +1027,13 @@ E|910|6:14 PM|FALLING|E|2
 S|Duet/Trio|Competitive|3|14|Lyrical
 E|911|6:17 PM|GROW AS WE GO|I|2
 S|Duet/Trio|Competitive|3|13|Open
-E|912|6:20 PM|INTEGRAL SILENCE|F|2
+E|912|6:20 PM|INTEGRAL SILENCE|F|2|Adeline Boudreau;Katherine Wallace
 E|913|6:23 PM|SILHOUETTE|D|2
 E|914|6:26 PM|ENVY|G|3
 S|Duet/Trio|Competitive|3|14|Open
 E|915|6:29 PM|WINGS|A|2
 S|Duet/Trio|Competitive|3|12|Tap
-E|916|6:32 PM|RUNAWAY BABY|F|2
+E|916|6:32 PM|RUNAWAY BABY|F|2|Kensie Brunette;Mia Gauthier
 S|Duet/Trio|Competitive|3|13|Tap
 E|917|6:35 PM|ON BROADWAY|D|3
 E|918|6:38 PM|RESONANCE|D|2
@@ -1051,11 +1051,11 @@ E|925|6:59 PM|WILL I SEE YOU AGAIN|G|3
 S|Duet/Trio|Competitive|4|17|Hip Hop
 E|926|7:02 PM|NOT QUITE MY TEMPO|I|2
 S|Duet/Trio|Competitive|4|17|Musical Theatre
-E|927|7:05 PM|SINGLE LADIES|F|3
+E|927|7:05 PM|SINGLE LADIES|F|3|Sophie Goodale;Martha Langley;Gabriella Leduc
 S|Duet/Trio|Competitive|4|15|Open
 E|928|7:08 PM|BROTHER|C|3
 E|929|7:11 PM|SLIPPING THROUGH|D|2
-E|930|7:14 PM|WHEN IT'S COLD|F|3
+E|930|7:14 PM|WHEN IT'S COLD|F|3|Adrianna Forsyth;Marley Fram;Jaden Palmquist
 S|Duet/Trio|Competitive|4|16|Open
 E|931|7:17 PM|BRING ME WATER|D|2
 S|Duet/Trio|Competitive|4|16|Lyrical
@@ -1098,7 +1098,7 @@ for (const rawLine of RAW.split('\n')) {
       studio,
       category: currentSection.category,
     }
-    if (dancer) e.dancers = [dancer]
+    if (dancer) e.dancers = dancer.split(';').map(s => s.trim()).filter(Boolean)
     if (currentSection.age != null) e.age = currentSection.age
     currentDay.entries.push(e)
   } else if (tag === 'A') {

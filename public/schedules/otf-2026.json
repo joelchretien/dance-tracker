@@ -3645,6 +3645,14 @@
           "num": 547,
           "studio": "F",
           "category": "Competitive · Division 4 · Jazz · Small Group",
+          "dancers": [
+            "Teagan Bryson",
+            "Sophie Goodale",
+            "Dylan Helm",
+            "Kyana Kingsley",
+            "Martha Langley",
+            "Gabriella Leduc"
+          ],
           "age": 16
         },
         {
@@ -3717,6 +3725,28 @@
           "num": 555,
           "studio": "F",
           "category": "Competitive · Division 3 · Jazz · Line",
+          "dancers": [
+            "Aurora Albisi",
+            "Adriana Berardi",
+            "Sophia Berardi",
+            "Adeline Boudreau",
+            "Abigail Chretien",
+            "Sienna Deziel",
+            "Cristiana Dumencu",
+            "Adrianna Forsyth",
+            "Laela Fram",
+            "Marley Fram",
+            "Ruby Gagnon",
+            "Mia Gauthier",
+            "Elle Macdonald",
+            "Kiana Mechefske",
+            "Aila Nurmi",
+            "Jaden Palmquist",
+            "Alexis Pavacic",
+            "Mila Santos",
+            "Peyton Walker",
+            "Katherine Wallace"
+          ],
           "age": 13
         },
         {
@@ -3753,6 +3783,14 @@
           "num": 559,
           "studio": "F",
           "category": "Competitive · Division 4 · Lyrical · Small Group",
+          "dancers": [
+            "Teagan Bryson",
+            "Sophie Goodale",
+            "Dylan Helm",
+            "Kyana Kingsley",
+            "Martha Langley",
+            "Gabriella Leduc"
+          ],
           "age": 16
         },
         {
@@ -3834,6 +3872,28 @@
           "num": 568,
           "studio": "F",
           "category": "Competitive · Division 3 · Lyrical · Line",
+          "dancers": [
+            "Aurora Albisi",
+            "Adriana Berardi",
+            "Sophia Berardi",
+            "Adeline Boudreau",
+            "Abigail Chretien",
+            "Sienna Deziel",
+            "Cristiana Dumencu",
+            "Adrianna Forsyth",
+            "Laela Fram",
+            "Marley Fram",
+            "Ruby Gagnon",
+            "Mia Gauthier",
+            "Elle Macdonald",
+            "Kiana Mechefske",
+            "Aila Nurmi",
+            "Jaden Palmquist",
+            "Alexis Pavacic",
+            "Mila Santos",
+            "Peyton Walker",
+            "Katherine Wallace"
+          ],
           "age": 13
         },
         {
@@ -3852,6 +3912,14 @@
           "num": 570,
           "studio": "F",
           "category": "Competitive · Division 4 · Open · Small Group",
+          "dancers": [
+            "Teagan Bryson",
+            "Sophie Goodale",
+            "Dylan Helm",
+            "Kyana Kingsley",
+            "Martha Langley",
+            "Gabriella Leduc"
+          ],
           "age": 16
         },
         {
@@ -3924,6 +3992,16 @@
           "num": 578,
           "studio": "F",
           "category": "Competitive · Division 3 · Open · Small Group",
+          "dancers": [
+            "Sophia Berardi",
+            "Adeline Boudreau",
+            "Sienna Deziel",
+            "Adrianna Forsyth",
+            "Marley Fram",
+            "Elle Macdonald",
+            "Jaden Palmquist",
+            "Mila Santos"
+          ],
           "age": 14
         },
         {
@@ -3933,6 +4011,35 @@
           "num": 579,
           "studio": "F",
           "category": "Competitive · Division 2 · Open · Extended Line",
+          "dancers": [
+            "Aurora Albisi",
+            "Julia Albudane",
+            "Aubrey Allen",
+            "Maddison Beauchamp",
+            "Adriana Berardi",
+            "Kensie Brunette",
+            "Alianna Chretien",
+            "Abigail Chretien",
+            "Audrey Dewar",
+            "Cristiana Dumencu",
+            "Ellie Fram",
+            "Laela Fram",
+            "Ruby Gagnon",
+            "Mia Gauthier",
+            "Claire Lafortune",
+            "Brynn McColeman",
+            "Kiana Mechefske",
+            "Brooklyn Migrino",
+            "Aila Nurmi",
+            "Elin Nurmi",
+            "Emilie Paul",
+            "Alexis Pavacic",
+            "Claire Peng",
+            "Bethany Shewchuk",
+            "Charlotte Villeneuve",
+            "Peyton Walker",
+            "Katherine Wallace"
+          ],
           "age": 11
         },
         {
@@ -3941,7 +4048,14 @@
           "title": "GOODBYE STRANGER",
           "num": 580,
           "studio": "F",
-          "category": "Competitive · Division 4 · Contemporary · Small Group"
+          "category": "Competitive · Division 4 · Contemporary · Small Group",
+          "dancers": [
+            "Avery Cook",
+            "Sophie Goodale",
+            "Kyana Kingsley",
+            "Martha Langley",
+            "Gabriella Leduc"
+          ]
         },
         {
           "type": "dance",
@@ -4047,6 +4161,57 @@
           "num": 592,
           "studio": "F",
           "category": "Competitive · Division 2 · Ballet · Extended Line",
+          "dancers": [
+            "Aurora Albisi",
+            "Julia Albudane",
+            "Aubrey Allen",
+            "Evelyn Arnold",
+            "Maddison Beauchamp",
+            "Adriana Berardi",
+            "Sophia Berardi",
+            "Adeline Boudreau",
+            "Kensie Brunette",
+            "Teagan Bryson",
+            "Alianna Chretien",
+            "Abigail Chretien",
+            "Meadow Condo",
+            "Vera Denniston",
+            "Audrey Dewar",
+            "Sienna Deziel",
+            "Cristiana Dumencu",
+            "Collins Eamer",
+            "Charlotte Eibl",
+            "Adrianna Forsyth",
+            "Ellie Fram",
+            "Laela Fram",
+            "Ruby Gagnon",
+            "Mia Gauthier",
+            "Sophie Goodale",
+            "Dylan Helm",
+            "Kyana Kingsley",
+            "Claire Lafortune",
+            "Martha Langley",
+            "Gabriella Leduc",
+            "Daria-Zabella M Louis-Jean",
+            "Elle Macdonald",
+            "Brynn McColeman",
+            "Kiana Mechefske",
+            "Aria Mechefske",
+            "Ella Migrino",
+            "Brooklyn Migrino",
+            "Aila Nurmi",
+            "Elin Nurmi",
+            "Emilie Paul",
+            "Alexis Pavacic",
+            "Claire Peng",
+            "Jessa Prince",
+            "Mila Santos",
+            "Bethany Shewchuk",
+            "Margot Todd",
+            "Charlotte Villeneuve",
+            "Peyton Walker",
+            "Katherine Wallace"
+          ],
           "age": 11
         },
         {
@@ -4061,6 +4226,86 @@
           "num": 593,
           "studio": "F",
           "category": "Competitive · Division 2 · Production · Production",
+          "dancers": [
+            "Aurora Albisi",
+            "Julia Albudane",
+            "Luiza Albudane",
+            "Aubrey Allen",
+            "Evelyn Arnold",
+            "Harloe Bardeggia",
+            "Lyla Beauchamp",
+            "Maddison Beauchamp",
+            "Autumn Bell",
+            "Adriana Berardi",
+            "Lylah Bonhomme",
+            "Sophia Berardi",
+            "Adeline Boudreau",
+            "Kensie Brunette",
+            "Teagan Bryson",
+            "Alianna Chretien",
+            "Abigail Chretien",
+            "Meadow Condo",
+            "Avery Cook",
+            "Aaliya Corbiere",
+            "Alice Cropper",
+            "Vera Denniston",
+            "Blake Desjardins",
+            "Audrey Dewar",
+            "Sienna Deziel",
+            "Madelyn Deziel",
+            "Vada Doring",
+            "Cristiana Dumencu",
+            "Collins Eamer",
+            "Charlotte Eibl",
+            "Elizabeth Eibl",
+            "Adrianna Forsyth",
+            "Ellie Fram",
+            "Laela Fram",
+            "Marley Fram",
+            "Ruby Gagnon",
+            "Kailey Gagnon",
+            "Vicky Ha",
+            "Dylan Helm",
+            "Sophie Goodale",
+            "Nora Keith",
+            "Kyana Kingsley",
+            "Claire Lafortune",
+            "Martha Langley",
+            "Gabriella Leduc",
+            "Daria-Zabella M Louis-Jean",
+            "Elle Macdonald",
+            "Amelia Maddigan",
+            "Irradessa Mallick-Taylor",
+            "Alexis Marcotte",
+            "Brynn McColeman",
+            "Mila McLean",
+            "Kiana Mechefske",
+            "Aria Mechefske",
+            "Ella Migrino",
+            "Brooklyn Migrino",
+            "Aila Nurmi",
+            "Elin Nurmi",
+            "Evelyn Nuttall",
+            "Jaden Palmquist",
+            "Mara Parnell",
+            "Emilie Paul",
+            "Alexis Pavacic",
+            "Claire Peng",
+            "Camila Pimentel",
+            "Sophia Pittman-Carmichael",
+            "Jessa Prince",
+            "Camryn Roy",
+            "Mila Santos",
+            "Bethany Shewchuk",
+            "Colton Shewchuk",
+            "Taylor Tammi",
+            "Margot Todd",
+            "Allie Truskoski",
+            "Charlotte Villeneuve",
+            "Peyton Walker",
+            "Rowen Walker",
+            "Katherine Wallace"
+          ],
           "age": 11
         },
         {
@@ -4120,6 +4365,24 @@
           "num": 599,
           "studio": "F",
           "category": "Competitive · Division 3 · Hip Hop · Line",
+          "dancers": [
+            "Aurora Albisi",
+            "Adeline Boudreau",
+            "Abigail Chretien",
+            "Sienna Deziel",
+            "Adrianna Forsyth",
+            "Ruby Gagnon",
+            "Mia Gauthier",
+            "Dylan Helm",
+            "Sophie Goodale",
+            "Martha Langley",
+            "Gabriella Leduc",
+            "Kiana Mechefske",
+            "Aila Nurmi",
+            "Alexis Pavacic",
+            "Peyton Walker",
+            "Katherine Wallace"
+          ],
           "age": 13
         },
         {
@@ -4165,6 +4428,25 @@
           "num": 604,
           "studio": "F",
           "category": "Competitive · Division 2 · Hip Hop · Line",
+          "dancers": [
+            "Julia Albudane",
+            "Aubrey Allen",
+            "Evelyn Arnold",
+            "Maddison Beauchamp",
+            "Kensie Brunette",
+            "Alianna Chretien",
+            "Meadow Condo",
+            "Audrey Dewar",
+            "Collins Eamer",
+            "Ellie Fram",
+            "Claire Lafortune",
+            "Brynn McColeman",
+            "Aria Mechefske",
+            "Elin Nurmi",
+            "Emilie Paul",
+            "Margot Todd",
+            "Charlotte Villeneuve"
+          ],
           "age": 9
         },
         {
@@ -4217,7 +4499,15 @@
           "title": "HEART OF GLASS",
           "num": 610,
           "studio": "F",
-          "category": "Competitive · Division 4 · Contemporary · Small Group"
+          "category": "Competitive · Division 4 · Contemporary · Small Group",
+          "dancers": [
+            "Sophia Berardi",
+            "Sienna Deziel",
+            "Adrianna Forsyth",
+            "Marley Fram",
+            "Jaden Palmquist",
+            "Mila Santos"
+          ]
         },
         {
           "type": "break",
@@ -4249,6 +4539,14 @@
           "num": 613,
           "studio": "F",
           "category": "Competitive · Division 4 · Modern · Small Group",
+          "dancers": [
+            "Teagan Bryson",
+            "Sophie Goodale",
+            "Dylan Helm",
+            "Kyana Kingsley",
+            "Martha Langley",
+            "Gabriella Leduc"
+          ],
           "age": 16
         },
         {
@@ -4267,6 +4565,35 @@
           "num": 615,
           "studio": "F",
           "category": "Competitive · Division 2 · Tap · Extended Line",
+          "dancers": [
+            "Aurora Albisi",
+            "Julia Albudane",
+            "Aubrey Allen",
+            "Maddison Beauchamp",
+            "Adriana Berardi",
+            "Kensie Brunette",
+            "Alianna Chretien",
+            "Abigail Chretien",
+            "Audrey Dewar",
+            "Cristiana Dumencu",
+            "Ellie Fram",
+            "Laela Fram",
+            "Ruby Gagnon",
+            "Mia Gauthier",
+            "Claire Lafortune",
+            "Brynn McColeman",
+            "Kiana Mechefske",
+            "Brooklyn Migrino",
+            "Aila Nurmi",
+            "Elin Nurmi",
+            "Emilie Paul",
+            "Alexis Pavacic",
+            "Claire Peng",
+            "Bethany Shewchuk",
+            "Charlotte Villeneuve",
+            "Peyton Walker",
+            "Katherine Wallace"
+          ],
           "age": 11
         },
         {
@@ -5821,6 +6148,10 @@
           "num": 748,
           "studio": "F",
           "category": "Competitive · Division 2 · Contemporary · Duet/Trio",
+          "dancers": [
+            "Ellie Fram",
+            "Laela Fram"
+          ],
           "age": 11
         },
         {
@@ -6060,6 +6391,22 @@
           "num": 774,
           "studio": "F",
           "category": "Competitive · Division 4 · Tap · Large Group",
+          "dancers": [
+            "Sophia Berardi",
+            "Adeline Boudreau",
+            "Sienna Deziel",
+            "Teagan Bryson",
+            "Adrianna Forsyth",
+            "Marley Fram",
+            "Sophie Goodale",
+            "Dylan Helm",
+            "Kyana Kingsley",
+            "Martha Langley",
+            "Gabriella Leduc",
+            "Elle Macdonald",
+            "Jaden Palmquist",
+            "Mila Santos"
+          ],
           "age": 15
         },
         {
@@ -6069,6 +6416,20 @@
           "num": 775,
           "studio": "F",
           "category": "Competitive · Division 3 · Contemporary · Large Group",
+          "dancers": [
+            "Aurora Albisi",
+            "Adriana Berardi",
+            "Abigail Chretien",
+            "Cristiana Dumencu",
+            "Laela Fram",
+            "Ruby Gagnon",
+            "Mia Gauthier",
+            "Kiana Mechefske",
+            "Aila Nurmi",
+            "Alexis Pavacic",
+            "Peyton Walker",
+            "Katherine Wallace"
+          ],
           "age": 12
         },
         {
@@ -6123,6 +6484,23 @@
           "num": 781,
           "studio": "F",
           "category": "Competitive · Division 2 · Contemporary · Large Group",
+          "dancers": [
+            "Julia Albudane",
+            "Aubrey Allen",
+            "Maddison Beauchamp",
+            "Kensie Brunette",
+            "Alianna Chretien",
+            "Audrey Dewar",
+            "Ellie Fram",
+            "Claire Lafortune",
+            "Brynn McColeman",
+            "Brooklyn Migrino",
+            "Elin Nurmi",
+            "Emilie Paul",
+            "Claire Peng",
+            "Bethany Shewchuk",
+            "Charlotte Villeneuve"
+          ],
           "age": 10
         },
         {
@@ -6159,6 +6537,18 @@
           "num": 785,
           "studio": "F",
           "category": "Competitive · Division 3 · Contemporary · Large Group",
+          "dancers": [
+            "Sophia Berardi",
+            "Adeline Boudreau",
+            "Sienna Deziel",
+            "Adrianna Forsyth",
+            "Laela Fram",
+            "Marley Fram",
+            "Elle Macdonald",
+            "Jaden Palmquist",
+            "Mila Santos",
+            "Katherine Wallace"
+          ],
           "age": 14
         },
         {
@@ -6282,6 +6672,22 @@
           "num": 797,
           "studio": "F",
           "category": "Competitive · Division 4 · Contemporary · Large Group",
+          "dancers": [
+            "Sophia Berardi",
+            "Adeline Boudreau",
+            "Sienna Deziel",
+            "Teagan Bryson",
+            "Adrianna Forsyth",
+            "Marley Fram",
+            "Sophie Goodale",
+            "Dylan Helm",
+            "Kyana Kingsley",
+            "Martha Langley",
+            "Gabriella Leduc",
+            "Elle Macdonald",
+            "Jaden Palmquist",
+            "Mila Santos"
+          ],
           "age": 15
         },
         {
@@ -6300,6 +6706,23 @@
           "num": 799,
           "studio": "F",
           "category": "Competitive · Division 2 · Lyrical · Large Group",
+          "dancers": [
+            "Julia Albudane",
+            "Aubrey Allen",
+            "Maddison Beauchamp",
+            "Kensie Brunette",
+            "Alianna Chretien",
+            "Audrey Dewar",
+            "Ellie Fram",
+            "Claire Lafortune",
+            "Brynn McColeman",
+            "Brooklyn Migrino",
+            "Elin Nurmi",
+            "Emilie Paul",
+            "Claire Peng",
+            "Bethany Shewchuk",
+            "Charlotte Villeneuve"
+          ],
           "age": 10
         },
         {
@@ -6390,6 +6813,23 @@
           "num": 809,
           "studio": "F",
           "category": "Competitive · Division 2 · Jazz · Large Group",
+          "dancers": [
+            "Julia Albudane",
+            "Aubrey Allen",
+            "Maddison Beauchamp",
+            "Kensie Brunette",
+            "Alianna Chretien",
+            "Audrey Dewar",
+            "Ellie Fram",
+            "Claire Lafortune",
+            "Brynn McColeman",
+            "Brooklyn Migrino",
+            "Elin Nurmi",
+            "Emilie Paul",
+            "Claire Peng",
+            "Bethany Shewchuk",
+            "Charlotte Villeneuve"
+          ],
           "age": 10
         },
         {
@@ -6537,6 +6977,18 @@
           "num": 822,
           "studio": "F",
           "category": "Competitive · Division 3 · Acrobatics · Large Group",
+          "dancers": [
+            "Adeline Boudreau",
+            "Alianna Chretien",
+            "Adrianna Forsyth",
+            "Ellie Fram",
+            "Laela Fram",
+            "Marley Fram",
+            "Dylan Helm",
+            "Kiana Mechefske",
+            "Jaden Palmquist",
+            "Peyton Walker"
+          ],
           "age": 13
         },
         {
@@ -7457,6 +7909,10 @@
           "num": 901,
           "studio": "F",
           "category": "Competitive · Division 4 · Contemporary · Duet/Trio",
+          "dancers": [
+            "Dylan Helm",
+            "Gabriella Leduc"
+          ],
           "age": 15
         },
         {
@@ -7466,6 +7922,11 @@
           "num": 902,
           "studio": "F",
           "category": "Competitive · Division 4 · Contemporary · Duet/Trio",
+          "dancers": [
+            "Sophia Berardi",
+            "Sienna Deziel",
+            "Mila Santos"
+          ],
           "age": 15
         },
         {
@@ -7483,7 +7944,11 @@
           "title": "A DEAL WITH CHAOS",
           "num": 904,
           "studio": "F",
-          "category": "Competitive · Division 3 · Contemporary · Duet/Trio"
+          "category": "Competitive · Division 3 · Contemporary · Duet/Trio",
+          "dancers": [
+            "Adriana Berardi",
+            "Elle Macdonald"
+          ]
         },
         {
           "type": "dance",
@@ -7553,6 +8018,10 @@
           "num": 912,
           "studio": "F",
           "category": "Competitive · Division 3 · Open · Duet/Trio",
+          "dancers": [
+            "Adeline Boudreau",
+            "Katherine Wallace"
+          ],
           "age": 13
         },
         {
@@ -7589,6 +8058,10 @@
           "num": 916,
           "studio": "F",
           "category": "Competitive · Division 3 · Tap · Duet/Trio",
+          "dancers": [
+            "Kensie Brunette",
+            "Mia Gauthier"
+          ],
           "age": 12
         },
         {
@@ -7686,6 +8159,11 @@
           "num": 927,
           "studio": "F",
           "category": "Competitive · Division 4 · Musical Theatre · Duet/Trio",
+          "dancers": [
+            "Sophie Goodale",
+            "Martha Langley",
+            "Gabriella Leduc"
+          ],
           "age": 17
         },
         {
@@ -7713,6 +8191,11 @@
           "num": 930,
           "studio": "F",
           "category": "Competitive · Division 4 · Open · Duet/Trio",
+          "dancers": [
+            "Adrianna Forsyth",
+            "Marley Fram",
+            "Jaden Palmquist"
+          ],
           "age": 15
         },
         {
