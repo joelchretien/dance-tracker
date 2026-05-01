@@ -64,7 +64,7 @@ const outlineStyle = computed(() => {
     </div>
 
     <template v-if="isSelected">
-      <div v-if="!isMarked" class="flex justify-end mt-1">
+      <div v-if="!isMarked || isLikely" class="flex justify-end mt-1">
         <button
           class="text-[11px] text-indigo-400/70 active:text-indigo-300 transition-colors"
           @click.stop="emit('mark-current')"
