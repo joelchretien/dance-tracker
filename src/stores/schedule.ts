@@ -53,6 +53,7 @@ export const useScheduleStore = defineStore('schedule', () => {
 
   async function loadManifest() {
     try {
+      error.value = null
       const base = import.meta.env.BASE_URL
       const res = await fetch(`${base}schedules/index.json`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)

@@ -39,6 +39,13 @@ onMounted(async () => {
     schedule.loadSchedule(props.scheduleId),
     schedule.manifest ? Promise.resolve() : schedule.loadManifest(),
   ])
+
+  if (!schedule.isLoaded) {
+    schedule.error = null
+    router.replace('/')
+    return
+  }
+
   navigation.initForSchedule(props.scheduleId)
   watchStore.initForSchedule(props.scheduleId)
   ui.updateScheduleStatus()
@@ -100,20 +107,10 @@ function handlePanelJump(index: number) {
 </script>
 
 <template>
-  <div v-if="schedule.loading" class="flex items-center justify-center min-h-screen">
+  <div v-if="!schedule.isLoaded" class="flex items-center justify-center min-h-screen">
     <div class="text-gray-400">Loading schedule...</div>
   </div>
-  <div v-else-if="schedule.error" class="flex items-center justify-center min-h-screen px-6">
-    <div class="text-center">
-      <div class="text-lg font-semibold text-gray-300 mb-2">Schedule not found</div>
-      <div class="text-sm text-gray-500 mb-6">{{ schedule.error }}</div>
-      <button
-        class="px-5 py-2.5 bg-indigo-600 rounded-lg text-sm font-medium active:bg-indigo-700"
-        @click="router.push('/')"
-      >Back to schedule list</button>
-    </div>
-  </div>
-  <div v-else-if="schedule.isLoaded" class="flex flex-col h-dvh">
+  <div v-else class="flex flex-col h-dvh">
     <TopBar
       :title="schedule.meta?.name ?? ''"
       :show-back="multipleSchedules"
