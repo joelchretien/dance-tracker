@@ -4,7 +4,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { useScheduleStore } from './schedule'
 import { findNowIndex, todayDayIndex } from '@/lib/navigation'
 import { findLikelyCurrentIndex } from '@/lib/auto-advance'
-import { parseTime, currentTimeMinutes } from '@/lib/time'
+import { parseTime, currentTimeMinutes, localDateString } from '@/lib/time'
 import type { FontSize } from '@/types/schedule'
 
 export const useNavigationStore = defineStore('navigation', () => {
@@ -51,8 +51,10 @@ export const useNavigationStore = defineStore('navigation', () => {
     selectedIndex.value = null
     applyFontSize()
 
-    // Restore auto-advance from persisted anchor
-    if (anchorWallMinutes.value !== null) {
+    // Clear stale anchor from a previous day
+    if (anchorWallMinutes.value !== null && isAnchorStale()) {
+      clearAnchor()
+    } else if (anchorWallMinutes.value !== null) {
       updateLikelyCurrent()
     }
   }
@@ -60,6 +62,28 @@ export const useNavigationStore = defineStore('navigation', () => {
   watch(markedIndex, (val) => { if (navStorage) navStorage.value = val })
   watch(anchorWallMinutes, (val) => { if (anchorStorage) anchorStorage.value = val })
   watch(fontSize, (val) => { if (fsStorage) fsStorage.value = val })
+
+  /** Check if the anchor belongs to a different competition day than today. */
+  function isAnchorStale(): boolean {
+    const entry = schedule.flatEntries[markedIndex.value]
+    if (!entry) return true
+    const anchorDate = schedule.days[entry.dayIndex]?.date
+    if (!anchorDate) return true
+    return anchorDate !== localDateString()
+  }
+
+  /** Clear the anchor, stopping auto-advance. Resets to first entry of today. */
+  function clearAnchor() {
+    anchorWallMinutes.value = null
+    likelyIndex.value = null
+
+    // Move markedIndex to the first entry of today's day
+    const todayIdx = todayDayIndex(schedule.dayDates)
+    const firstOfDay = schedule.flatEntries.findIndex(e => e.dayIndex === todayIdx)
+    if (firstOfDay >= 0) {
+      markedIndex.value = firstOfDay
+    }
+  }
 
   // Active entry and derived values (used by other stores and components)
   const activeEntry = computed(() => schedule.flatEntries[activeIndex.value] ?? null)
@@ -88,6 +112,13 @@ export const useNavigationStore = defineStore('navigation', () => {
   /** Recompute the likely-current index from the time offset. Called every 10s. */
   function updateLikelyCurrent() {
     if (anchorWallMinutes.value === null) return
+
+    // Day changed since anchor was set — reset for the new day
+    if (isAnchorStale()) {
+      clearAnchor()
+      return
+    }
+
     likelyIndex.value = findLikelyCurrentIndex(
       schedule.flatEntries,
       markedIndex.value,
