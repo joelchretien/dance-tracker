@@ -65,7 +65,9 @@ onUnmounted(() => {
   pause()
 })
 
-watch(() => navigation.activeIndex, () => {
+// Scroll only on manual marks — not timer-driven changes, which would
+// yank the user away from wherever they're browsing.
+watch(() => navigation.markedIndex, () => {
   ui.updateScheduleStatus()
   nextTick(() => scrollToEntry(navigation.activeIndex, true))
 })
