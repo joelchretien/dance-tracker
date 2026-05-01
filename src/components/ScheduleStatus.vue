@@ -34,7 +34,7 @@ const colorClass = computed(() => {
 </script>
 
 <template>
-  <div v-if="text" class="text-center py-0.5 text-xs" :class="colorClass">
+  <div v-if="text" class="text-center py-0.5 text-sm" :class="colorClass">
     {{ text }}
   </div>
 </template>
