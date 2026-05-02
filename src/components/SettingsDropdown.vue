@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Star, Minus, Plus, Trash2, Bell, BellOff } from 'lucide-vue-next'
+import { Star, Minus, Plus, Trash2 } from 'lucide-vue-next'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
@@ -16,13 +15,6 @@ const FS_LABELS: Record<string, string> = {
   medium: 'Medium',
   large: 'Large',
 }
-
-const notificationsSupported = typeof window !== 'undefined' && 'Notification' in window
-
-const notificationsLabel = computed(() => {
-  if (Notification.permission === 'denied') return 'Blocked'
-  return ui.notificationsEnabled ? 'On' : 'Off'
-})
 
 function handleDecrease() {
   navigation.decreaseFontSize()
@@ -50,12 +42,6 @@ function handleReset() {
 
   // Reload so Pinia stores re-init from defaults
   window.location.reload()
-}
-
-async function handleToggleNotifications() {
-  const enabled = await ui.toggleNotifications()
-  if (enabled) ui.showToast('Notifications on', 2000)
-  else if (Notification.permission === 'granted') ui.showToast('Notifications off', 1500)
 }
 </script>
 
@@ -99,24 +85,6 @@ async function handleToggleNotifications() {
         {{ watchStore.watchedDancers.length }}
       </span>
     </button>
-
-    <template v-if="notificationsSupported">
-      <div class="border-t border-gray-700"></div>
-
-      <!-- Notifications -->
-      <button
-        class="w-full px-3 py-2.5 flex items-center gap-2.5 text-left active:bg-surface-overlay transition-colors"
-        @click="handleToggleNotifications"
-      >
-        <component
-          :is="ui.notificationsEnabled ? Bell : BellOff"
-          :size="16"
-          :class="ui.notificationsEnabled ? 'text-indigo-300' : 'text-gray-400'"
-        />
-        <span class="text-sm text-gray-200">Notifications</span>
-        <span class="text-xs text-gray-500 ml-auto">{{ notificationsLabel }}</span>
-      </button>
-    </template>
 
     <div class="border-t border-gray-700"></div>
 
