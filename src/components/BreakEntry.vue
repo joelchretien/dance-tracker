@@ -19,12 +19,15 @@ const emit = defineEmits<{
 }>()
 
 const borderClass = computed(() => {
+  if (props.isMarked && props.isLikely) return 'border-gold-400'
   if (props.isMarked) return 'border-indigo-400'
   if (props.isWatchedAwards) return 'border-gold-400/50'
   return 'border-gray-800 border-dashed'
 })
 
 const bgClass = computed(() => {
+  if (props.isMarked && props.isLikely && props.isSelected) return 'bg-gold-400/15'
+  if (props.isMarked && props.isLikely) return 'bg-gold-400/[0.08]'
   if (props.isMarked && props.isSelected) return 'bg-indigo-500/25'
   if (props.isMarked) return 'bg-indigo-500/15'
   if (props.isSelected) return 'bg-white/[0.07]'
@@ -33,8 +36,9 @@ const bgClass = computed(() => {
 })
 
 const outlineStyle = computed(() => {
-  if (props.isSelected && !props.isMarked) return 'outline: 1.5px dashed rgba(255,255,255,0.25); outline-offset: -1.5px'
+  if (props.isSelected && props.isMarked && props.isLikely) return 'outline: 1.5px dashed rgba(251,191,36,0.4); outline-offset: -1.5px'
   if (props.isSelected && props.isMarked) return 'outline: 1.5px dashed rgba(129,140,248,0.4); outline-offset: -1.5px'
+  if (props.isSelected) return 'outline: 1.5px dashed rgba(255,255,255,0.25); outline-offset: -1.5px'
   return ''
 })
 

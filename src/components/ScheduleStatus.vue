@@ -21,20 +21,36 @@ const text = computed(() => {
   }
 })
 
-const colorClass = computed(() => {
+// Visual treatment escalates with how off-schedule we are.
+// 'pill' renders an amber/red rounded background; 'plain' is muted text.
+const treatment = computed<'plain' | 'pill-amber' | 'pill-red'>(() => {
   switch (props.status.kind) {
-    case 'on-schedule': return 'text-green-400'
-    case 'behind': return props.status.minutes > 15 ? 'text-orange-400' : 'text-gray-400'
-    case 'ahead': return props.status.minutes > 15 ? 'text-sky-400' : 'text-gray-400'
-    case 'way-behind': return 'text-gray-500'
-    case 'wrong-day': return 'text-gray-500'
-    default: return 'text-gray-500'
+    case 'behind':
+    case 'ahead':
+      return props.status.minutes > 15 ? 'pill-red' : 'pill-amber'
+    case 'way-behind':
+      return 'pill-red'
+    default:
+      return 'plain'
   }
+})
+
+const containerClass = computed(() => {
+  switch (treatment.value) {
+    case 'pill-amber': return 'bg-amber-500/15 text-amber-300 border border-amber-400/30 rounded-full px-3 py-0.5'
+    case 'pill-red':   return 'bg-red-500/15 text-red-300 border border-red-400/30 rounded-full px-3 py-0.5'
+    default:           return 'text-gray-400'
+  }
+})
+
+const textColorClass = computed(() => {
+  if (props.status.kind === 'on-schedule') return 'text-green-400'
+  return ''
 })
 </script>
 
 <template>
-  <div v-if="text" class="text-center py-0.5 fs-title" :class="colorClass">
-    {{ text }}
+  <div v-if="text" class="flex justify-center py-1">
+    <span class="fs-title font-medium" :class="[containerClass, textColorClass]">{{ text }}</span>
   </div>
 </template>
