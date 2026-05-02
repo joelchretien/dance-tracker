@@ -55,12 +55,11 @@ onMounted(async () => {
   scrollToEntry(navigation.activeIndex, false)
 })
 
-// Auto-advance + status update every 10 seconds
+// Unified 1-second tick: auto-advance, progress bar, now-index
 const { pause } = useIntervalFn(() => {
-  navigation.updateLikelyCurrent()
+  navigation.tick()
   ui.updateScheduleStatus()
-  navigation.updateNowIndex()
-}, 10000)
+}, 1000)
 
 onUnmounted(() => {
   pause()

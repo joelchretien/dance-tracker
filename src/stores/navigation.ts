@@ -4,7 +4,8 @@ import { useLocalStorage } from '@vueuse/core'
 import { useScheduleStore } from './schedule'
 import { findNowIndex, todayDayIndex } from '@/lib/navigation'
 import { findLikelyCurrentIndex } from '@/lib/auto-advance'
-import { parseTime, currentTimeMinutes, localDateString } from '@/lib/time'
+import { parseTime, currentTimeMinutes, currentTimeFractionalMinutes, localDateString } from '@/lib/time'
+import { getEntryDurationMinutes } from '@/lib/entry-duration'
 import type { FontSize } from '@/types/schedule'
 
 export const useNavigationStore = defineStore('navigation', () => {
@@ -115,7 +116,10 @@ export const useNavigationStore = defineStore('navigation', () => {
     }
   }
 
-  /** Recompute the likely-current index from the time offset. Called every 10s. */
+  // Progress through the active entry (0 to 1), updated every second.
+  const activeProgress = ref(0)
+
+  /** Recompute the likely-current index from the time offset. */
   function updateLikelyCurrent() {
     if (anchorWallMinutes.value === null) return
 
@@ -131,6 +135,40 @@ export const useNavigationStore = defineStore('navigation', () => {
       anchorWallMinutes.value,
       currentTimeMinutes(),
     )
+  }
+
+  /** Update progress through the active entry. */
+  function updateProgress() {
+    if (anchorWallMinutes.value === null) {
+      activeProgress.value = 0
+      return
+    }
+
+    const entry = schedule.flatEntries[activeIndex.value]
+    if (!entry) { activeProgress.value = 0; return }
+
+    const entryScheduleMinutes = parseTime(entry.entry.time)
+    if (entryScheduleMinutes < 0) { activeProgress.value = 0; return }
+
+    // offset = how far ahead wall clock is vs schedule
+    const anchorScheduleMinutes = parseTime(schedule.flatEntries[markedIndex.value]?.entry.time ?? '')
+    if (anchorScheduleMinutes < 0) { activeProgress.value = 0; return }
+    const offset = anchorWallMinutes.value - anchorScheduleMinutes
+
+    // Wall-clock time this entry started
+    const startWall = entryScheduleMinutes + offset
+    const duration = getEntryDurationMinutes(schedule.flatEntries, activeIndex.value)
+    const now = currentTimeFractionalMinutes()
+    const elapsed = now - startWall
+
+    activeProgress.value = Math.max(0, Math.min(1, elapsed / duration))
+  }
+
+  /** Unified 1-second tick: updates auto-advance, progress, and now-index. */
+  function tick() {
+    updateLikelyCurrent()
+    updateProgress()
+    updateNowIndex()
   }
 
   const FS_ORDER: FontSize[] = ['default', 'medium', 'large']
@@ -188,11 +226,11 @@ export const useNavigationStore = defineStore('navigation', () => {
   }
 
   return {
-    markedIndex, activeIndex, activeIsLikely,
+    markedIndex, activeIndex, activeIsLikely, activeProgress,
     selectedIndex, fontSize,
     activeEntry, activeDayIndex, activeTimeOfEntry,
     initForSchedule, select, markAsCurrent,
-    updateLikelyCurrent,
+    tick, updateLikelyCurrent,
     canIncreaseFontSize, canDecreaseFontSize,
     increaseFontSize, decreaseFontSize, jumpToNow,
     nowIndex, updateNowIndex,

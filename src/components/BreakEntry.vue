@@ -9,6 +9,7 @@ const props = defineProps<{
   isLikely: boolean
   isSelected: boolean
   isWatchedAwards: boolean
+  progress: number
 }>()
 
 const emit = defineEmits<{
@@ -73,5 +74,14 @@ const outlineStyle = computed(() => {
         </button>
       </div>
     </template>
+
+    <!-- Progress bar -->
+    <div v-if="isMarked && progress > 0" class="absolute bottom-0 left-0 right-0 h-[3px] rounded-b-lg overflow-hidden">
+      <div
+        class="h-full transition-[width] duration-1000 ease-linear rounded-br-lg"
+        :class="isLikely ? 'bg-gold-400/50' : 'bg-indigo-400/60'"
+        :style="{ width: (progress * 100) + '%' }"
+      />
+    </div>
   </div>
 </template>

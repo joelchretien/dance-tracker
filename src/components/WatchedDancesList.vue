@@ -170,6 +170,7 @@ function handleMarkCurrent(globalIndex: number) {
           :is-watched="true"
           :watched-dancers="watchStore.getWatchedDancersForEntry(li.globalIndex!)"
           :same-studio="false"
+          :progress="li.globalIndex === navigation.activeIndex ? navigation.activeProgress : 0"
           @select="handleSelect(li.globalIndex!)"
           @mark-current="handleMarkCurrent(li.globalIndex!)"
         />
@@ -181,6 +182,7 @@ function handleMarkCurrent(globalIndex: number) {
           :is-likely="navigation.activeIsLikely"
           :is-selected="li.globalIndex === navigation.selectedIndex"
           :is-watched-awards="true"
+          :progress="li.globalIndex === navigation.activeIndex ? navigation.activeProgress : 0"
           @select="handleSelect(li.globalIndex!)"
           @mark-current="handleMarkCurrent(li.globalIndex!)"
         />

@@ -10,10 +10,16 @@ export function parseTime(time: string): number {
   return h * 60 + m
 }
 
-/** Current time as minutes since midnight */
+/** Current time as minutes since midnight (whole) */
 export function currentTimeMinutes(): number {
   const now = new Date()
   return now.getHours() * 60 + now.getMinutes()
+}
+
+/** Current time as fractional minutes since midnight (includes seconds) */
+export function currentTimeFractionalMinutes(): number {
+  const now = new Date()
+  return now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60
 }
 
 /** Today's date as 'YYYY-MM-DD' in local timezone */
