@@ -114,7 +114,7 @@ const notifiedNow = new Set<number>()
 
 function fireNotification(title: string, body: string) {
   try {
-    new Notification(title, { body, tag: 'dance-tracker', icon: '/icon-192.png' })
+    new Notification(title, { body, tag: 'dance-tracker', icon: import.meta.env.BASE_URL + 'icon-192.png' })
   } catch {
     // Notification constructor can throw on iOS Safari outside PWA mode
   }
