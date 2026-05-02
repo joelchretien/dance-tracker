@@ -194,6 +194,9 @@ export const useNavigationStore = defineStore('navigation', () => {
     updateNowIndex()
   }
 
+  // Has the user set a current dance yet? (used by onboarding hint)
+  const hasAnchor = computed(() => anchorWallMinutes.value !== null)
+
   const FS_ORDER: FontSize[] = ['default', 'medium', 'large']
 
   const canIncreaseFontSize = computed(() => {
@@ -249,7 +252,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   }
 
   return {
-    markedIndex, activeIndex, activeIsLikely, activeProgress,
+    markedIndex, activeIndex, activeIsLikely, activeProgress, hasAnchor,
     selectedIndex, fontSize,
     activeEntry, activeDayIndex, activeTimeOfEntry,
     initForSchedule, select, markAsCurrent, seekProgress, tick,

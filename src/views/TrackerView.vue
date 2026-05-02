@@ -52,7 +52,18 @@ onMounted(async () => {
   navigation.updateNowIndex()
 
   await nextTick()
-  scrollToEntry(navigation.activeIndex, false)
+  // First-time users (no anchor) land near wall-clock-now. Returning users
+  // land on their last marked/active entry.
+  if (!navigation.hasAnchor) {
+    const result = navigation.jumpToNow()
+    if (result !== null) {
+      scrollToEntry(result.index, false)
+    } else {
+      scrollToEntry(navigation.activeIndex, false)
+    }
+  } else {
+    scrollToEntry(navigation.activeIndex, false)
+  }
 })
 
 // Unified 1-second tick: auto-advance, progress bar, now-index
@@ -119,6 +130,15 @@ function handleJumpToNext() {
       :show-back="multipleSchedules"
       @toggle-watched-dances="handleToggleWatchedDances"
     />
+
+    <!-- Onboarding hint: shown until the user marks any entry as current -->
+    <div
+      v-if="!navigation.hasAnchor"
+      class="px-3 py-2 bg-indigo-500/10 border-b border-indigo-400/20 flex items-center gap-2 text-xs"
+    >
+      <span class="text-indigo-300 font-semibold shrink-0">▶ Tap any dance</span>
+      <span class="text-indigo-300/70 truncate">to set it as current and start tracking</span>
+    </div>
 
     <div ref="scrollContainer" class="flex-1 overflow-y-auto pb-20">
       <WatchedDancesList v-if="ui.watchedDancesMode" />
