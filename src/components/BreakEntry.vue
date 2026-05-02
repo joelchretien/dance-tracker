@@ -134,7 +134,7 @@ function onBarClick(e: MouseEvent) {
     <div
       v-if="isMarked && (progress > 0 || seekable)"
       ref="barRef"
-      class="absolute bottom-0 left-0 right-0 overflow-hidden rounded-b-lg transition-[height] duration-200"
+      class="absolute bottom-0 left-0 right-0 rounded-b-lg transition-[height] duration-200"
       :class="seekable ? 'h-3 cursor-grab' : 'h-[3px]'"
       @click.stop="onBarClick"
       @touchstart.prevent="onDragStart"
@@ -145,23 +145,21 @@ function onBarClick(e: MouseEvent) {
       @mouseup="onDragEnd"
       @mouseleave="isDragging && onDragEnd($event)"
     >
-      <div v-if="seekable" class="absolute inset-0 bg-white/[0.06]" />
-
-      <div
-        class="h-full relative"
-        :class="[barColor, isDragging ? '' : 'transition-[width] duration-1000 ease-linear']"
-        :style="{ width: (displayProgress * 100) + '%' }"
-      >
+      <div class="absolute inset-0 overflow-hidden rounded-b-lg">
+        <div v-if="seekable" class="absolute inset-0 bg-white/[0.06]" />
         <div
-          v-if="seekable"
-          class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 rounded-full shadow-md"
-          :class="[thumbColor, isDragging ? 'scale-125' : '']"
+          class="h-full"
+          :class="[barColor, isDragging ? '' : 'transition-[width] duration-1000 ease-linear']"
+          :style="{ width: (displayProgress * 100) + '%' }"
         />
       </div>
 
-      <span v-if="seekable && !isDragging" class="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-white/30 pointer-events-none">
-        drag to adjust
-      </span>
+      <div
+        v-if="seekable"
+        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full shadow-md pointer-events-none"
+        :class="[thumbColor, isDragging ? 'scale-125' : '']"
+        :style="{ left: (displayProgress * 100) + '%' }"
+      />
     </div>
   </div>
 </template>
