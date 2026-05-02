@@ -50,10 +50,23 @@ export const useWatchStore = defineStore('watch', () => {
     return set
   })
 
+  // Reference point for countdown computations. When the user has set a
+  // current dance, that's the anchor. Otherwise, fall back to the entry
+  // closest to wall-clock-now so countdowns reflect "from now" not "from
+  // the start of day 1".
+  const referenceIndex = computed<number>(() => {
+    if (navigation.hasAnchor) return navigation.activeIndex
+    return navigation.nowIndex ?? navigation.activeIndex
+  })
+
+  const referenceEntry = computed(() =>
+    schedule.flatEntries[referenceIndex.value]?.entry ?? null
+  )
+
   const nextTargetIndex = computed<number | null>(() =>
     findNextTarget(
       schedule.flatEntries,
-      navigation.activeIndex,
+      referenceIndex.value,
       watchedDancerSet.value,
       watchedAwardsSet.value,
     )
@@ -61,8 +74,8 @@ export const useWatchStore = defineStore('watch', () => {
 
   const dancesUntilTarget = computed<number | null>(() => {
     if (nextTargetIndex.value === null) return null
-    if (nextTargetIndex.value === navigation.activeIndex) return 0
-    return countDancesUntil(schedule.flatEntries, navigation.activeIndex, nextTargetIndex.value)
+    if (nextTargetIndex.value === referenceIndex.value) return 0
+    return countDancesUntil(schedule.flatEntries, referenceIndex.value, nextTargetIndex.value)
   })
 
   const nextTargetEntry = computed(() => {
@@ -83,7 +96,7 @@ export const useWatchStore = defineStore('watch', () => {
 
   const nextTargetStyleType = computed<string>(() => {
     if (nextTargetIndex.value === null) return ''
-    if (nextTargetIndex.value === navigation.activeIndex) return 'on-now'
+    if (nextTargetIndex.value === referenceIndex.value) return 'on-now'
     if (dancesUntilTarget.value === 0) return 'up-next'
     return 'countdown'
   })
@@ -98,9 +111,9 @@ export const useWatchStore = defineStore('watch', () => {
 
   const nextTargetTime = computed<string>(() => nextTargetEntry.value?.time ?? '')
 
-  /** Time difference string between current entry and next target (e.g., "~15min") */
+  /** Time difference string between reference entry and next target (e.g., "~15min") */
   const nextTargetTimeDiff = computed<string>(() => {
-    const curEntry = navigation.activeEntry?.entry
+    const curEntry = referenceEntry.value
     const nxtEntry = nextTargetEntry.value
     if (!curEntry || !nxtEntry) return ''
     const from = parseTime(curEntry.time)
