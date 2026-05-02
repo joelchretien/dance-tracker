@@ -46,8 +46,9 @@ const outlineStyle = computed(() => {
 })
 
 const seekable = computed(() => props.isMarked && props.isSelected)
-const barColor = computed(() => props.isLikely ? 'bg-gold-400/50' : 'bg-indigo-400/60')
+const barColor = computed(() => props.isLikely ? 'bg-gold-400/70' : 'bg-indigo-400/80')
 const thumbColor = computed(() => props.isLikely ? 'bg-gold-400' : 'bg-indigo-400')
+const badgeColor = computed(() => props.isLikely ? 'text-gold-400/80' : 'text-indigo-400/80')
 
 // Drag state
 const barRef = ref<HTMLElement | null>(null)
@@ -109,10 +110,11 @@ function onBarClick(e: MouseEvent) {
     :style="outlineStyle"
     @click="emit('select')"
   >
-    <!-- "CURRENT" badge — shape/text cue, doesn't disrupt row layout -->
+    <!-- "CURRENT" badge — color matches bar state -->
     <span
       v-if="isMarked"
-      class="absolute top-1.5 right-2 text-[9px] font-bold tracking-wider text-indigo-400/70 uppercase"
+      class="absolute top-1.5 right-2 text-[9px] font-bold tracking-wider uppercase"
+      :class="badgeColor"
     >{{ isLikely ? '~ current' : '▶ current' }}</span>
 
     <div class="flex items-baseline gap-2">
@@ -130,9 +132,9 @@ function onBarClick(e: MouseEvent) {
     <!-- Details shown when this specific entry is selected -->
     <template v-if="isSelected">
       <DanceDetails :entry="entry" />
-      <div v-if="!isMarked || isLikely" class="flex justify-end mt-1">
+      <div v-if="!isMarked || isLikely" class="flex justify-end mt-2">
         <button
-          class="text-[11px] text-indigo-400/70 active:text-indigo-300 transition-colors"
+          class="text-xs font-medium text-indigo-300 px-3 py-1.5 rounded-md border border-indigo-400/30 bg-indigo-500/10 active:bg-indigo-500/20 transition-colors"
           @click.stop="emit('mark-current')"
         >
           Set as current ›
@@ -140,11 +142,11 @@ function onBarClick(e: MouseEvent) {
       </div>
     </template>
 
-    <!-- Progress bar: dedicated row inside the entry. Seekable when selected. -->
+    <!-- Progress bar: aligned with title column. Seekable when selected. -->
     <div
       v-if="isMarked"
       ref="barRef"
-      class="relative h-1.5 mt-3 mb-1 rounded-full bg-white/[0.06]"
+      class="relative h-1.5 mt-3 mb-1 ml-[5.5rem] rounded-full bg-white/15"
       :class="seekable ? 'cursor-grab' : ''"
       @click.stop="onBarClick"
       @touchstart.prevent="onDragStart"
