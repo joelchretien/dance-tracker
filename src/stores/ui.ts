@@ -34,7 +34,6 @@ export const useUiStore = defineStore('ui', () => {
   const currentDanceTipOpen = ref(false)
 
   // First-time educational modal after marking a dance as current
-  const currentDanceTipOpen = ref(false)
 
   function showToast(msg: string, durationMs = 1800) {
     toastMessage.value = msg
@@ -123,7 +122,6 @@ export const useUiStore = defineStore('ui', () => {
     snapbackVisible,
     scheduleStatus,
     watchedDancersTipOpen,
-    currentDanceTipOpen,
     currentDanceTipOpen,
     showToast,
     openJumpToPanel, closeJumpToPanel,

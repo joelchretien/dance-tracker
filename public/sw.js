@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dance-tracker-v17'
+const CACHE_NAME = 'dance-tracker-v18'
 
 self.addEventListener('install', (event) => {
   // Activate immediately, don't wait for old SW to finish
