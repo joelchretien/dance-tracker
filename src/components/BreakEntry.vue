@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { BreakEntry as BreakEntryType, AwardsEntry } from '@/types/schedule'
 
 const props = defineProps<{
@@ -15,6 +15,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   select: []
   'mark-current': []
+  seek: [progress: number]
 }>()
 
 const borderClass = computed(() => {
@@ -36,6 +37,60 @@ const outlineStyle = computed(() => {
   if (props.isSelected && props.isMarked) return 'outline: 1.5px dashed rgba(129,140,248,0.4); outline-offset: -1.5px'
   return ''
 })
+
+const seekable = computed(() => props.isMarked && props.isSelected)
+const barColor = computed(() => props.isLikely ? 'bg-gold-400/50' : 'bg-indigo-400/60')
+const thumbColor = computed(() => props.isLikely ? 'bg-gold-400' : 'bg-indigo-400')
+
+// Drag state
+const barRef = ref<HTMLElement | null>(null)
+const isDragging = ref(false)
+const dragProgress = ref(0)
+
+const displayProgress = computed(() =>
+  isDragging.value ? dragProgress.value : props.progress
+)
+
+function progressFromEvent(e: TouchEvent | MouseEvent): number {
+  if (!barRef.value) return 0
+  const rect = barRef.value.getBoundingClientRect()
+  const x = 'touches' in e ? e.touches[0].clientX : e.clientX
+  return Math.max(0, Math.min(1, (x - rect.left) / rect.width))
+}
+
+function onDragStart(e: TouchEvent | MouseEvent) {
+  if (!seekable.value) return
+  e.stopPropagation()
+  isDragging.value = true
+  dragProgress.value = progressFromEvent(e)
+}
+
+function onDragMove(e: TouchEvent | MouseEvent) {
+  if (!isDragging.value) return
+  e.stopPropagation()
+  dragProgress.value = progressFromEvent(e)
+}
+
+function onDragEnd(e: TouchEvent | MouseEvent) {
+  if (!isDragging.value) return
+  e.stopPropagation()
+  isDragging.value = false
+  const final = 'changedTouches' in e
+    ? Math.max(0, Math.min(1, (() => {
+        if (!barRef.value) return dragProgress.value
+        const rect = barRef.value.getBoundingClientRect()
+        return (e.changedTouches[0].clientX - rect.left) / rect.width
+      })()))
+    : progressFromEvent(e)
+  emit('seek', Math.max(0, Math.min(1, final)))
+}
+
+function onBarClick(e: MouseEvent) {
+  if (!seekable.value) return
+  e.stopPropagation()
+  const p = progressFromEvent(e)
+  emit('seek', p)
+}
 </script>
 
 <template>
@@ -75,13 +130,38 @@ const outlineStyle = computed(() => {
       </div>
     </template>
 
-    <!-- Progress bar -->
-    <div v-if="isMarked && progress > 0" class="absolute bottom-0 left-0 right-0 h-[3px] rounded-b-lg overflow-hidden">
+    <!-- Progress bar: seekable when selected + marked, passive otherwise -->
+    <div
+      v-if="isMarked && (progress > 0 || seekable)"
+      ref="barRef"
+      class="absolute bottom-0 left-0 right-0 overflow-hidden rounded-b-lg transition-[height] duration-200"
+      :class="seekable ? 'h-3 cursor-grab' : 'h-[3px]'"
+      @click.stop="onBarClick"
+      @touchstart.prevent="onDragStart"
+      @touchmove.prevent="onDragMove"
+      @touchend.prevent="onDragEnd"
+      @mousedown.prevent="onDragStart"
+      @mousemove="onDragMove"
+      @mouseup="onDragEnd"
+      @mouseleave="isDragging && onDragEnd($event)"
+    >
+      <div v-if="seekable" class="absolute inset-0 bg-white/[0.06]" />
+
       <div
-        class="h-full transition-[width] duration-1000 ease-linear rounded-br-lg"
-        :class="isLikely ? 'bg-gold-400/50' : 'bg-indigo-400/60'"
-        :style="{ width: (progress * 100) + '%' }"
-      />
+        class="h-full relative"
+        :class="[barColor, isDragging ? '' : 'transition-[width] duration-1000 ease-linear']"
+        :style="{ width: (displayProgress * 100) + '%' }"
+      >
+        <div
+          v-if="seekable"
+          class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 rounded-full shadow-md"
+          :class="[thumbColor, isDragging ? 'scale-125' : '']"
+        />
+      </div>
+
+      <span v-if="seekable && !isDragging" class="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-white/30 pointer-events-none">
+        drag to adjust
+      </span>
     </div>
   </div>
 </template>

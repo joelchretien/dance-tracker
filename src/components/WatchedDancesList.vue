@@ -121,6 +121,10 @@ function handleSelect(globalIndex: number) {
 function handleMarkCurrent(globalIndex: number) {
   navigation.markAsCurrent(globalIndex)
 }
+
+function handleSeek(progress: number) {
+  navigation.seekProgress(progress)
+}
 </script>
 
 <template>
@@ -173,6 +177,7 @@ function handleMarkCurrent(globalIndex: number) {
           :progress="li.globalIndex === navigation.activeIndex ? navigation.activeProgress : 0"
           @select="handleSelect(li.globalIndex!)"
           @mark-current="handleMarkCurrent(li.globalIndex!)"
+          @seek="handleSeek"
         />
         <BreakEntry
           v-else
@@ -185,6 +190,7 @@ function handleMarkCurrent(globalIndex: number) {
           :progress="li.globalIndex === navigation.activeIndex ? navigation.activeProgress : 0"
           @select="handleSelect(li.globalIndex!)"
           @mark-current="handleMarkCurrent(li.globalIndex!)"
+          @seek="handleSeek"
         />
       </template>
     </template>

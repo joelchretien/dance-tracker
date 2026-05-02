@@ -117,6 +117,27 @@ export const useNavigationStore = defineStore('navigation', () => {
     }
   }
 
+  /** Seek to a specific progress within the active entry. Re-anchors as "current". */
+  function seekProgress(progress: number) {
+    const idx = activeIndex.value
+    const entry = schedule.flatEntries[idx]
+    if (!entry) return
+
+    const entryScheduleMinutes = parseTime(entry.entry.time)
+    if (entryScheduleMinutes < 0) return
+
+    const duration = getEntryDurationMinutes(schedule.flatEntries, idx)
+    const now = currentTimeFractionalMinutes()
+
+    // Back-compute anchor: what anchorWallMinutes makes progress = seeked value?
+    // progress = (now - startWall) / duration, startWall = anchorWall when marked = active
+    // → anchorWall = now - progress * duration
+    markedIndex.value = idx
+    anchorWallMinutes.value = now - progress * duration
+    likelyIndex.value = idx
+    activeProgress.value = Math.max(0, Math.min(1, progress))
+  }
+
   // Progress through the active entry (0 to 1), updated every second.
   const activeProgress = ref(0)
 
@@ -230,7 +251,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     markedIndex, activeIndex, activeIsLikely, activeProgress,
     selectedIndex, fontSize,
     activeEntry, activeDayIndex, activeTimeOfEntry,
-    initForSchedule, select, markAsCurrent, tick,
+    initForSchedule, select, markAsCurrent, seekProgress, tick,
     canIncreaseFontSize, canDecreaseFontSize,
     increaseFontSize, decreaseFontSize, jumpToNow,
     nowIndex, updateNowIndex,
