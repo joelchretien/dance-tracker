@@ -198,6 +198,7 @@ function handleSeek(progress: number) {
           :is-likely="navigation.activeIsLikely"
           :is-selected="li.globalIndex === navigation.selectedIndex"
           :is-watched-awards="true"
+          :watched-dancers="watchStore.getWatchedDancersForAwards(li.globalIndex!)"
           :progress="li.globalIndex === navigation.activeIndex ? navigation.activeProgress : 0"
           :offset-minutes="navigation.scheduleOffsetMinutes"
           @select="handleSelect(li.globalIndex!)"

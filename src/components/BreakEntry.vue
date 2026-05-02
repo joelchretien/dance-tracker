@@ -11,6 +11,7 @@ const props = defineProps<{
   isLikely: boolean
   isSelected: boolean
   isWatchedAwards: boolean
+  watchedDancers?: string[]
   progress: number
   offsetMinutes?: number | null
 }>()
@@ -133,8 +134,8 @@ function onBarClick(e: MouseEvent) {
         {{ titleCaseDanceTitle(entry.title) }}
       </span>
     </div>
-    <div v-if="isWatchedAwards" class="text-xs text-gold-400/70 mt-0.5 ml-[5.5rem]">
-      Watched Dancers in this block
+    <div v-if="isWatchedAwards && watchedDancers && watchedDancers.length" class="text-xs text-gold-400/70 mt-0.5 ml-[5.5rem]">
+      {{ watchedDancers.join(' & ') }}
     </div>
 
     <template v-if="isSelected">

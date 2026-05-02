@@ -50,6 +50,21 @@ export const useWatchStore = defineStore('watch', () => {
     return set
   })
 
+  /** Map awards-block global index → unique watched dancers found in it */
+  const watchedDancersByAwardsIndex = computed<Map<number, string[]>>(() => {
+    const map = new Map<number, string[]>()
+    for (const block of awardsBlocks.value) {
+      if (block.hasWatchedDancer) {
+        map.set(block.awardsGlobalIndex, block.watchedDancersInBlock)
+      }
+    }
+    return map
+  })
+
+  function getWatchedDancersForAwards(globalIndex: number): string[] {
+    return watchedDancersByAwardsIndex.value.get(globalIndex) ?? []
+  }
+
   // Reference point for countdown computations. When the user has set a
   // current dance, that's the anchor. Otherwise, fall back to the entry
   // closest to wall-clock-now so countdowns reflect "from now" not "from
@@ -100,9 +115,15 @@ export const useWatchStore = defineStore('watch', () => {
   })
 
   const nextTargetWatchedDancers = computed<string[]>(() => {
+    if (nextTargetIndex.value === null) return []
     const entry = nextTargetEntry.value
-    if (!entry || entry.type !== 'dance' || !entry.dancers) return []
-    return entry.dancers.filter(d => watchedDancerSet.value.has(d))
+    if (entry?.type === 'dance' && entry.dancers) {
+      return entry.dancers.filter(d => watchedDancerSet.value.has(d))
+    }
+    if (entry?.type === 'awards') {
+      return getWatchedDancersForAwards(nextTargetIndex.value)
+    }
+    return []
   })
 
   const nextTargetIsWatchedAwards = computed(() => {
@@ -235,6 +256,7 @@ export const useWatchStore = defineStore('watch', () => {
     nextTargetStyleType, nextTargetSubtitle, nextTargetTime, nextTargetTimeDiff,
     nextTargetIsCrossDay, nextTargetDayLabel,
     initForSchedule, toggleDancer, isWatchedEntry, getWatchedDancersForEntry,
+    getWatchedDancersForAwards,
     watchedEntryIndices, nearestWatchedToNow,
     studioEntryIndices, nearestStudioToNow,
   }

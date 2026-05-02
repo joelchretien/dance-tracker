@@ -14,14 +14,17 @@ export function computeAwardsBlocks(
   for (let a = 0; a < awardsIndices.length; a++) {
     const blockStart = a === 0 ? 0 : awardsIndices[a - 1] + 1
     const blockEnd = awardsIndices[a]
-    let hasWatchedDancer = false
+    const watchedDancersInBlock: string[] = []
+    const seen = new Set<string>()
 
     for (let j = blockStart; j < blockEnd; j++) {
       const entry = flatEntries[j]?.entry
       if (entry?.type === 'dance' && entry.dancers) {
-        if (entry.dancers.some(d => watchedSet.has(d))) {
-          hasWatchedDancer = true
-          break
+        for (const d of entry.dancers) {
+          if (watchedSet.has(d) && !seen.has(d)) {
+            seen.add(d)
+            watchedDancersInBlock.push(d)
+          }
         }
       }
     }
@@ -29,7 +32,8 @@ export function computeAwardsBlocks(
     blocks.push({
       awardsGlobalIndex: awardsIndices[a],
       blockStartIndex: blockStart,
-      hasWatchedDancer,
+      hasWatchedDancer: watchedDancersInBlock.length > 0,
+      watchedDancersInBlock,
     })
   }
 

@@ -40,6 +40,8 @@ export interface AwardsBlock {
   awardsGlobalIndex: number
   blockStartIndex: number
   hasWatchedDancer: boolean
+  /** Unique watched dancers found in this block, in encounter order */
+  watchedDancersInBlock: string[]
 }
 
 export type ScheduleStatus =
