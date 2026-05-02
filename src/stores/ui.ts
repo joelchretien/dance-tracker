@@ -81,10 +81,25 @@ export const useUiStore = defineStore('ui', () => {
   function updateScheduleStatus() {
     const schedule = useScheduleStore()
     const nav = useNavigationStore()
-    const entryTime = nav.activeTimeOfEntry
-    const now = currentTimeMinutes()
 
-    const entryDayIndex = nav.activeDayIndex
+    // When the user has anchored a current dance, the schedule status reflects
+    // the OFFSET they established (and that scrubbing changes). When no anchor
+    // is set, fall back to comparing the active entry's scheduled time to wall
+    // clock now.
+    let entryTime: number
+    let now: number
+    let entryDayIndex: number
+
+    if (nav.hasAnchor && nav.anchorWallMinutes !== null) {
+      entryTime = nav.markedTimeOfEntry
+      now = nav.anchorWallMinutes
+      entryDayIndex = schedule.flatEntries[nav.markedIndex]?.dayIndex ?? 0
+    } else {
+      entryTime = nav.activeTimeOfEntry
+      now = currentTimeMinutes()
+      entryDayIndex = nav.activeDayIndex
+    }
+
     const entryDate = schedule.days[entryDayIndex]?.date
     const today = localDateString()
     const sameDay = entryDate === today

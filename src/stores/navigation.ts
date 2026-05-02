@@ -96,6 +96,15 @@ export const useNavigationStore = defineStore('navigation', () => {
     return parseTime(entry.time)
   })
 
+  // Marked entry — the one the user actually anchored. Stays put even while
+  // auto-advance moves the active index forward. Used by schedule status to
+  // compute "how off-schedule is the competition".
+  const markedTimeOfEntry = computed(() => {
+    const entry = schedule.flatEntries[markedIndex.value]?.entry
+    if (!entry) return -1
+    return parseTime(entry.time)
+  })
+
   let selectTimer: ReturnType<typeof setTimeout> | null = null
 
   /** Select (tap to inspect) a dance. Toggles off if tapping the same one. Auto-deselects after 30s. */
@@ -253,8 +262,9 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   return {
     markedIndex, activeIndex, activeIsLikely, activeProgress, hasAnchor,
+    anchorWallMinutes,
     selectedIndex, fontSize,
-    activeEntry, activeDayIndex, activeTimeOfEntry,
+    activeEntry, activeDayIndex, activeTimeOfEntry, markedTimeOfEntry,
     initForSchedule, select, markAsCurrent, seekProgress, tick,
     canIncreaseFontSize, canDecreaseFontSize,
     increaseFontSize, decreaseFontSize, jumpToNow,
