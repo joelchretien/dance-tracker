@@ -27,6 +27,9 @@ export const useUiStore = defineStore('ui', () => {
   // Schedule status
   const scheduleStatus = ref<ScheduleStatus>({ kind: 'not-started' })
 
+  // First-time educational modal after closing the WatchPanel
+  const watchedDancersTipOpen = ref(false)
+
   function showToast(msg: string, durationMs = 1800) {
     toastMessage.value = msg
     if (toastTimerId.value) clearTimeout(toastTimerId.value)
@@ -98,6 +101,7 @@ export const useUiStore = defineStore('ui', () => {
     toastMessage, toastTimerId,
     snapbackVisible,
     scheduleStatus,
+    watchedDancersTipOpen,
     showToast,
     openJumpToPanel, closeJumpToPanel,
     openWatchPanel, closeWatchPanel,

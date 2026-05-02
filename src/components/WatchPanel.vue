@@ -31,13 +31,12 @@ function toggle(name: string) {
 }
 
 function close() {
-  // First-time educational hint: if the user is closing with watched
-  // dancers set and we haven't shown them this yet, tell them where
-  // to find this panel later.
+  // First-time educational modal: if the user is closing with watched
+  // dancers set and we haven't shown them this yet, open the tip modal.
   const hasOnboarded = localStorage.getItem(ONBOARDED_KEY) === '1'
   if (!hasOnboarded && watchStore.watchedDancers.length > 0) {
     localStorage.setItem(ONBOARDED_KEY, '1')
-    ui.showToast('Tip: update anytime via ⚙ Settings → Watched Dancers', 4000)
+    ui.watchedDancersTipOpen = true
   }
   ui.closeWatchPanel()
 }

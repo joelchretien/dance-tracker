@@ -17,6 +17,7 @@ import WatchPanel from '@/components/WatchPanel.vue'
 import JumpToPanel from '@/components/JumpToPanel.vue'
 import ToastNotification from '@/components/ToastNotification.vue'
 import CountdownBanner from '@/components/CountdownBanner.vue'
+import WatchedDancersTipModal from '@/components/WatchedDancersTipModal.vue'
 
 const props = defineProps<{ scheduleId: string }>()
 
@@ -177,5 +178,6 @@ function handleJumpToNext() {
     <WatchPanel v-if="ui.watchPanelOpen" />
     <JumpToPanel v-if="ui.jumpToPanelOpen" @jump-to="handlePanelJump" />
     <ToastNotification v-if="ui.toastMessage" :message="ui.toastMessage" />
+    <WatchedDancersTipModal v-if="ui.watchedDancersTipOpen" @close="ui.watchedDancersTipOpen = false" />
   </div>
 </template>
