@@ -9,6 +9,8 @@ const schedule = useScheduleStore()
 const watchStore = useWatchStore()
 const ui = useUiStore()
 
+const ONBOARDED_KEY = 'dt:onboardedWatchedDancers'
+
 const filteredDancers = computed(() => {
   const q = ui.watchSearchQuery.toLowerCase().trim()
   if (!q) return schedule.allDancers
@@ -27,6 +29,18 @@ function toggle(name: string) {
   const added = watchStore.toggleDancer(name)
   ui.showToast(added ? `★ Watching ${name}` : `☆ Removed ${name}`)
 }
+
+function close() {
+  // First-time educational hint: if the user is closing with watched
+  // dancers set and we haven't shown them this yet, tell them where
+  // to find this panel later.
+  const hasOnboarded = localStorage.getItem(ONBOARDED_KEY) === '1'
+  if (!hasOnboarded && watchStore.watchedDancers.length > 0) {
+    localStorage.setItem(ONBOARDED_KEY, '1')
+    ui.showToast('Tip: update anytime via ⚙ Settings → Watched Dancers', 4000)
+  }
+  ui.closeWatchPanel()
+}
 </script>
 
 <template>
@@ -35,7 +49,7 @@ function toggle(name: string) {
       <h2 class="text-lg font-semibold">Watched Dancers</h2>
       <button
         class="p-2 rounded-lg hover:bg-surface-raised transition-colors"
-        @click="ui.closeWatchPanel()"
+        @click="close"
       >
         <X :size="20" />
       </button>

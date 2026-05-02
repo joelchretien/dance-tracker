@@ -27,13 +27,13 @@ export const useUiStore = defineStore('ui', () => {
   // Schedule status
   const scheduleStatus = ref<ScheduleStatus>({ kind: 'not-started' })
 
-  function showToast(msg: string) {
+  function showToast(msg: string, durationMs = 1800) {
     toastMessage.value = msg
     if (toastTimerId.value) clearTimeout(toastTimerId.value)
     toastTimerId.value = setTimeout(() => {
       toastMessage.value = ''
       toastTimerId.value = null
-    }, 1800)
+    }, durationMs)
   }
 
 
