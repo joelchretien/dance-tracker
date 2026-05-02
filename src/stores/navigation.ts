@@ -56,7 +56,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (anchorWallMinutes.value !== null && isAnchorStale()) {
       clearAnchor()
     } else if (anchorWallMinutes.value !== null) {
-      updateLikelyCurrent()
+      updateLikelyCurrent(currentTimeFractionalMinutes())
     }
   }
 
@@ -97,7 +97,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   let selectTimer: ReturnType<typeof setTimeout> | null = null
 
-  /** Select (tap to inspect) a dance. Toggles off if tapping the same one. Auto-deselects after 2 min. */
+  /** Select (tap to inspect) a dance. Toggles off if tapping the same one. Auto-deselects after 30s. */
   function select(i: number) {
     if (selectTimer) clearTimeout(selectTimer)
     selectedIndex.value = selectedIndex.value === i ? null : i
@@ -111,8 +111,9 @@ export const useNavigationStore = defineStore('navigation', () => {
     const target = i ?? selectedIndex.value
     if (target !== null && target !== undefined && target >= 0 && target < schedule.flatEntries.length) {
       markedIndex.value = target
-      anchorWallMinutes.value = currentTimeMinutes()
+      anchorWallMinutes.value = currentTimeFractionalMinutes()
       likelyIndex.value = target // immediately matches manual
+      activeProgress.value = 0
     }
   }
 
@@ -120,7 +121,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   const activeProgress = ref(0)
 
   /** Recompute the likely-current index from the time offset. */
-  function updateLikelyCurrent() {
+  function updateLikelyCurrent(now: number) {
     if (anchorWallMinutes.value === null) return
 
     // Day changed since anchor was set — reset for the new day
@@ -133,12 +134,12 @@ export const useNavigationStore = defineStore('navigation', () => {
       schedule.flatEntries,
       markedIndex.value,
       anchorWallMinutes.value,
-      currentTimeMinutes(),
+      now,
     )
   }
 
   /** Update progress through the active entry. */
-  function updateProgress() {
+  function updateProgress(now: number) {
     if (anchorWallMinutes.value === null) {
       activeProgress.value = 0
       return
@@ -158,7 +159,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     // Wall-clock time this entry started
     const startWall = entryScheduleMinutes + offset
     const duration = getEntryDurationMinutes(schedule.flatEntries, activeIndex.value)
-    const now = currentTimeFractionalMinutes()
     const elapsed = now - startWall
 
     activeProgress.value = Math.max(0, Math.min(1, elapsed / duration))
@@ -166,8 +166,9 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   /** Unified 1-second tick: updates auto-advance, progress, and now-index. */
   function tick() {
-    updateLikelyCurrent()
-    updateProgress()
+    const now = currentTimeFractionalMinutes()
+    updateLikelyCurrent(now)
+    updateProgress(now)
     updateNowIndex()
   }
 
@@ -229,8 +230,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     markedIndex, activeIndex, activeIsLikely, activeProgress,
     selectedIndex, fontSize,
     activeEntry, activeDayIndex, activeTimeOfEntry,
-    initForSchedule, select, markAsCurrent,
-    tick, updateLikelyCurrent,
+    initForSchedule, select, markAsCurrent, tick,
     canIncreaseFontSize, canDecreaseFontSize,
     increaseFontSize, decreaseFontSize, jumpToNow,
     nowIndex, updateNowIndex,
