@@ -151,9 +151,11 @@ function handleJumpToNext() {
       @toggle-watched-dances="handleToggleWatchedDances"
     />
 
-    <!-- Onboarding hint: shown until the user marks any entry as current -->
+    <!-- Onboarding hint: shown after the user has watched dancers but
+         before they've set a current dance. Sequences the onboarding so
+         only one CTA competes for attention at a time. -->
     <div
-      v-if="!navigation.hasAnchor"
+      v-if="!navigation.hasAnchor && watchStore.watchedDancers.length > 0"
       class="mx-2 mt-2 px-4 py-3 rounded-lg border border-indigo-400/40 bg-indigo-500/15 flex items-center gap-2.5"
     >
       <Play :size="18" class="text-indigo-300 fill-indigo-300 shrink-0" />
