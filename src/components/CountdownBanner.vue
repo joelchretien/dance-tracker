@@ -14,6 +14,8 @@ const subtitle = computed(() => watchStore.nextTargetSubtitle)
 const time = computed(() => watchStore.nextTargetTime)
 const timeDiff = computed(() => watchStore.nextTargetTimeDiff)
 const isWatchedAwards = computed(() => watchStore.nextTargetIsWatchedAwards)
+const isCrossDay = computed(() => watchStore.nextTargetIsCrossDay)
+const targetDayLabel = computed(() => watchStore.nextTargetDayLabel)
 
 const show = computed(() => watchStore.watchedDancers.length > 0 && targetEntry.value !== null)
 
@@ -47,7 +49,21 @@ const countdownLabel = computed(() => {
       <div class="text-[13px] font-semibold text-black/45 mt-0.5">Watched Dancers in this block</div>
     </div>
 
-    <!-- Countdown / Up Next -->
+    <!-- Cross-day: don't show a misleading dance count or time-diff. -->
+    <div
+      v-else-if="isCrossDay"
+      class="px-3 py-2.5 rounded-lg border border-gold-400/20 bg-gold-400/10"
+    >
+      <div class="flex items-baseline gap-1.5 flex-wrap">
+        <span class="text-sm text-gold-400 font-semibold">Next watched →</span>
+        <span class="text-sm text-gold-400 font-extrabold">{{ targetTitle }}</span>
+      </div>
+      <div class="text-xs text-gold-400/50 mt-0.5">
+        {{ targetDayLabel }}<span v-if="time"> · {{ time }}</span><span v-if="subtitle && !isWatchedAwards"> · {{ subtitle }}</span>
+      </div>
+    </div>
+
+    <!-- Same-day countdown / Up Next -->
     <div
       v-else
       class="px-3 py-2.5 rounded-lg border border-gold-400/20 bg-gold-400/10"
@@ -74,8 +90,6 @@ const countdownLabel = computed(() => {
           <span v-if="subtitle">{{ subtitle }} · </span>{{ time }}<span v-if="timeDiff"> · {{ timeDiff }}</span>
         </template>
       </div>
-
-      <!-- Line 3: dancer names + tap hint -->
     </div>
   </div>
 </template>

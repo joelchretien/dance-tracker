@@ -83,6 +83,22 @@ export const useWatchStore = defineStore('watch', () => {
     return schedule.flatEntries[nextTargetIndex.value]?.entry ?? null
   })
 
+  /** True when the next watched target is on a different day than the reference position. */
+  const nextTargetIsCrossDay = computed(() => {
+    if (nextTargetIndex.value === null) return false
+    const target = schedule.flatEntries[nextTargetIndex.value]
+    const ref = schedule.flatEntries[referenceIndex.value]
+    if (!target || !ref) return false
+    return target.dayIndex !== ref.dayIndex
+  })
+
+  const nextTargetDayLabel = computed(() => {
+    if (nextTargetIndex.value === null) return ''
+    const target = schedule.flatEntries[nextTargetIndex.value]
+    if (!target) return ''
+    return schedule.days[target.dayIndex]?.label ?? ''
+  })
+
   const nextTargetWatchedDancers = computed<string[]>(() => {
     const entry = nextTargetEntry.value
     if (!entry || entry.type !== 'dance' || !entry.dancers) return []
@@ -188,6 +204,7 @@ export const useWatchStore = defineStore('watch', () => {
     nextTargetIndex, dancesUntilTarget, nextTargetEntry,
     nextTargetWatchedDancers, nextTargetIsWatchedAwards,
     nextTargetStyleType, nextTargetSubtitle, nextTargetTime, nextTargetTimeDiff,
+    nextTargetIsCrossDay, nextTargetDayLabel,
     initForSchedule, toggleDancer, isWatchedEntry, getWatchedDancersForEntry,
     watchedEntryIndices, nearestWatchedToNow,
   }
