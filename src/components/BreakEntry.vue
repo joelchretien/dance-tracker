@@ -46,12 +46,14 @@ const barColor = 'bg-indigo-400/80'
 const thumbColor = 'bg-indigo-400'
 const badgeColor = 'text-indigo-400/80'
 
-const displayTime = computed(() => {
+const hasOffset = computed(() => {
   const offset = props.offsetMinutes
-  if (offset === null || offset === undefined || Math.abs(offset) <= 5) {
-    return props.entry.time
-  }
-  return '~' + predictedTime(props.entry.time, offset)
+  return offset !== null && offset !== undefined && Math.abs(offset) > 5
+})
+
+const displayTime = computed(() => {
+  if (!hasOffset.value) return props.entry.time
+  return '~' + predictedTime(props.entry.time, props.offsetMinutes!)
 })
 
 // Drag state
@@ -120,7 +122,10 @@ function onBarClick(e: MouseEvent) {
     >{{ isLikely ? '~ current' : '▶ current' }}</span>
 
     <div class="flex items-baseline gap-2">
-      <span class="fs-time text-gray-300 shrink-0 w-20">{{ displayTime }}</span>
+      <div class="shrink-0 w-20">
+        <div class="fs-time text-gray-300">{{ displayTime }}</div>
+        <div v-if="hasOffset" class="text-[10px] text-gray-500 leading-tight">{{ entry.time }}</div>
+      </div>
       <span
         class="fs-title font-medium"
         :class="isWatchedAwards ? 'text-gold-400' : 'text-gray-400'"
