@@ -19,6 +19,7 @@ import ToastNotification from '@/components/ToastNotification.vue'
 import CountdownBanner from '@/components/CountdownBanner.vue'
 import WatchedDancersTipModal from '@/components/WatchedDancersTipModal.vue'
 import CurrentDanceTipModal from '@/components/CurrentDanceTipModal.vue'
+import { titleCaseDanceTitle } from '@/lib/title-case'
 
 const props = defineProps<{ scheduleId: string }>()
 
@@ -102,6 +103,65 @@ watch(() => navigation.hasAnchor, (newVal, oldVal) => {
 watch(() => navigation.anchorWallMinutes, () => {
   ui.updateScheduleStatus()
 })
+
+// Browser notifications: fire once per target when it's ~3 dances away,
+// and once when it goes "on now". Per-target Sets prevent re-firing on
+// scrub/jitter. Cross-day targets are skipped (banner already shows
+// future-day info without a count).
+const SOON_THRESHOLD = 3
+const notifiedSoon = new Set<number>()
+const notifiedNow = new Set<number>()
+
+function fireNotification(title: string, body: string) {
+  try {
+    new Notification(title, { body, tag: 'dance-tracker' })
+  } catch {
+    // Notification constructor can throw on iOS Safari outside PWA mode
+  }
+}
+
+watch(
+  () => [
+    watchStore.nextTargetIndex,
+    watchStore.dancesUntilTarget,
+    watchStore.nextTargetStyleType,
+  ] as const,
+  ([targetIdx, dancesUntil, styleType]) => {
+    if (!ui.notificationsEnabled) return
+    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return
+    if (targetIdx === null) return
+    if (watchStore.nextTargetIsCrossDay) return
+
+    const title = watchStore.nextTargetIsWatchedAwards
+      ? 'Watched dancers awards'
+      : titleCaseDanceTitle(watchStore.nextTargetEntry?.title ?? '')
+
+    if (
+      styleType === 'countdown' &&
+      dancesUntil !== null &&
+      dancesUntil <= SOON_THRESHOLD &&
+      dancesUntil > 0 &&
+      !notifiedSoon.has(targetIdx)
+    ) {
+      notifiedSoon.add(targetIdx)
+      const dancers = watchStore.nextTargetWatchedDancers
+      const lead = dancers.length ? `${dancers.join(' & ')} ` : ''
+      fireNotification(
+        `🌟 ${title}`,
+        `${lead}up in ${dancesUntil} ${dancesUntil === 1 ? 'dance' : 'dances'} · ${watchStore.nextTargetTime}`,
+      )
+    }
+
+    if (styleType === 'on-now' && !notifiedNow.has(targetIdx)) {
+      notifiedNow.add(targetIdx)
+      const dancers = watchStore.nextTargetWatchedDancers
+      const body = dancers.length
+        ? `${dancers.join(' & ')} · ${title}`
+        : title
+      fireNotification('🌟 Now dancing', body)
+    }
+  },
+)
 
 function scrollToEntry(index: number, smooth: boolean) {
   const el = document.getElementById(`entry-${index}`)

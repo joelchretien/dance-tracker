@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useLocalStorage } from '@vueuse/core'
 import { useScheduleStore } from './schedule'
 import { useNavigationStore } from './navigation'
 import { classifyScheduleStatus } from '@/lib/schedule-status'
@@ -33,7 +34,8 @@ export const useUiStore = defineStore('ui', () => {
   // First-time educational modal after marking a dance as current
   const currentDanceTipOpen = ref(false)
 
-  // First-time educational modal after marking a dance as current
+  // Browser-notification opt-in. Persisted across sessions.
+  const notificationsEnabled = useLocalStorage<boolean>('dt:notificationsEnabled', false)
 
   function showToast(msg: string, durationMs = 1800) {
     toastMessage.value = msg
@@ -42,6 +44,38 @@ export const useUiStore = defineStore('ui', () => {
       toastMessage.value = ''
       toastTimerId.value = null
     }, durationMs)
+  }
+
+  /**
+   * Toggle notifications on/off. When turning on, requests browser permission
+   * if not already granted. Returns the resulting enabled state.
+   */
+  async function toggleNotifications(): Promise<boolean> {
+    if (!('Notification' in window)) {
+      showToast('Notifications not supported on this device', 3000)
+      return false
+    }
+
+    if (notificationsEnabled.value) {
+      notificationsEnabled.value = false
+      return false
+    }
+
+    if (Notification.permission === 'denied') {
+      showToast('Notifications blocked — enable in browser settings', 4000)
+      return false
+    }
+
+    if (Notification.permission === 'default') {
+      const result = await Notification.requestPermission()
+      if (result !== 'granted') {
+        showToast('Notifications not enabled', 2500)
+        return false
+      }
+    }
+
+    notificationsEnabled.value = true
+    return true
   }
 
 
@@ -125,7 +159,9 @@ export const useUiStore = defineStore('ui', () => {
     scheduleStatus,
     watchedDancersTipOpen,
     currentDanceTipOpen,
+    notificationsEnabled,
     showToast,
+    toggleNotifications,
     openJumpToPanel, closeJumpToPanel,
     openWatchPanel, closeWatchPanel,
     toggleSettingsDropdown, closeSettingsDropdown,
