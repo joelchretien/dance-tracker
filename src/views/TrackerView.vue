@@ -56,18 +56,24 @@ onMounted(async () => {
 
   await nextTick()
   // First-time users (no anchor) land near wall-clock-now. Returning users
-  // land on their last marked/active entry.
+  // land on their last marked/active entry. The "now" target is mode-aware
+  // because filtered lists only render their subset of entries — using
+  // navigation.nowIndex in studio/dancers mode would target an element
+  // that isn't on the page.
   if (!navigation.hasAnchor) {
-    const result = navigation.jumpToNow()
-    if (result !== null) {
-      scrollToEntry(result.index, false)
-    } else {
-      scrollToEntry(navigation.activeIndex, false)
-    }
+    const idx = nowIndexForCurrentMode()
+    scrollToEntry(idx ?? navigation.activeIndex, false)
   } else {
     scrollToEntry(navigation.activeIndex, false)
   }
 })
+
+/** The index closest to wall-clock-now within the currently rendered list. */
+function nowIndexForCurrentMode(): number | null {
+  if (ui.viewMode === 'dancers') return watchStore.nearestWatchedToNow()
+  if (ui.viewMode === 'studio') return watchStore.nearestStudioToNow()
+  return navigation.jumpToNow()?.index ?? null
+}
 
 // Unified 1-second tick: auto-advance, progress bar, now-index
 const { pause } = useIntervalFn(() => {
@@ -112,23 +118,21 @@ function scrollToEntry(index: number, smooth: boolean) {
 }
 
 function handleJumpToNow() {
-  if (ui.viewMode === 'dancers') {
-    const nearest = watchStore.nearestWatchedToNow()
-    if (nearest !== null) {
-      nextTick(() => scrollToEntry(nearest, true))
-    }
-  } else if (ui.viewMode === 'studio') {
-    const nearest = watchStore.nearestStudioToNow()
-    if (nearest !== null) {
-      nextTick(() => scrollToEntry(nearest, true))
-    }
-  } else {
-    const result = navigation.jumpToNow()
-    if (result !== null) {
-      nextTick(() => scrollToEntry(result.index, true))
-    }
+  const idx = nowIndexForCurrentMode()
+  if (idx !== null) {
+    nextTick(() => scrollToEntry(idx, true))
   }
 }
+
+// When the user picks a different filter, jump to the wall-clock-now entry
+// in the new view. nextTick gives the new list a frame to render before
+// we look up its DOM elements.
+watch(() => ui.viewMode, () => {
+  nextTick(() => {
+    const idx = nowIndexForCurrentMode()
+    if (idx !== null) scrollToEntry(idx, true)
+  })
+})
 
 function handlePanelJump(index: number) {
   nextTick(() => scrollToEntry(index, true))
