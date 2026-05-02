@@ -25,8 +25,13 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
     cleanup()
 
     let el: HTMLElement | null = null
-    if (ui.watchedDancesMode) {
+    if (ui.viewMode === 'dancers') {
       const nearest = watchStore.nearestWatchedToNow()
+      if (nearest !== null) {
+        el = document.getElementById(`entry-${nearest}`)
+      }
+    } else if (ui.viewMode === 'studio') {
+      const nearest = watchStore.nearestStudioToNow()
       if (nearest !== null) {
         el = document.getElementById(`entry-${nearest}`)
       }
@@ -55,7 +60,7 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
   }
 
   watch(
-    [() => navigation.nowIndex, () => navigation.markedIndex, () => ui.watchedDancesMode],
+    [() => navigation.nowIndex, () => navigation.markedIndex, () => ui.viewMode],
     () => { requestAnimationFrame(observe) },
     { immediate: true },
   )

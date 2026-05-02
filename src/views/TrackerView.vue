@@ -111,8 +111,13 @@ function scrollToEntry(index: number, smooth: boolean) {
 }
 
 function handleJumpToNow() {
-  if (ui.watchedDancesMode) {
+  if (ui.viewMode === 'dancers') {
     const nearest = watchStore.nearestWatchedToNow()
+    if (nearest !== null) {
+      nextTick(() => scrollToEntry(nearest, true))
+    }
+  } else if (ui.viewMode === 'studio') {
+    const nearest = watchStore.nearestStudioToNow()
     if (nearest !== null) {
       nextTick(() => scrollToEntry(nearest, true))
     }
@@ -124,8 +129,8 @@ function handleJumpToNow() {
   }
 }
 
-function handleToggleWatchedDances() {
-  const msg = ui.toggleMyDancesMode()
+function handleCycleViewMode() {
+  const msg = ui.cycleViewMode()
   ui.showToast(msg)
 }
 
@@ -148,7 +153,7 @@ function handleJumpToNext() {
     <TopBar
       :title="schedule.meta?.name ?? ''"
       :show-back="multipleSchedules"
-      @toggle-watched-dances="handleToggleWatchedDances"
+      @cycle-view-mode="handleCycleViewMode"
     />
 
     <!-- Onboarding hint: shown after the user has watched dancers but
@@ -166,7 +171,7 @@ function handleJumpToNext() {
     </div>
 
     <div ref="scrollContainer" class="flex-1 overflow-y-auto pb-20">
-      <WatchedDancesList v-if="ui.watchedDancesMode" />
+      <WatchedDancesList v-if="ui.viewMode !== 'all'" />
       <ScheduleList v-else />
     </div>
 

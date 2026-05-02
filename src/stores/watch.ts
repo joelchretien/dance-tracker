@@ -181,9 +181,28 @@ export const useWatchStore = defineStore('watch', () => {
     return indices
   })
 
-  /** Find the watched entry index closest to the current wall-clock time (today only) */
-  function nearestWatchedToNow(): number | null {
-    const indices = watchedEntryIndices.value
+  /**
+   * Sorted global indices of every dance from a watched studio (i.e. studios
+   * that have at least one watched dancer), plus watched awards blocks.
+   * Naturally a superset of watchedEntryIndices.
+   */
+  const studioEntryIndices = computed<number[]>(() => {
+    const indices: number[] = []
+    const studios = watchedStudios.value
+    if (studios.size === 0) return indices
+    for (const item of schedule.flatEntries) {
+      const e = item.entry
+      if (e.type === 'dance' && e.studio && studios.has(e.studio)) {
+        indices.push(item.globalIndex)
+      } else if (e.type === 'awards' && watchedAwardsSet.value.has(item.globalIndex)) {
+        indices.push(item.globalIndex)
+      }
+    }
+    return indices
+  })
+
+  /** Find the nearest entry index from a given list to wall-clock now (today only) */
+  function nearestIndexToNow(indices: number[]): number | null {
     if (indices.length === 0) return null
     const dayIdx = todayDayIndex(schedule.dayDates)
     const todayIndices = indices.filter(gi => schedule.flatEntries[gi].dayIndex === dayIdx)
@@ -198,6 +217,16 @@ export const useWatchStore = defineStore('watch', () => {
     return best
   }
 
+  /** Find the watched entry index closest to the current wall-clock time (today only) */
+  function nearestWatchedToNow(): number | null {
+    return nearestIndexToNow(watchedEntryIndices.value)
+  }
+
+  /** Find the watched-studio entry index closest to the current wall-clock time (today only) */
+  function nearestStudioToNow(): number | null {
+    return nearestIndexToNow(studioEntryIndices.value)
+  }
+
   return {
     watchedDancers, watchedDancerSet, watchedStudios,
     awardsBlocks, watchedAwardsSet,
@@ -207,5 +236,6 @@ export const useWatchStore = defineStore('watch', () => {
     nextTargetIsCrossDay, nextTargetDayLabel,
     initForSchedule, toggleDancer, isWatchedEntry, getWatchedDancersForEntry,
     watchedEntryIndices, nearestWatchedToNow,
+    studioEntryIndices, nearestStudioToNow,
   }
 })

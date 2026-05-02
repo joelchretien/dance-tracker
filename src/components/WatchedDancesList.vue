@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
+import { useUiStore } from '@/stores/ui'
 import { parseTime, formatTimeDiff } from '@/lib/time'
 import { countDancesUntil } from '@/lib/countdown'
 import { titleCaseDanceTitle } from '@/lib/title-case'
@@ -14,6 +15,14 @@ import DayHeader from './DayHeader.vue'
 const schedule = useScheduleStore()
 const navigation = useNavigationStore()
 const watchStore = useWatchStore()
+const ui = useUiStore()
+
+// In studio mode show every dance from any watched studio (a superset of
+// watched-dancer entries). In dancers mode show only the entries with a
+// watched dancer in them.
+const filteredIndices = computed(() =>
+  ui.viewMode === 'studio' ? watchStore.studioEntryIndices : watchStore.watchedEntryIndices,
+)
 
 interface ListItem {
   kind: 'entry' | 'gap' | 'current-marker' | 'day-header'
@@ -31,7 +40,7 @@ interface ListItem {
 }
 
 const listItems = computed<ListItem[]>(() => {
-  const indices = watchStore.watchedEntryIndices
+  const indices = filteredIndices.value
   if (indices.length === 0) return []
 
   const items: ListItem[] = []
@@ -60,7 +69,7 @@ const listItems = computed<ListItem[]>(() => {
 
       // Check if the marked dance falls between previous and current
       const markedBetween = markedIdx > prevGi && markedIdx < gi
-        && !watchStore.watchedEntryIndices.includes(markedIdx)
+        && !filteredIndices.value.includes(markedIdx)
 
       if (markedBetween) {
         const markedItem = schedule.flatEntries[markedIdx]
@@ -79,7 +88,7 @@ const listItems = computed<ListItem[]>(() => {
     } else {
       // Before the first entry, check if marked is before it
       const markedBefore = markedIdx < gi
-        && !watchStore.watchedEntryIndices.includes(markedIdx)
+        && !filteredIndices.value.includes(markedIdx)
       if (markedBefore) {
         const markedItem = schedule.flatEntries[markedIdx]
         const me = markedItem?.entry
@@ -99,7 +108,7 @@ const listItems = computed<ListItem[]>(() => {
   if (indices.length > 0) {
     const lastGi = indices[indices.length - 1]
     const markedAfter = markedIdx > lastGi
-      && !watchStore.watchedEntryIndices.includes(markedIdx)
+      && !filteredIndices.value.includes(markedIdx)
     if (markedAfter) {
       const markedItem = schedule.flatEntries[markedIdx]
       const me = markedItem?.entry
@@ -135,8 +144,8 @@ function handleSeek(progress: number) {
       <div class="text-xs mt-1">Open Settings to add dancers</div>
     </div>
 
-    <div v-else-if="watchStore.watchedEntryIndices.length === 0" class="text-center text-gray-500 py-12 px-4">
-      <div class="text-sm">No dances found for watched dancers</div>
+    <div v-else-if="filteredIndices.length === 0" class="text-center text-gray-500 py-12 px-4">
+      <div class="text-sm">{{ ui.viewMode === 'studio' ? 'No dances found for watched studios' : 'No dances found for watched dancers' }}</div>
     </div>
 
     <template v-else v-for="(li, i) in listItems" :key="`${li.kind}-${li.globalIndex ?? i}`">

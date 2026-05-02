@@ -1,10 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useLocalStorage } from '@vueuse/core'
 import { useScheduleStore } from './schedule'
 import { useNavigationStore } from './navigation'
 import { classifyScheduleStatus } from '@/lib/schedule-status'
 import { currentTimeMinutes, localDateString, parseTime } from '@/lib/time'
 import type { ScheduleStatus } from '@/types/schedule'
+
+export type ViewMode = 'all' | 'studio' | 'dancers'
 
 export const useUiStore = defineStore('ui', () => {
   // Panels
@@ -14,8 +17,8 @@ export const useUiStore = defineStore('ui', () => {
   const watchSearchQuery = ref('')
   const settingsDropdownOpen = ref(false)
 
-  // View mode
-  const watchedDancesMode = ref(false)
+  // View mode — cycles between all dances, watched-studio dances, watched-dancer dances
+  const viewMode = useLocalStorage<ViewMode>('dt:viewMode', 'all')
 
   // Toast
   const toastMessage = ref('')
@@ -72,9 +75,17 @@ export const useUiStore = defineStore('ui', () => {
     settingsDropdownOpen.value = false
   }
 
-  function toggleMyDancesMode(): string {
-    watchedDancesMode.value = !watchedDancesMode.value
-    return watchedDancesMode.value ? '★ Watched Dances' : '☰ All Dances'
+  function cycleViewMode(): string {
+    if (viewMode.value === 'all') {
+      viewMode.value = 'studio'
+      return '◐ Watched Studios'
+    }
+    if (viewMode.value === 'studio') {
+      viewMode.value = 'dancers'
+      return '★ Watched Dancers'
+    }
+    viewMode.value = 'all'
+    return '☰ All Dances'
   }
 
   function setSnapback(visible: boolean) {
@@ -117,7 +128,7 @@ export const useUiStore = defineStore('ui', () => {
     jumpToPanelOpen, jumpToQuery,
     watchPanelOpen, watchSearchQuery,
     settingsDropdownOpen,
-    watchedDancesMode,
+    viewMode,
     toastMessage, toastTimerId,
     snapbackVisible,
     scheduleStatus,
@@ -127,7 +138,7 @@ export const useUiStore = defineStore('ui', () => {
     openJumpToPanel, closeJumpToPanel,
     openWatchPanel, closeWatchPanel,
     toggleSettingsDropdown, closeSettingsDropdown,
-    toggleMyDancesMode,
+    cycleViewMode,
     setSnapback, updateScheduleStatus,
   }
 })
