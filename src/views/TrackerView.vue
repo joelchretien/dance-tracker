@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, ref, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useIntervalFn } from '@vueuse/core'
+import { Star } from 'lucide-vue-next'
 import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
@@ -124,8 +125,23 @@ function handleJumpToNext() {
       <ScheduleList v-else />
     </div>
 
-    <div v-if="watchStore.watchedDancers.length > 0 && watchStore.nextTargetEntry" id="bottom-bar" class="fixed bottom-0 left-0 right-0 z-20 px-2 pt-2 pb-2 bg-surface border-t border-gray-700 shadow-[0_-8px_24px_rgba(0,0,0,0.6)]" @click="handleJumpToNext">
-      <CountdownBanner />
+    <div v-if="watchStore.watchedDancers.length === 0 || watchStore.nextTargetEntry" id="bottom-bar" class="fixed bottom-0 left-0 right-0 z-20 px-2 pt-2 pb-2 bg-surface border-t border-gray-700 shadow-[0_-8px_24px_rgba(0,0,0,0.6)]">
+      <button
+        v-if="watchStore.watchedDancers.length === 0"
+        class="w-full px-4 py-3 rounded-lg border border-gold-400/30 bg-gold-400/10 active:bg-gold-400/15 transition-colors text-left"
+        @click="ui.openWatchPanel()"
+      >
+        <div class="flex items-center gap-2.5">
+          <Star :size="18" class="text-gold-400 fill-gold-400 shrink-0" />
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-gold-400">Add Watched Dancers</div>
+            <div class="text-xs text-gold-400/60 mt-0.5">Tap to highlight specific dancers and get a countdown to their next dance</div>
+          </div>
+        </div>
+      </button>
+      <div v-else @click="handleJumpToNext">
+        <CountdownBanner />
+      </div>
       <div style="height: env(safe-area-inset-bottom, 0px)" class="bg-surface"></div>
     </div>
 
