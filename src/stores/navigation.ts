@@ -101,7 +101,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (selectTimer) clearTimeout(selectTimer)
     selectedIndex.value = selectedIndex.value === i ? null : i
     if (selectedIndex.value !== null) {
-      selectTimer = setTimeout(() => { selectedIndex.value = null }, 120_000)
+      selectTimer = setTimeout(() => { selectedIndex.value = null }, 30_000)
     }
   }
 
