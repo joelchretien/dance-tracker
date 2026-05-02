@@ -122,7 +122,7 @@ function onBarClick(e: MouseEvent) {
     </div>
 
     <template v-if="isSelected">
-      <div v-if="!isMarked || isLikely" class="flex justify-end mt-2">
+      <div v-if="!isMarked" class="flex justify-end mt-2">
         <button
           class="text-xs font-medium text-indigo-300 px-3 py-1.5 rounded-md border border-indigo-400/30 bg-indigo-500/10 active:bg-indigo-500/20 transition-colors"
           @click.stop="emit('mark-current')"
