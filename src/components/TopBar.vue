@@ -6,9 +6,6 @@ import { useUiStore } from '@/stores/ui'
 import ScheduleStatus from './ScheduleStatus.vue'
 
 defineProps<{ title: string; showBack: boolean }>()
-const emit = defineEmits<{
-  'cycle-view-mode': []
-}>()
 
 const router = useRouter()
 const ui = useUiStore()
@@ -28,12 +25,6 @@ const filterIconClass = computed(() => {
 const filterIconFill = computed(() =>
   ui.viewMode === 'dancers' ? 'currentColor' : 'none'
 )
-
-const filterTitle = computed(() => {
-  if (ui.viewMode === 'dancers') return 'Showing watched dancers — tap to show all'
-  if (ui.viewMode === 'studio') return 'Showing watched studios — tap to filter to dancers'
-  return 'Showing all dances — tap to filter to watched studios'
-})
 </script>
 
 <template>
@@ -62,8 +53,8 @@ const filterTitle = computed(() => {
         <button
           class="p-2 rounded-lg transition-colors"
           :class="filterButtonClass"
-          :title="filterTitle" aria-label="Cycle filter mode"
-          @click="emit('cycle-view-mode')"
+          title="View mode" aria-label="View mode"
+          @click="ui.toggleViewModeDropdown()"
         >
           <ListFilter :size="20" :class="filterIconClass" :fill="filterIconFill" />
         </button>

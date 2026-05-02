@@ -13,6 +13,7 @@ import ScheduleList from '@/components/ScheduleList.vue'
 import WatchedDancesList from '@/components/WatchedDancesList.vue'
 import SnapbackPill from '@/components/SnapbackPill.vue'
 import SettingsDropdown from '@/components/SettingsDropdown.vue'
+import ViewModeDropdown from '@/components/ViewModeDropdown.vue'
 import WatchPanel from '@/components/WatchPanel.vue'
 import JumpToPanel from '@/components/JumpToPanel.vue'
 import ToastNotification from '@/components/ToastNotification.vue'
@@ -129,11 +130,6 @@ function handleJumpToNow() {
   }
 }
 
-function handleCycleViewMode() {
-  const msg = ui.cycleViewMode()
-  ui.showToast(msg)
-}
-
 function handlePanelJump(index: number) {
   nextTick(() => scrollToEntry(index, true))
 }
@@ -153,7 +149,6 @@ function handleJumpToNext() {
     <TopBar
       :title="schedule.meta?.name ?? ''"
       :show-back="multipleSchedules"
-      @cycle-view-mode="handleCycleViewMode"
     />
 
     <!-- Onboarding hint: shown after the user has watched dancers but
@@ -201,6 +196,7 @@ function handleJumpToNext() {
     />
 
     <SettingsDropdown v-if="ui.settingsDropdownOpen" />
+    <ViewModeDropdown v-if="ui.viewModeDropdownOpen" />
     <WatchPanel v-if="ui.watchPanelOpen" />
     <JumpToPanel v-if="ui.jumpToPanelOpen" @jump-to="handlePanelJump" />
     <ToastNotification v-if="ui.toastMessage" :message="ui.toastMessage" />

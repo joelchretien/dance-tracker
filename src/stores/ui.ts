@@ -16,8 +16,9 @@ export const useUiStore = defineStore('ui', () => {
   const watchPanelOpen = ref(false)
   const watchSearchQuery = ref('')
   const settingsDropdownOpen = ref(false)
+  const viewModeDropdownOpen = ref(false)
 
-  // View mode — cycles between all dances, watched-studio dances, watched-dancer dances
+  // View mode — All Dances, Watched Studio, Watched Dancers
   const viewMode = useLocalStorage<ViewMode>('dt:viewMode', 'all')
 
   // Toast
@@ -69,23 +70,25 @@ export const useUiStore = defineStore('ui', () => {
 
   function toggleSettingsDropdown() {
     settingsDropdownOpen.value = !settingsDropdownOpen.value
+    if (settingsDropdownOpen.value) viewModeDropdownOpen.value = false
   }
 
   function closeSettingsDropdown() {
     settingsDropdownOpen.value = false
   }
 
-  function cycleViewMode(): string {
-    if (viewMode.value === 'all') {
-      viewMode.value = 'studio'
-      return '◐ Watched Studios'
-    }
-    if (viewMode.value === 'studio') {
-      viewMode.value = 'dancers'
-      return '★ Watched Dancers'
-    }
-    viewMode.value = 'all'
-    return '☰ All Dances'
+  function toggleViewModeDropdown() {
+    viewModeDropdownOpen.value = !viewModeDropdownOpen.value
+    if (viewModeDropdownOpen.value) settingsDropdownOpen.value = false
+  }
+
+  function closeViewModeDropdown() {
+    viewModeDropdownOpen.value = false
+  }
+
+  function setViewMode(mode: ViewMode) {
+    viewMode.value = mode
+    viewModeDropdownOpen.value = false
   }
 
   function setSnapback(visible: boolean) {
@@ -128,6 +131,7 @@ export const useUiStore = defineStore('ui', () => {
     jumpToPanelOpen, jumpToQuery,
     watchPanelOpen, watchSearchQuery,
     settingsDropdownOpen,
+    viewModeDropdownOpen,
     viewMode,
     toastMessage, toastTimerId,
     snapbackVisible,
@@ -138,7 +142,7 @@ export const useUiStore = defineStore('ui', () => {
     openJumpToPanel, closeJumpToPanel,
     openWatchPanel, closeWatchPanel,
     toggleSettingsDropdown, closeSettingsDropdown,
-    cycleViewMode,
+    toggleViewModeDropdown, closeViewModeDropdown, setViewMode,
     setSnapback, updateScheduleStatus,
   }
 })
