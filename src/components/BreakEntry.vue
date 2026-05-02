@@ -97,14 +97,14 @@ function onBarClick(e: MouseEvent) {
   <div
     :id="`entry-${globalIndex}`"
     class="mx-2 my-0.5 rounded-lg cursor-pointer transition-colors border relative"
-    :class="[borderClass, bgClass, isMarked && isSelected ? 'px-3 pt-5 pb-5' : isMarked ? 'px-3 pt-5 pb-2' : 'px-3 py-2']"
+    :class="[borderClass, bgClass, isMarked ? 'px-3 pt-5 pb-2' : 'px-3 py-2']"
     :style="outlineStyle"
     @click="emit('select')"
   >
     <span
       v-if="isMarked"
       class="absolute top-1.5 right-2 text-[9px] font-bold tracking-wider text-indigo-400/70 uppercase"
-    >▶ {{ isLikely ? 'likely current' : 'current' }}</span>
+    >{{ isLikely ? '~ current' : '▶ current' }}</span>
 
     <div class="flex items-baseline gap-2">
       <span class="fs-time text-gray-300 shrink-0 w-20">{{ entry.time }}</span>
@@ -130,12 +130,12 @@ function onBarClick(e: MouseEvent) {
       </div>
     </template>
 
-    <!-- Progress bar: seekable when selected + marked, passive otherwise -->
+    <!-- Progress bar: dedicated row inside the entry. Seekable when selected. -->
     <div
-      v-if="isMarked && (progress > 0 || seekable)"
+      v-if="isMarked"
       ref="barRef"
-      class="absolute bottom-0 left-0 right-0 rounded-b-lg transition-[height] duration-200"
-      :class="seekable ? 'h-3 cursor-grab' : 'h-[3px]'"
+      class="relative h-1.5 mt-3 mb-1 rounded-full bg-white/[0.06]"
+      :class="seekable ? 'cursor-grab' : ''"
       @click.stop="onBarClick"
       @touchstart.prevent="onDragStart"
       @touchmove.prevent="onDragMove"
@@ -145,14 +145,11 @@ function onBarClick(e: MouseEvent) {
       @mouseup="onDragEnd"
       @mouseleave="isDragging && onDragEnd($event)"
     >
-      <div class="absolute inset-0 overflow-hidden rounded-b-lg">
-        <div v-if="seekable" class="absolute inset-0 bg-white/[0.06]" />
-        <div
-          class="h-full"
-          :class="[barColor, isDragging ? '' : 'transition-[width] duration-1000 ease-linear']"
-          :style="{ width: (displayProgress * 100) + '%' }"
-        />
-      </div>
+      <div
+        class="absolute inset-y-0 left-0 rounded-full"
+        :class="[barColor, isDragging ? '' : 'transition-[width] duration-1000 ease-linear']"
+        :style="{ width: (displayProgress * 100) + '%' }"
+      />
 
       <div
         v-if="seekable"
