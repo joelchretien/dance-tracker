@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Star, Minus, Plus } from 'lucide-vue-next'
+import { Star, Minus, Plus, Trash2 } from 'lucide-vue-next'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
@@ -24,6 +24,24 @@ function handleDecrease() {
 function handleIncrease() {
   navigation.increaseFontSize()
   ui.showToast(`Text: ${FS_LABELS[navigation.fontSize]}`)
+}
+
+function handleReset() {
+  const ok = window.confirm(
+    'Reset all data?\n\nThis will clear your watched dancers, current dance position, font size, and any other saved settings. The schedule itself is not affected.'
+  )
+  if (!ok) return
+
+  // Remove all keys with our app prefix
+  const keysToRemove: string[] = []
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i)
+    if (k && k.startsWith('dt:')) keysToRemove.push(k)
+  }
+  for (const k of keysToRemove) localStorage.removeItem(k)
+
+  // Reload so Pinia stores re-init from defaults
+  window.location.reload()
 }
 </script>
 
@@ -66,6 +84,17 @@ function handleIncrease() {
       <span v-if="watchStore.watchedDancers.length > 0" class="text-xs text-gray-500 ml-auto">
         {{ watchStore.watchedDancers.length }}
       </span>
+    </button>
+
+    <div class="border-t border-gray-700"></div>
+
+    <!-- Reset data -->
+    <button
+      class="w-full px-3 py-2.5 flex items-center gap-2.5 text-left active:bg-red-500/20 transition-colors"
+      @click="handleReset"
+    >
+      <Trash2 :size="16" class="text-red-400" />
+      <span class="text-sm text-red-400">Reset all data</span>
     </button>
 
     <div class="border-t border-gray-700"></div>
