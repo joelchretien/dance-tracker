@@ -17,8 +17,9 @@ const FS_LABELS: Record<string, string> = {
   large: 'Large',
 }
 
+const notificationsSupported = typeof window !== 'undefined' && 'Notification' in window
+
 const notificationsLabel = computed(() => {
-  if (typeof Notification === 'undefined') return 'Not supported'
   if (Notification.permission === 'denied') return 'Blocked'
   return ui.notificationsEnabled ? 'On' : 'Off'
 })
@@ -99,21 +100,23 @@ async function handleToggleNotifications() {
       </span>
     </button>
 
-    <div class="border-t border-gray-700"></div>
+    <template v-if="notificationsSupported">
+      <div class="border-t border-gray-700"></div>
 
-    <!-- Notifications -->
-    <button
-      class="w-full px-3 py-2.5 flex items-center gap-2.5 text-left active:bg-surface-overlay transition-colors"
-      @click="handleToggleNotifications"
-    >
-      <component
-        :is="ui.notificationsEnabled ? Bell : BellOff"
-        :size="16"
-        :class="ui.notificationsEnabled ? 'text-indigo-300' : 'text-gray-400'"
-      />
-      <span class="text-sm text-gray-200">Notifications</span>
-      <span class="text-xs text-gray-500 ml-auto">{{ notificationsLabel }}</span>
-    </button>
+      <!-- Notifications -->
+      <button
+        class="w-full px-3 py-2.5 flex items-center gap-2.5 text-left active:bg-surface-overlay transition-colors"
+        @click="handleToggleNotifications"
+      >
+        <component
+          :is="ui.notificationsEnabled ? Bell : BellOff"
+          :size="16"
+          :class="ui.notificationsEnabled ? 'text-indigo-300' : 'text-gray-400'"
+        />
+        <span class="text-sm text-gray-200">Notifications</span>
+        <span class="text-xs text-gray-500 ml-auto">{{ notificationsLabel }}</span>
+      </button>
+    </template>
 
     <div class="border-t border-gray-700"></div>
 
