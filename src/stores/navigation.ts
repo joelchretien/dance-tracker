@@ -206,6 +206,16 @@ export const useNavigationStore = defineStore('navigation', () => {
   // Has the user set a current dance yet? (used by onboarding hint)
   const hasAnchor = computed(() => anchorWallMinutes.value !== null)
 
+  // Offset between wall clock and schedule time, in minutes, when an anchor
+  // is set. Positive = competition is running behind schedule. null = no
+  // anchor, no inferred offset.
+  const scheduleOffsetMinutes = computed<number | null>(() => {
+    if (anchorWallMinutes.value === null) return null
+    const sched = markedTimeOfEntry.value
+    if (sched < 0) return null
+    return anchorWallMinutes.value - sched
+  })
+
   const FS_ORDER: FontSize[] = ['default', 'medium', 'large']
 
   const canIncreaseFontSize = computed(() => {
@@ -262,6 +272,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   return {
     markedIndex, activeIndex, activeIsLikely, activeProgress, hasAnchor,
+    scheduleOffsetMinutes,
     anchorWallMinutes,
     selectedIndex, fontSize,
     activeEntry, activeDayIndex, activeTimeOfEntry, markedTimeOfEntry,

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import type { DanceEntry as DanceEntryType } from '@/types/schedule'
 import { titleCaseDanceTitle } from '@/lib/title-case'
+import { predictedTime } from '@/lib/predicted-time'
 import DancerBadge from './DancerBadge.vue'
 import DanceDetails from './DanceDetails.vue'
 
@@ -15,6 +16,7 @@ const props = defineProps<{
   watchedDancers: string[]
   sameStudio: boolean
   progress: number
+  offsetMinutes?: number | null
 }>()
 
 const emit = defineEmits<{
@@ -50,6 +52,17 @@ const seekable = computed(() => props.isMarked && props.isSelected)
 const barColor = 'bg-indigo-400/80'
 const thumbColor = 'bg-indigo-400'
 const badgeColor = 'text-indigo-400/80'
+
+// Show predicted wall-clock time when there's a meaningful offset.
+// Below the on-schedule threshold (5 min), the prediction equals the
+// scheduled time within rounding so it's noise.
+const displayTime = computed(() => {
+  const offset = props.offsetMinutes
+  if (offset === null || offset === undefined || Math.abs(offset) <= 5) {
+    return props.entry.time
+  }
+  return '~' + predictedTime(props.entry.time, offset)
+})
 
 // Drag state
 const barRef = ref<HTMLElement | null>(null)
@@ -119,7 +132,7 @@ function onBarClick(e: MouseEvent) {
     >{{ isLikely ? '~ current' : '▶ current' }}</span>
 
     <div class="flex items-baseline gap-2">
-      <span class="fs-time text-gray-300 shrink-0 w-20">{{ entry.time }}</span>
+      <span class="fs-time text-gray-300 shrink-0 w-20">{{ displayTime }}</span>
       <span class="fs-title font-medium flex-1" :class="[isWatched ? 'text-gold-400' : '', isSelected ? '' : 'truncate']">
         {{ titleCaseDanceTitle(entry.title) }}
       </span>

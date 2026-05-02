@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import type { BreakEntry as BreakEntryType, AwardsEntry } from '@/types/schedule'
 import { titleCaseDanceTitle } from '@/lib/title-case'
+import { predictedTime } from '@/lib/predicted-time'
 
 const props = defineProps<{
   entry: BreakEntryType | AwardsEntry
@@ -11,6 +12,7 @@ const props = defineProps<{
   isSelected: boolean
   isWatchedAwards: boolean
   progress: number
+  offsetMinutes?: number | null
 }>()
 
 const emit = defineEmits<{
@@ -43,6 +45,14 @@ const seekable = computed(() => props.isMarked && props.isSelected)
 const barColor = 'bg-indigo-400/80'
 const thumbColor = 'bg-indigo-400'
 const badgeColor = 'text-indigo-400/80'
+
+const displayTime = computed(() => {
+  const offset = props.offsetMinutes
+  if (offset === null || offset === undefined || Math.abs(offset) <= 5) {
+    return props.entry.time
+  }
+  return '~' + predictedTime(props.entry.time, offset)
+})
 
 // Drag state
 const barRef = ref<HTMLElement | null>(null)
@@ -110,7 +120,7 @@ function onBarClick(e: MouseEvent) {
     >{{ isLikely ? '~ current' : '▶ current' }}</span>
 
     <div class="flex items-baseline gap-2">
-      <span class="fs-time text-gray-300 shrink-0 w-20">{{ entry.time }}</span>
+      <span class="fs-time text-gray-300 shrink-0 w-20">{{ displayTime }}</span>
       <span
         class="fs-title font-medium"
         :class="isWatchedAwards ? 'text-gold-400' : 'text-gray-400'"
