@@ -97,7 +97,7 @@ function onBarClick(e: MouseEvent) {
   <div
     :id="`entry-${globalIndex}`"
     class="mx-2 my-0.5 rounded-lg cursor-pointer transition-colors border relative"
-    :class="[borderClass, bgClass, isMarked ? 'px-3 pt-5 pb-2' : 'px-3 py-2']"
+    :class="[borderClass, bgClass, isMarked && isSelected ? 'px-3 pt-5 pb-5' : isMarked ? 'px-3 pt-5 pb-2' : 'px-3 py-2']"
     :style="outlineStyle"
     @click="emit('select')"
   >
