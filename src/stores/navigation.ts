@@ -94,9 +94,15 @@ export const useNavigationStore = defineStore('navigation', () => {
     return parseTime(entry.time)
   })
 
-  /** Select (tap to inspect) a dance. Toggles off if tapping the same one. */
+  let selectTimer: ReturnType<typeof setTimeout> | null = null
+
+  /** Select (tap to inspect) a dance. Toggles off if tapping the same one. Auto-deselects after 2 min. */
   function select(i: number) {
+    if (selectTimer) clearTimeout(selectTimer)
     selectedIndex.value = selectedIndex.value === i ? null : i
+    if (selectedIndex.value !== null) {
+      selectTimer = setTimeout(() => { selectedIndex.value = null }, 120_000)
+    }
   }
 
   /** Manually mark a dance as current. Records anchor for auto-advance. */
