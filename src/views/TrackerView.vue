@@ -85,13 +85,16 @@ const CURRENT_DANCE_ONBOARDED_KEY = 'dt:onboardedCurrentDance'
 watch(() => navigation.markedIndex, () => {
   ui.updateScheduleStatus()
   nextTick(() => scrollToEntry(navigation.activeIndex, true))
+})
 
-  // First-time educational modal. Watchers don't fire on init, so this
-  // only triggers on a real user action (mark or scrub-with-different-active).
-  if (localStorage.getItem(CURRENT_DANCE_ONBOARDED_KEY) !== '1') {
-    localStorage.setItem(CURRENT_DANCE_ONBOARDED_KEY, '1')
-    ui.currentDanceTipOpen = true
-  }
+// First-time educational modal: fires when the anchor goes from "not set"
+// to "set" — the moment the user has marked any dance. Watching markedIndex
+// alone misses the case where the user marks entry 0 (no index change).
+watch(() => navigation.hasAnchor, (newVal, oldVal) => {
+  if (!newVal || oldVal) return
+  if (localStorage.getItem(CURRENT_DANCE_ONBOARDED_KEY) === '1') return
+  localStorage.setItem(CURRENT_DANCE_ONBOARDED_KEY, '1')
+  ui.currentDanceTipOpen = true
 })
 
 // Update schedule status whenever the anchor offset changes (e.g. via scrub).

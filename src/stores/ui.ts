@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useScheduleStore } from './schedule'
 import { useNavigationStore } from './navigation'
 import { classifyScheduleStatus } from '@/lib/schedule-status'
-import { currentTimeMinutes, localDateString } from '@/lib/time'
+import { currentTimeMinutes, localDateString, parseTime } from '@/lib/time'
 import type { ScheduleStatus } from '@/types/schedule'
 
 export const useUiStore = defineStore('ui', () => {
@@ -89,8 +89,8 @@ export const useUiStore = defineStore('ui', () => {
 
     // When the user has anchored a current dance, the schedule status reflects
     // the OFFSET they established (and that scrubbing changes). When no anchor
-    // is set, fall back to comparing the active entry's scheduled time to wall
-    // clock now.
+    // is set, fall back to comparing today's near-now entry to wall clock —
+    // not the marked default (entry 0), which would be on the wrong day.
     let entryTime: number
     let now: number
     let entryDayIndex: number
@@ -100,9 +100,11 @@ export const useUiStore = defineStore('ui', () => {
       now = nav.anchorWallMinutes
       entryDayIndex = schedule.flatEntries[nav.markedIndex]?.dayIndex ?? 0
     } else {
-      entryTime = nav.activeTimeOfEntry
+      const refIdx = nav.nowIndex ?? nav.activeIndex
+      const refEntry = schedule.flatEntries[refIdx]
+      entryTime = refEntry ? parseTime(refEntry.entry.time) : -1
+      entryDayIndex = refEntry?.dayIndex ?? 0
       now = currentTimeMinutes()
-      entryDayIndex = nav.activeDayIndex
     }
 
     const entryDate = schedule.days[entryDayIndex]?.date
