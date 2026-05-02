@@ -16,6 +16,7 @@ import SettingsDropdown from '@/components/SettingsDropdown.vue'
 import WatchPanel from '@/components/WatchPanel.vue'
 import JumpToPanel from '@/components/JumpToPanel.vue'
 import ToastNotification from '@/components/ToastNotification.vue'
+import CountdownBanner from '@/components/CountdownBanner.vue'
 
 const props = defineProps<{ scheduleId: string }>()
 
@@ -101,6 +102,12 @@ function handleToggleWatchedDances() {
 function handlePanelJump(index: number) {
   nextTick(() => scrollToEntry(index, true))
 }
+
+function handleJumpToNext() {
+  if (watchStore.nextTargetIndex !== null) {
+    scrollToEntry(watchStore.nextTargetIndex, true)
+  }
+}
 </script>
 
 <template>
@@ -118,6 +125,11 @@ function handlePanelJump(index: number) {
     <div ref="scrollContainer" class="flex-1 overflow-y-auto pb-20">
       <WatchedDancesList v-if="ui.watchedDancesMode" />
       <ScheduleList v-else />
+    </div>
+
+    <div v-if="watchStore.watchedDancers.length > 0 && watchStore.nextTargetEntry" id="bottom-bar" class="fixed bottom-0 left-0 right-0 z-20 px-2 pt-2 pb-2 bg-surface border-t border-gray-700 shadow-[0_-8px_24px_rgba(0,0,0,0.6)]" @click="handleJumpToNext">
+      <CountdownBanner />
+      <div style="height: env(safe-area-inset-bottom, 0px)" class="bg-surface"></div>
     </div>
 
     <SnapbackPill
