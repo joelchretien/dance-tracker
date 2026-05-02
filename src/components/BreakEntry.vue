@@ -135,7 +135,7 @@ function onBarClick(e: MouseEvent) {
         {{ titleCaseDanceTitle(entry.title) }}
       </span>
     </div>
-    <div v-if="isWatchedAwards && watchedDancers && watchedDancers.length" class="flex flex-wrap gap-1 mt-1 ml-[5.5rem]">
+    <div v-if="isWatchedAwards && watchedDancers && watchedDancers.length" class="flex flex-wrap gap-1 mt-1">
       <DancerBadge v-for="name in watchedDancers" :key="name" :name="name" />
     </div>
 
