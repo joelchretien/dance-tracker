@@ -84,6 +84,12 @@ watch(() => navigation.markedIndex, () => {
   nextTick(() => scrollToEntry(navigation.activeIndex, true))
 })
 
+// Update schedule status whenever the anchor offset changes (e.g. via scrub).
+// markedIndex often stays the same when scrubbing, so the watcher above misses it.
+watch(() => navigation.anchorWallMinutes, () => {
+  ui.updateScheduleStatus()
+})
+
 function scrollToEntry(index: number, smooth: boolean) {
   const el = document.getElementById(`entry-${index}`)
   if (el) {

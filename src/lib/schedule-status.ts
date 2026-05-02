@@ -20,8 +20,8 @@ export function classifyScheduleStatus(
 
   const diff = nowMinutes - entryTimeMinutes // positive = behind schedule
 
-  if (diff < -5) return { kind: 'ahead', minutes: Math.abs(diff) }
+  if (diff < -5) return { kind: 'ahead', minutes: Math.round(Math.abs(diff)) }
   if (diff <= 5) return { kind: 'on-schedule' }
-  if (diff <= 30) return { kind: 'behind', minutes: diff }
-  return { kind: 'way-behind', minutes: diff }
+  if (diff <= 30) return { kind: 'behind', minutes: Math.round(diff) }
+  return { kind: 'way-behind', minutes: Math.round(diff) }
 }
