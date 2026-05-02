@@ -33,11 +33,12 @@ const ui = useUiStore()
           <Search :size="20" class="text-gray-300" />
         </button>
         <button
-          class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
+          class="p-2 rounded-lg transition-colors"
+          :class="ui.watchedDancesMode ? 'bg-gold-400/15 active:bg-gold-400/25' : 'hover:bg-surface-raised active:bg-surface-overlay'"
           title="Watched dances" aria-label="Filter watched dances"
           @click="emit('toggle-watched-dances')"
         >
-          <ListFilter :size="20" :class="ui.watchedDancesMode ? 'text-gold-400' : 'text-gray-300'" />
+          <ListFilter :size="20" :class="ui.watchedDancesMode ? 'text-gold-400' : 'text-gray-300'" :fill="ui.watchedDancesMode ? 'currentColor' : 'none'" />
         </button>
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
