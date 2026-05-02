@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useIntervalFn } from '@vueuse/core'
-import { Star } from 'lucide-vue-next'
+import { Star, Play } from 'lucide-vue-next'
 import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
@@ -134,10 +134,13 @@ function handleJumpToNext() {
     <!-- Onboarding hint: shown until the user marks any entry as current -->
     <div
       v-if="!navigation.hasAnchor"
-      class="px-3 py-2 bg-indigo-500/10 border-b border-indigo-400/20 flex items-center gap-2 text-xs"
+      class="mx-2 mt-2 px-4 py-3 rounded-lg border border-indigo-400/40 bg-indigo-500/15 flex items-center gap-2.5"
     >
-      <span class="text-indigo-300 font-semibold shrink-0">▶ Tap any dance</span>
-      <span class="text-indigo-300/70 truncate">to set it as current and start tracking</span>
+      <Play :size="18" class="text-indigo-300 fill-indigo-300 shrink-0" />
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold text-indigo-200">Tap any dance to set as current</div>
+        <div class="text-xs text-indigo-300/70 mt-0.5">The app will auto-advance from there</div>
+      </div>
     </div>
 
     <div ref="scrollContainer" class="flex-1 overflow-y-auto pb-20">
