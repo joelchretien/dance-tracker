@@ -18,6 +18,8 @@ import JumpToPanel from '@/components/JumpToPanel.vue'
 import ToastNotification from '@/components/ToastNotification.vue'
 import CountdownBanner from '@/components/CountdownBanner.vue'
 import WatchedDancersTipModal from '@/components/WatchedDancersTipModal.vue'
+import CurrentDanceTipModal from '@/components/CurrentDanceTipModal.vue'
+import CurrentDanceTipModal from '@/components/CurrentDanceTipModal.vue'
 
 const props = defineProps<{ scheduleId: string }>()
 
@@ -77,11 +79,20 @@ onUnmounted(() => {
   pause()
 })
 
+const CURRENT_DANCE_ONBOARDED_KEY = 'dt:onboardedCurrentDance'
+
 // Scroll only on manual marks — not timer-driven changes, which would
 // yank the user away from wherever they're browsing.
 watch(() => navigation.markedIndex, () => {
   ui.updateScheduleStatus()
   nextTick(() => scrollToEntry(navigation.activeIndex, true))
+
+  // First-time educational modal. Watchers don't fire on init, so this
+  // only triggers on a real user action (mark or scrub-with-different-active).
+  if (localStorage.getItem(CURRENT_DANCE_ONBOARDED_KEY) !== '1') {
+    localStorage.setItem(CURRENT_DANCE_ONBOARDED_KEY, '1')
+    ui.currentDanceTipOpen = true
+  }
 })
 
 // Update schedule status whenever the anchor offset changes (e.g. via scrub).
@@ -185,5 +196,7 @@ function handleJumpToNext() {
     <JumpToPanel v-if="ui.jumpToPanelOpen" @jump-to="handlePanelJump" />
     <ToastNotification v-if="ui.toastMessage" :message="ui.toastMessage" />
     <WatchedDancersTipModal v-if="ui.watchedDancersTipOpen" @close="ui.watchedDancersTipOpen = false" />
+    <CurrentDanceTipModal v-if="ui.currentDanceTipOpen" @close="ui.currentDanceTipOpen = false" />
+    <CurrentDanceTipModal v-if="ui.currentDanceTipOpen" @close="ui.currentDanceTipOpen = false" />
   </div>
 </template>
