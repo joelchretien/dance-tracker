@@ -31,4 +31,24 @@ describe('classifyScheduleStatus', () => {
       dayLabel: 'Saturday schedule',
     })
   })
+
+  describe('with onScheduleThreshold = 0 (anchored)', () => {
+    it('returns on-schedule only at exactly 0 (after rounding)', () => {
+      expect(classifyScheduleStatus(480, 480, true, '', 0)).toEqual({ kind: 'on-schedule' })
+      expect(classifyScheduleStatus(480, 480.4, true, '', 0)).toEqual({ kind: 'on-schedule' })
+    })
+
+    it('returns behind for 1 minute behind', () => {
+      expect(classifyScheduleStatus(480, 481, true, '', 0)).toEqual({ kind: 'behind', minutes: 1 })
+    })
+
+    it('returns ahead for 1 minute ahead', () => {
+      expect(classifyScheduleStatus(480, 479, true, '', 0)).toEqual({ kind: 'ahead', minutes: 1 })
+    })
+
+    it('still uses 30-min boundary for way-behind', () => {
+      expect(classifyScheduleStatus(480, 510, true, '', 0)).toEqual({ kind: 'behind', minutes: 30 })
+      expect(classifyScheduleStatus(480, 511, true, '', 0)).toEqual({ kind: 'way-behind', minutes: 31 })
+    })
+  })
 })

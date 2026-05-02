@@ -124,7 +124,13 @@ export const useUiStore = defineStore('ui', () => {
     const sameDay = entryDate === today
     const dayLabel = schedule.days[entryDayIndex]?.label ?? ''
 
-    scheduleStatus.value = classifyScheduleStatus(entryTime, now, sameDay, dayLabel + ' schedule')
+    // With an anchor, the offset is something the user has explicitly set
+    // (mark or scrub) and they want to see every minute of it. Without an
+    // anchor, diff naturally drifts as wall clock crosses entries — keep the
+    // 5-min tolerance to avoid flickering "1 min ahead" → "1 min behind".
+    const threshold = nav.hasAnchor ? 0 : 5
+
+    scheduleStatus.value = classifyScheduleStatus(entryTime, now, sameDay, dayLabel + ' schedule', threshold)
   }
 
   return {
