@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import type { BreakEntry as BreakEntryType, AwardsEntry } from '@/types/schedule'
 import { titleCaseDanceTitle } from '@/lib/title-case'
 import { predictedTime } from '@/lib/predicted-time'
+import DancerBadge from './DancerBadge.vue'
 
 const props = defineProps<{
   entry: BreakEntryType | AwardsEntry
@@ -134,8 +135,8 @@ function onBarClick(e: MouseEvent) {
         {{ titleCaseDanceTitle(entry.title) }}
       </span>
     </div>
-    <div v-if="isWatchedAwards && watchedDancers && watchedDancers.length" class="text-xs text-gold-400/70 mt-0.5 ml-[5.5rem]">
-      {{ watchedDancers.join(' & ') }}
+    <div v-if="isWatchedAwards && watchedDancers && watchedDancers.length" class="flex flex-wrap gap-1 mt-1 ml-[5.5rem]">
+      <DancerBadge v-for="name in watchedDancers" :key="name" :name="name" />
     </div>
 
     <template v-if="isSelected">
