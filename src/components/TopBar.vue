@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import { Search, ListFilter, Settings, ChevronLeft } from 'lucide-vue-next'
 import { useUiStore } from '@/stores/ui'
+import ScheduleStatus from './ScheduleStatus.vue'
 
 defineProps<{ title: string; showBack: boolean }>()
 const emit = defineEmits<{
@@ -13,7 +14,7 @@ const ui = useUiStore()
 </script>
 
 <template>
-  <div class="sticky top-0 z-30 bg-surface border-b border-gray-800 relative" style="padding-top: env(safe-area-inset-top, 0px)">
+  <div class="sticky top-0 z-30 bg-surface border-b border-gray-800" style="padding-top: env(safe-area-inset-top, 0px)">
     <div class="flex items-center justify-between py-2" :class="showBack ? 'px-1' : 'px-3'">
       <button
         v-if="showBack"
@@ -23,7 +24,10 @@ const ui = useUiStore()
       >
         <ChevronLeft :size="22" class="text-gray-400" />
       </button>
-      <div class="text-lg font-bold truncate flex-1 mr-2">{{ title }}</div>
+      <div class="flex items-baseline gap-2 flex-1 mr-2 min-w-0">
+        <div class="text-lg font-bold truncate">{{ title }}</div>
+        <ScheduleStatus :status="ui.scheduleStatus" />
+      </div>
       <div class="flex items-center gap-1">
         <button
           class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"

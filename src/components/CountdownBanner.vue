@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useWatchStore } from '@/stores/watch'
+import { titleCaseDanceTitle } from '@/lib/title-case'
 
 const watchStore = useWatchStore()
 
 const styleType = computed(() => watchStore.nextTargetStyleType)
 const targetEntry = computed(() => watchStore.nextTargetEntry)
+const targetTitle = computed(() => titleCaseDanceTitle(targetEntry.value?.title ?? ''))
 const dancers = computed(() => watchStore.nextTargetWatchedDancers)
 const dancesUntil = computed(() => watchStore.dancesUntilTarget)
 const subtitle = computed(() => watchStore.nextTargetSubtitle)
@@ -32,7 +34,7 @@ const countdownLabel = computed(() => {
         ON NOW — {{ dancers.join(' & ') }}
       </div>
       <div class="text-[13px] font-semibold text-black/45 mt-0.5">
-        {{ targetEntry?.title }}<span v-if="subtitle"> · {{ subtitle }}</span>
+        {{ targetTitle }}<span v-if="subtitle"> · {{ subtitle }}</span>
       </div>
     </div>
 
@@ -41,7 +43,7 @@ const countdownLabel = computed(() => {
       v-else-if="styleType === 'on-now' && isWatchedAwards"
       class="px-3 py-2 bg-gradient-to-r from-gold-500 to-gold-400 rounded-lg"
     >
-      <div class="text-[15px] font-extrabold text-surface">{{ targetEntry?.title }}</div>
+      <div class="text-[15px] font-extrabold text-surface">{{ targetTitle }}</div>
       <div class="text-[13px] font-semibold text-black/45 mt-0.5">Watched Dancers in this block</div>
     </div>
 
@@ -54,12 +56,12 @@ const countdownLabel = computed(() => {
       <div class="flex items-baseline gap-1.5 flex-wrap">
         <template v-if="styleType === 'up-next'">
           <span class="text-sm text-gold-400 font-semibold">Up next →</span>
-          <span class="text-sm text-gold-400 font-extrabold">{{ targetEntry?.title }}</span>
+          <span class="text-sm text-gold-400 font-extrabold">{{ targetTitle }}</span>
         </template>
         <template v-else>
           <span class="text-[22px] font-extrabold text-gold-400 leading-none">{{ dancesUntil }}</span>
           <span class="text-sm text-gold-400 font-semibold">{{ countdownLabel }}</span>
-          <span class="text-sm text-gold-400 font-extrabold">{{ targetEntry?.title }}</span>
+          <span class="text-sm text-gold-400 font-extrabold">{{ targetTitle }}</span>
         </template>
       </div>
 

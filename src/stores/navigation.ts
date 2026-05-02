@@ -6,6 +6,7 @@ import { findNowIndex, todayDayIndex } from '@/lib/navigation'
 import { findLikelyCurrentIndex } from '@/lib/auto-advance'
 import { parseTime, currentTimeMinutes, currentTimeFractionalMinutes, localDateString } from '@/lib/time'
 import { getEntryDurationMinutes } from '@/lib/entry-duration'
+import { titleCaseDanceTitle } from '@/lib/title-case'
 import type { FontSize } from '@/types/schedule'
 
 export const useNavigationStore = defineStore('navigation', () => {
@@ -234,7 +235,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     const idx = findNowIndex(schedule.flatEntries, now, dayIdx)
     if (idx === null) return null
     const entry = schedule.flatEntries[idx]?.entry
-    const toast = `Scrolled to now · ${entry?.time ?? ''} · ${entry?.title ?? ''}`
+    const toast = `Scrolled to now · ${entry?.time ?? ''} · ${titleCaseDanceTitle(entry?.title ?? '')}`
     return { index: idx, toast }
   }
 

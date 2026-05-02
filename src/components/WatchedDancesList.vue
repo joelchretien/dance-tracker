@@ -5,6 +5,7 @@ import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
 import { parseTime, formatTimeDiff } from '@/lib/time'
 import { countDancesUntil } from '@/lib/countdown'
+import { titleCaseDanceTitle } from '@/lib/title-case'
 import type { DanceEntry as DanceEntryType, BreakEntry as BreakEntryType, AwardsEntry } from '@/types/schedule'
 import DanceEntry from './DanceEntry.vue'
 import BreakEntry from './BreakEntry.vue'
@@ -146,7 +147,7 @@ function handleSeek(progress: number) {
       <div v-else-if="li.kind === 'current-marker'" id="current-position-marker" class="mx-4 my-2 flex items-center gap-2">
         <div class="flex-1 border-t border-dashed border-indigo-400/40"></div>
         <span class="text-[10px] text-indigo-400/70 font-semibold uppercase tracking-wide shrink-0">
-          ▶ {{ li.markedTime }} · {{ li.markedTitle }}
+          ▶ {{ li.markedTime }} · {{ titleCaseDanceTitle(li.markedTitle ?? '') }}
         </span>
         <div class="flex-1 border-t border-dashed border-indigo-400/40"></div>
       </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { DanceEntry as DanceEntryType } from '@/types/schedule'
+import { titleCaseDanceTitle } from '@/lib/title-case'
 import DancerBadge from './DancerBadge.vue'
 import DanceDetails from './DanceDetails.vue'
 
@@ -24,7 +25,6 @@ const emit = defineEmits<{
 
 // Consistent 3px left border for all entries — color changes, width doesn't
 const borderClass = computed(() => {
-  if (props.isMarked && props.isLikely) return 'border-l-gold-400'
   if (props.isMarked) return 'border-l-indigo-400'
   if (props.isWatched) return 'border-l-gold-400'
   if (props.sameStudio) return 'border-l-cyan-400/40'
@@ -32,8 +32,6 @@ const borderClass = computed(() => {
 })
 
 const bgClass = computed(() => {
-  if (props.isMarked && props.isLikely && props.isSelected) return 'bg-gold-400/15'
-  if (props.isMarked && props.isLikely) return 'bg-gold-400/[0.08]'
   if (props.isMarked && props.isSelected) return 'bg-indigo-500/25'
   if (props.isMarked) return 'bg-indigo-500/15'
   if (props.isSelected) return 'bg-white/[0.07]'
@@ -43,16 +41,15 @@ const bgClass = computed(() => {
 
 // Selected: subtle dashed outline (pattern cue for accessibility)
 const outlineStyle = computed(() => {
-  if (props.isSelected && props.isMarked && props.isLikely) return 'outline: 1.5px dashed rgba(251,191,36,0.4); outline-offset: -1.5px'
   if (props.isSelected && props.isMarked) return 'outline: 1.5px dashed rgba(129,140,248,0.4); outline-offset: -1.5px'
   if (props.isSelected) return 'outline: 1.5px dashed rgba(255,255,255,0.25); outline-offset: -1.5px'
   return ''
 })
 
 const seekable = computed(() => props.isMarked && props.isSelected)
-const barColor = computed(() => props.isLikely ? 'bg-gold-400/70' : 'bg-indigo-400/80')
-const thumbColor = computed(() => props.isLikely ? 'bg-gold-400' : 'bg-indigo-400')
-const badgeColor = computed(() => props.isLikely ? 'text-gold-400/80' : 'text-indigo-400/80')
+const barColor = 'bg-indigo-400/80'
+const thumbColor = 'bg-indigo-400'
+const badgeColor = 'text-indigo-400/80'
 
 // Drag state
 const barRef = ref<HTMLElement | null>(null)
@@ -124,7 +121,7 @@ function onBarClick(e: MouseEvent) {
     <div class="flex items-baseline gap-2">
       <span class="fs-time text-gray-300 shrink-0 w-20">{{ entry.time }}</span>
       <span class="fs-title font-medium flex-1" :class="[isWatched ? 'text-gold-400' : '', isSelected ? '' : 'truncate']">
-        {{ entry.title }}
+        {{ titleCaseDanceTitle(entry.title) }}
       </span>
       <span v-if="entry.num" class="fs-time text-gray-500 shrink-0">#{{ entry.num }}</span>
     </div>

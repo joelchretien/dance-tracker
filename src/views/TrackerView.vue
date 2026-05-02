@@ -8,7 +8,6 @@ import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 import { useSnapback } from '@/composables/useSnapback'
 import TopBar from '@/components/TopBar.vue'
-import ScheduleStatus from '@/components/ScheduleStatus.vue'
 import ScheduleList from '@/components/ScheduleList.vue'
 import WatchedDancesList from '@/components/WatchedDancesList.vue'
 import SnapbackPill from '@/components/SnapbackPill.vue'
@@ -119,7 +118,6 @@ function handleJumpToNext() {
       :show-back="multipleSchedules"
       @toggle-watched-dances="handleToggleWatchedDances"
     />
-    <ScheduleStatus :status="ui.scheduleStatus" />
 
     <div ref="scrollContainer" class="flex-1 overflow-y-auto pb-20">
       <WatchedDancesList v-if="ui.watchedDancesMode" />

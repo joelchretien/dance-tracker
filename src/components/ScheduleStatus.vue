@@ -50,7 +50,5 @@ const textColorClass = computed(() => {
 </script>
 
 <template>
-  <div v-if="text" class="flex justify-center py-1">
-    <span class="fs-title font-medium" :class="[containerClass, textColorClass]">{{ text }}</span>
-  </div>
+  <span v-if="text" class="text-xs font-medium shrink-0" :class="[containerClass, textColorClass]">{{ text }}</span>
 </template>

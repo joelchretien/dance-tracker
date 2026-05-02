@@ -7,6 +7,7 @@ import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 import { fuzzyScore, type SearchResult } from '@/lib/fuzzy-search'
 import { extractSubtitle } from '@/lib/category'
+import { titleCaseDanceTitle } from '@/lib/title-case'
 
 const schedule = useScheduleStore()
 const navigation = useNavigationStore()
@@ -93,7 +94,7 @@ function selectResult(globalIndex: number) {
           <span class="text-xs text-gray-500 shrink-0 w-20">{{ r.time }}</span>
           <div class="flex-1 min-w-0">
             <div class="text-sm font-medium truncate" :class="watchStore.isWatchedEntry(r.globalIndex) ? 'text-gold-400' : 'text-gray-200'">
-              {{ r.title }}
+              {{ titleCaseDanceTitle(r.title) }}
             </div>
             <div v-if="r.subtitle" class="text-[11px] text-gray-500 truncate">{{ r.subtitle }}</div>
           </div>
