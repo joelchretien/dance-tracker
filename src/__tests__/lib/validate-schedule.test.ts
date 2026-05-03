@@ -3,7 +3,7 @@ import { validateSchedule } from '@/lib/validate-schedule'
 
 function validSchedule() {
   return {
-    meta: { id: 'test-2026', title: 'Test Comp 2026' },
+    meta: { id: 'test-2026', name: 'Test Comp 2026' },
     days: [
       {
         label: 'FRIDAY MAY 1',
@@ -39,18 +39,18 @@ describe('validateSchedule', () => {
     expect(() => validateSchedule(s)).toThrow(/meta\.id/)
   })
 
-  it('rejects missing meta.title', () => {
+  it('rejects missing meta.name', () => {
     const s = validSchedule()
-    delete (s.meta as Partial<typeof s.meta>).title
-    expect(() => validateSchedule(s)).toThrow(/meta\.title/)
+    delete (s.meta as Partial<typeof s.meta>).name
+    expect(() => validateSchedule(s)).toThrow(/meta\.name/)
   })
 
   it('rejects missing days array', () => {
-    expect(() => validateSchedule({ meta: { id: 'a', title: 'b' } })).toThrow(/days/)
+    expect(() => validateSchedule({ meta: { id: 'a', name: 'b' } })).toThrow(/days/)
   })
 
   it('rejects empty days array', () => {
-    expect(() => validateSchedule({ meta: { id: 'a', title: 'b' }, days: [] })).toThrow(/days/)
+    expect(() => validateSchedule({ meta: { id: 'a', name: 'b' }, days: [] })).toThrow(/days/)
   })
 
   it('rejects malformed date', () => {
@@ -103,7 +103,7 @@ describe('validateSchedule', () => {
 
   it('allows dance entry without optional fields', () => {
     const s = {
-      meta: { id: 'x', title: 'y' },
+      meta: { id: 'x', name: 'y' },
       days: [{ label: 'D', date: '2026-01-01', entries: [{ type: 'dance', time: '8:00 AM', title: 't' }] }],
     }
     expect(() => validateSchedule(s)).not.toThrow()

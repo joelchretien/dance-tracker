@@ -1,4 +1,5 @@
 import type { ScheduleStatus } from '@/types/schedule'
+import { OFFSET_DISPLAY_THRESHOLD_MIN } from './offset-threshold'
 
 /**
  * Classify how the competition is running relative to the scheduled time.
@@ -8,16 +9,16 @@ import type { ScheduleStatus } from '@/types/schedule'
  * @param sameDay whether the selected entry's day matches today's date
  * @param entryDayLabel label for the entry's day (e.g. "Saturday schedule") shown when wrong day
  * @param onScheduleThreshold tolerance in minutes for the "on schedule" range. Defaults
- *   to 5 (suitable for the no-anchor case where the diff naturally drifts as wall clock
- *   crosses entries). Pass 0 when an anchor is set so the user sees every minute of
- *   offset they've established by scrubbing or marking.
+ *   to OFFSET_DISPLAY_THRESHOLD_MIN (suitable for the no-anchor case where the diff
+ *   naturally drifts as wall clock crosses entries). Pass 0 when an anchor is set so
+ *   the user sees every minute of offset they've established by scrubbing or marking.
  */
 export function classifyScheduleStatus(
   entryTimeMinutes: number,
   nowMinutes: number,
   sameDay: boolean,
   entryDayLabel: string,
-  onScheduleThreshold = 5,
+  onScheduleThreshold = OFFSET_DISPLAY_THRESHOLD_MIN,
 ): ScheduleStatus {
   if (entryTimeMinutes < 0) return { kind: 'not-started' }
 

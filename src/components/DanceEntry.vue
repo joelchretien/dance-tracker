@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import type { DanceEntry as DanceEntryType } from '@/types/schedule'
 import { titleCaseDanceTitle } from '@/lib/title-case'
 import { predictedTime } from '@/lib/predicted-time'
+import { OFFSET_DISPLAY_THRESHOLD_MIN } from '@/lib/offset-threshold'
 import DancerBadge from './DancerBadge.vue'
 import DanceDetails from './DanceDetails.vue'
 
@@ -54,11 +55,11 @@ const thumbColor = 'bg-indigo-400'
 const badgeColor = 'text-indigo-400/80'
 
 // Show predicted wall-clock time when there's a meaningful offset.
-// Below the on-schedule threshold (5 min), the prediction equals the
-// scheduled time within rounding so it's noise.
+// Below the on-schedule threshold the prediction equals the scheduled
+// time within rounding so it's noise.
 const hasOffset = computed(() => {
   const offset = props.offsetMinutes
-  return offset !== null && offset !== undefined && Math.abs(offset) > 5
+  return offset !== null && offset !== undefined && Math.abs(offset) > OFFSET_DISPLAY_THRESHOLD_MIN
 })
 
 const displayTime = computed(() => {
@@ -87,6 +88,14 @@ function onDragStart(e: TouchEvent | MouseEvent) {
   e.stopPropagation()
   isDragging.value = true
   dragProgress.value = progressFromEvent(e)
+  // For mouse drags, attach move/up to the document so the drag continues
+  // even when the pointer leaves the bar element. Touch events route to
+  // the originating element automatically, so they only need element-level
+  // handlers (wired in template).
+  if (!('touches' in e)) {
+    document.addEventListener('mousemove', onDragMove)
+    document.addEventListener('mouseup', onDragEnd)
+  }
 }
 
 function onDragMove(e: TouchEvent | MouseEvent) {
@@ -99,6 +108,11 @@ function onDragEnd(e: TouchEvent | MouseEvent) {
   if (!isDragging.value) return
   e.stopPropagation()
   isDragging.value = false
+  // Symmetric cleanup of the document-level mouse listeners.
+  if (!('touches' in e || 'changedTouches' in e)) {
+    document.removeEventListener('mousemove', onDragMove)
+    document.removeEventListener('mouseup', onDragEnd)
+  }
   // For touchend, use the last known dragProgress (no touches in the event)
   const final = 'changedTouches' in e
     ? Math.max(0, Math.min(1, (() => {
@@ -172,9 +186,6 @@ function onBarClick(e: MouseEvent) {
       @touchmove.prevent="onDragMove"
       @touchend.prevent="onDragEnd"
       @mousedown.prevent="onDragStart"
-      @mousemove="onDragMove"
-      @mouseup="onDragEnd"
-      @mouseleave="isDragging && onDragEnd($event)"
     >
       <!-- Filled portion -->
       <div

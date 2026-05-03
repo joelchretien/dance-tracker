@@ -24,7 +24,7 @@ export function validateSchedule(data: unknown): void {
   const meta = data.meta
   if (!isPlainObject(meta)) fail('meta', 'expected object')
   if (typeof meta.id !== 'string' || !meta.id) fail('meta.id', 'expected non-empty string')
-  if (typeof meta.title !== 'string' || !meta.title) fail('meta.title', 'expected non-empty string')
+  if (typeof meta.name !== 'string' || !meta.name) fail('meta.name', 'expected non-empty string')
 
   const days = data.days
   if (!Array.isArray(days)) fail('days', 'expected array')

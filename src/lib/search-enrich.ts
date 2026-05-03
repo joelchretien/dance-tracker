@@ -2,6 +2,7 @@ import type { IndexedEntry } from '@/types/schedule'
 import { fuzzyScore } from './fuzzy-search'
 import { extractSubtitle } from './category'
 import { predictedTime } from './predicted-time'
+import { OFFSET_DISPLAY_THRESHOLD_MIN } from './offset-threshold'
 
 export interface EnrichedSearchResult {
   globalIndex: number
@@ -47,9 +48,6 @@ export interface SearchEnrichOptions {
   maxResults?: number
 }
 
-/** Threshold above which the offset is considered meaningful enough to swap times. */
-const OFFSET_DISPLAY_THRESHOLD = 5
-
 /**
  * Enrich search results with the visual context the JumpToPanel needs to render
  * each row in parity with the main schedule view. Pure: takes a snapshot of
@@ -63,7 +61,7 @@ export function enrichSearchResults(
   if (!q) return []
 
   const offset = opts.scheduleOffsetMinutes
-  const hasOffset = offset !== null && Math.abs(offset) > OFFSET_DISPLAY_THRESHOLD
+  const hasOffset = offset !== null && Math.abs(offset) > OFFSET_DISPLAY_THRESHOLD_MIN
 
   const scored: EnrichedSearchResult[] = []
 

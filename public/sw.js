@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dance-tracker-v40'
+const CACHE_NAME = 'dance-tracker-v41'
 
 self.addEventListener('install', (event) => {
   // Activate immediately, don't wait for old SW to finish
@@ -53,7 +53,28 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Everything else (JSON data, etc): network-first
+  // Schedule JSON: stale-while-revalidate. The schedule almost never
+  // changes during a competition, but the auditorium WiFi often does
+  // 30-second pending fetches. Returning the cached copy immediately
+  // and updating in the background keeps the app responsive even on
+  // flaky networks.
+  if (url.pathname.match(/\/schedules\/[^/]+\.json$/)) {
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        const networkPromise = fetch(event.request)
+          .then(response => {
+            const clone = response.clone()
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
+            return response
+          })
+          .catch(() => cached) // if network fails and we had cache, use it
+        return cached || networkPromise
+      })
+    )
+    return
+  }
+
+  // Everything else (manifest, etc): network-first
   event.respondWith(
     fetch(event.request)
       .then(response => {

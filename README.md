@@ -30,6 +30,7 @@ src/
 │   ├── entry-duration.ts   Per-entry duration from neighbour times
 │   ├── fuzzy-search.ts     Fuzzy search scoring
 │   ├── navigation.ts       Jump-to-now + day index
+│   ├── offset-threshold.ts Single source of truth for the meaningful-offset min
 │   ├── predicted-time.ts   Apply schedule offset to a scheduled time
 │   ├── schedule-status.ts  Behind/ahead classification
 │   ├── search-enrich.ts    JumpToPanel result enrichment (pure)
@@ -98,7 +99,7 @@ The schedule JSON format is fully documented in `skills/convert-schedule.md`.
 ```bash
 npm install
 npm run dev      # Vite dev server
-npm test         # Run tests (137 tests, 13 files)
+npm test         # Run tests (139 tests, 14 files)
 npm run build    # Type-check + production build
 ```
 

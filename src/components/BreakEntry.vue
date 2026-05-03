@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import type { BreakEntry as BreakEntryType, AwardsEntry } from '@/types/schedule'
 import { titleCaseDanceTitle } from '@/lib/title-case'
 import { predictedTime } from '@/lib/predicted-time'
+import { OFFSET_DISPLAY_THRESHOLD_MIN } from '@/lib/offset-threshold'
 import DancerBadge from './DancerBadge.vue'
 
 const props = defineProps<{
@@ -50,7 +51,7 @@ const badgeColor = 'text-indigo-400/80'
 
 const hasOffset = computed(() => {
   const offset = props.offsetMinutes
-  return offset !== null && offset !== undefined && Math.abs(offset) > 5
+  return offset !== null && offset !== undefined && Math.abs(offset) > OFFSET_DISPLAY_THRESHOLD_MIN
 })
 
 const displayTime = computed(() => {
@@ -79,6 +80,10 @@ function onDragStart(e: TouchEvent | MouseEvent) {
   e.stopPropagation()
   isDragging.value = true
   dragProgress.value = progressFromEvent(e)
+  if (!('touches' in e)) {
+    document.addEventListener('mousemove', onDragMove)
+    document.addEventListener('mouseup', onDragEnd)
+  }
 }
 
 function onDragMove(e: TouchEvent | MouseEvent) {
@@ -91,6 +96,10 @@ function onDragEnd(e: TouchEvent | MouseEvent) {
   if (!isDragging.value) return
   e.stopPropagation()
   isDragging.value = false
+  if (!('touches' in e || 'changedTouches' in e)) {
+    document.removeEventListener('mousemove', onDragMove)
+    document.removeEventListener('mouseup', onDragEnd)
+  }
   const final = 'changedTouches' in e
     ? Math.max(0, Math.min(1, (() => {
         if (!barRef.value) return dragProgress.value
@@ -161,9 +170,6 @@ function onBarClick(e: MouseEvent) {
       @touchmove.prevent="onDragMove"
       @touchend.prevent="onDragEnd"
       @mousedown.prevent="onDragStart"
-      @mousemove="onDragMove"
-      @mouseup="onDragEnd"
-      @mouseleave="isDragging && onDragEnd($event)"
     >
       <div
         class="absolute inset-y-0 left-0 rounded-full"

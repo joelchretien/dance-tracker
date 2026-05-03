@@ -43,6 +43,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   let anchorStorage: ReturnType<typeof useLocalStorage<number | null>> | null = null
   let anchorTimestampStorage: ReturnType<typeof useLocalStorage<number | null>> | null = null
   let fsStorage: ReturnType<typeof useLocalStorage<FontSize>> | null = null
+  let selectTimer: ReturnType<typeof setTimeout> | null = null
 
   /** Wall-clock ms when the current anchor was set. Used for time-based staleness. */
   const anchorTimestamp = ref<number | null>(null)
@@ -57,6 +58,12 @@ export const useNavigationStore = defineStore('navigation', () => {
     anchorTimestamp.value = anchorTimestampStorage.value
     fontSize.value = fsStorage.value
     selectedIndex.value = null
+    // A select timer from a previous schedule could otherwise fire later and
+    // clobber a fresh selection on the new schedule with null.
+    if (selectTimer) {
+      clearTimeout(selectTimer)
+      selectTimer = null
+    }
     applyFontSize()
 
     // Clear stale anchor from a previous day
@@ -127,8 +134,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (!entry) return -1
     return parseTime(entry.time)
   })
-
-  let selectTimer: ReturnType<typeof setTimeout> | null = null
 
   /** Select (tap to inspect) a dance. Toggles off if tapping the same one. Auto-deselects after 30s. */
   function select(i: number) {

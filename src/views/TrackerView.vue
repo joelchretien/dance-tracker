@@ -75,7 +75,9 @@ onMounted(async () => {
   ])
 
   if (!schedule.isLoaded) {
-    schedule.error = null
+    // Don't suppress schedule.error — let HomeView surface it. Without
+    // this, validation/network failures produce a silent redirect loop
+    // (HomeView auto-redirects to the only schedule, which fails again).
     router.replace('/')
     return
   }
