@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { computed, ref, nextTick, onMounted } from 'vue'
-import { X, Search } from 'lucide-vue-next'
+import { X, Search, Clock, Play, Star, Trophy } from 'lucide-vue-next'
 import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 import { enrichSearchResults, type EnrichedSearchResult } from '@/lib/search-enrich'
 import { titleCaseDanceTitle } from '@/lib/title-case'
+import { buildSearchSuggestions } from '@/lib/search-suggestions'
+import { localDateString, currentTimeMinutes } from '@/lib/time'
 import { useFocusTrap } from '@/composables/useFocusTrap'
+import { useRecentSearches } from '@/composables/useRecentSearches'
 import DancerBadge from './DancerBadge.vue'
 
 const schedule = useScheduleStore()
@@ -26,6 +29,12 @@ onMounted(() => {
 })
 
 const hasQuery = computed(() => ui.jumpToQuery.trim().length > 0)
+
+// Recents are persisted per-schedule. The composable reads schedule
+// meta.id reactively so a schedule swap shows the right history.
+const scheduleId = computed(() => schedule.meta?.id ?? null)
+const { recents, record: recordRecent, remove: removeRecent, clear: clearRecents } =
+  useRecentSearches(scheduleId)
 
 const watchedDancersByAwardsIndex = computed(() => {
   const map = new Map<number, string[]>()
@@ -49,6 +58,41 @@ const searchResults = computed<EnrichedSearchResult[]>(() =>
   }),
 )
 
+// Suggestions for the empty state. Recomputed reactively as nav state
+// changes (e.g., user marks a different current dance, then opens search).
+const suggestions = computed(() =>
+  buildSearchSuggestions({
+    flatEntries: schedule.flatEntries,
+    dayLabels: schedule.days.map(d => d.label),
+    dayDates: schedule.days.map(d => d.date),
+    todayDate: localDateString(),
+    nowMinutes: currentTimeMinutes(),
+    activeIndex: navigation.activeIndex,
+    showCurrent: navigation.hasAnchor && navigation.isWithinActiveHours,
+    nextWatchedIndex: watchStore.nextTargetIndex,
+  }),
+)
+
+// "Empty truly" — no recents, no suggestions, no watched dancers. The
+// illustration only earns its place when there's nothing useful to show.
+const isTrulyEmpty = computed(
+  () => recents.value.length === 0 && suggestions.value.length === 0,
+)
+
+function suggestionIcon(key: string) {
+  if (key === 'current') return Play
+  if (key === 'next-watched') return Star
+  if (key === 'next-awards') return Trophy
+  return Search
+}
+
+function suggestionIconClass(key: string): string {
+  if (key === 'current') return 'text-indigo-300'
+  if (key === 'next-watched') return 'text-gold-400'
+  if (key === 'next-awards') return 'text-cyan-400'
+  return 'text-gray-400'
+}
+
 function borderClass(r: EnrichedSearchResult): string {
   if (r.isMarked) return 'border-l-indigo-400'
   if (r.isWatched) return 'border-l-gold-400'
@@ -63,6 +107,14 @@ function bgClass(r: EnrichedSearchResult): string {
 }
 
 function selectResult(globalIndex: number) {
+  // Record before navigating — closeJumpToPanel clears the query, so we
+  // need to capture it now. record() is a no-op for queries shorter
+  // than the minimum length.
+  recordRecent(ui.jumpToQuery)
+  jumpTo(globalIndex)
+}
+
+function jumpTo(globalIndex: number) {
   // If the target isn't rendered in the current filtered list, switch to All
   // first so the scroll target's DOM element actually exists. The user
   // explicitly searched for it — they want to see it regardless of filter.
@@ -79,6 +131,19 @@ function selectResult(globalIndex: number) {
   ui.closeJumpToPanel()
   emit('jump-to', globalIndex)
 }
+
+function applyRecent(query: string) {
+  ui.jumpToQuery = query
+  // Don't focus the input — user wants to see results, not type more.
+  // The recents list bumps this query to the top via record() if they
+  // do select a result from it.
+}
+
+// BASE_URL resolves to '/' in dev and '/dance-tracker/' in production.
+// Public files are copied to dist verbatim, so the URL is just BASE +
+// filename. Computing this at runtime rather than hard-coding the path
+// keeps the asset loadable regardless of the deploy's base.
+const spotlightUrl = `${import.meta.env.BASE_URL}empty-spotlight.webp`
 </script>
 
 <template>
@@ -151,10 +216,82 @@ function selectResult(globalIndex: number) {
         </button>
       </template>
 
-      <!-- Empty state -->
-      <div v-else class="text-center text-gray-500 text-sm py-12">
-        Tap a result to jump to it in the schedule
-      </div>
+      <!-- Empty state: suggestions, then recents, then illustration fallback. -->
+      <template v-else>
+        <!-- Suggestions: "Currently dancing", "Next watched", "Today's awards".
+             Tappable shortcuts that bypass typing entirely. -->
+        <div v-if="suggestions.length > 0" class="mt-3 mb-1">
+          <div class="text-[11px] font-semibold tracking-wider uppercase text-gray-500 px-2 mb-1.5">
+            Suggestions
+          </div>
+          <button
+            v-for="s in suggestions"
+            :key="s.key"
+            class="w-full px-3 py-2.5 my-0.5 flex items-center gap-3 rounded-lg bg-surface-raised/40 active:bg-surface-overlay transition-colors text-left"
+            @click="jumpTo(s.globalIndex)"
+          >
+            <component :is="suggestionIcon(s.key)" :size="18" :class="['shrink-0', suggestionIconClass(s.key)]" />
+            <div class="flex-1 min-w-0">
+              <div class="fs-title text-gray-200 truncate">{{ s.label }}</div>
+              <div v-if="s.detail" class="text-[11px] text-gray-500 truncate">{{ s.detail }}</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Recent searches: persisted per schedule, capped at 8. The
+             individual X removes one entry; "Clear" resets the list. -->
+        <div v-if="recents.length > 0" class="mt-3 mb-1">
+          <div class="px-2 mb-1.5 flex items-center justify-between">
+            <span class="text-[11px] font-semibold tracking-wider uppercase text-gray-500">
+              Recent
+            </span>
+            <button
+              class="text-[11px] font-medium text-gray-500 active:text-gray-300 transition-colors"
+              @click="clearRecents()"
+            >
+              Clear
+            </button>
+          </div>
+          <div
+            v-for="q in recents"
+            :key="q"
+            class="flex items-center gap-2 my-0.5 rounded-lg bg-surface-raised/40 active:bg-surface-overlay transition-colors"
+          >
+            <button
+              class="flex-1 px-3 py-2.5 flex items-center gap-3 text-left min-w-0"
+              @click="applyRecent(q)"
+            >
+              <Clock :size="16" class="text-gray-500 shrink-0" />
+              <span class="fs-title text-gray-300 truncate">{{ q }}</span>
+            </button>
+            <button
+              class="px-3 py-2.5 text-gray-600 active:text-gray-300 shrink-0"
+              :aria-label="`Remove '${q}' from recent searches`"
+              @click="removeRecent(q)"
+            >
+              <X :size="14" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Illustration: only when there's nothing actionable to show.
+             Earns its space by filling vertical void in a true empty state
+             (first-run users with no anchor, no watched dancers, no recents). -->
+        <div v-if="isTrulyEmpty" class="flex flex-col items-center pt-12 pb-6">
+          <img
+            :src="spotlightUrl"
+            alt=""
+            class="w-32 h-32 opacity-85"
+            aria-hidden="true"
+          />
+          <div class="text-sm text-gray-400 mt-2 text-center px-6">
+            Search for a dance, dancer, or studio
+          </div>
+          <div class="text-[11px] text-gray-600 mt-1 text-center px-6">
+            Tap a result to jump to it in the schedule
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>

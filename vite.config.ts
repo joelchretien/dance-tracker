@@ -29,36 +29,48 @@ const gitHash = getGitHash()
  * every deploy. Without this, the dev has to manually bump the version
  * string and forgetting it leaves stale caches floating around.
  *
- * Vite copies public/* into dist/* verbatim near the end of the build.
- * We overwrite dist/sw.js after that copy completes (closeBundle runs
- * after writeBundle, after publicDir is copied).
+ * Implementation note: reads from public/sw.js and writes to dist/sw.js
+ * directly, rather than rewriting whatever Vite already copied into dist.
+ * This sidesteps a timing question between Vite's internal public-copy
+ * step and Rollup's closeBundle hooks — at least in vite@6.4 the public
+ * copy ran AFTER closeBundle on clean builds, which made the previous
+ * "read from dist/sw.js" path fail with ENOENT on the first build of
+ * a session. Reading from source is also more obviously correct: the
+ * cache name we want comes from public/sw.js's literal, not from
+ * whatever happened to be in dist from a prior build.
  *
- * Fails the build if the CACHE_NAME pattern can't be found — without this
- * guard, a future refactor of public/sw.js (single-quote → double-quote,
- * different declaration shape, etc.) would silently leave the cache name
- * unstamped and ship stale caches to production.
+ * Fails the build if the CACHE_NAME pattern can't be found in the source —
+ * without this guard, a future refactor of public/sw.js (single-quote →
+ * double-quote, different declaration shape, etc.) would silently leave
+ * the cache name unstamped and ship stale caches to production.
  */
 function stampServiceWorker() {
   return {
     name: 'stamp-sw-cache-version',
     apply: 'build' as const,
-    closeBundle: {
+    writeBundle: {
       sequential: true,
       order: 'post' as const,
       async handler() {
-        const { writeFileSync, readFileSync } = await import('fs')
+        const { writeFileSync, readFileSync, mkdirSync } = await import('fs')
+        const sourcePath = resolve(__dirname, 'public/sw.js')
         const distPath = resolve(__dirname, 'dist/sw.js')
-        const src = readFileSync(distPath, 'utf8')
-        const stamped = src.replace(
-          /const CACHE_NAME = '[^']*'/,
-          `const CACHE_NAME = 'dance-tracker-${gitHash}'`,
-        )
-        if (stamped === src) {
+        const src = readFileSync(sourcePath, 'utf8')
+        const pattern = /const CACHE_NAME = '[^']*'/
+        if (!pattern.test(src)) {
           throw new Error(
-            'stamp-sw-cache-version: failed to find `const CACHE_NAME = \'...\'` in dist/sw.js. ' +
+            'stamp-sw-cache-version: failed to find `const CACHE_NAME = \'...\'` in public/sw.js. ' +
             'The replacement pattern in vite.config.ts no longer matches public/sw.js source.',
           )
         }
+        const stamped = src.replace(
+          pattern,
+          `const CACHE_NAME = 'dance-tracker-${gitHash}'`,
+        )
+        // Ensure dist/ exists. On a clean first build Vite has already
+        // created it by the time writeBundle fires, but defensively
+        // making it idempotent costs nothing.
+        mkdirSync(resolve(__dirname, 'dist'), { recursive: true })
         writeFileSync(distPath, stamped)
       },
     },
@@ -79,7 +91,7 @@ function assertPwaAssetPaths(base: string) {
   return {
     name: 'assert-pwa-asset-paths',
     apply: 'build' as const,
-    closeBundle: {
+    writeBundle: {
       sequential: true,
       order: 'post' as const,
       async handler() {

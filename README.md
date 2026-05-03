@@ -104,7 +104,7 @@ The schedule JSON format is fully documented in `skills/convert-schedule.md`.
 ```bash
 npm install
 npm run dev      # Vite dev server
-npm test         # Run tests (246 tests, 19 files)
+npm test         # Run tests (254 tests, 20 files)
 npm run lint     # ESLint (Vue 3 + TypeScript flat config)
 npm run typecheck  # vue-tsc --noEmit
 npm run build    # Type-check + production build
