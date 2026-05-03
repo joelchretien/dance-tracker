@@ -59,6 +59,7 @@ function handleReset() {
           ? 'bg-surface-overlay text-gray-200 active:bg-indigo-600'
           : 'bg-surface text-gray-600 cursor-not-allowed'"
         :disabled="!navigation.canDecreaseFontSize"
+        aria-label="Decrease font size"
         @click="handleDecrease"
       ><Minus :size="16" /></button>
       <span class="text-xs text-gray-400">Font Size</span>
@@ -68,6 +69,7 @@ function handleReset() {
           ? 'bg-surface-overlay text-gray-200 active:bg-indigo-600'
           : 'bg-surface text-gray-600 cursor-not-allowed'"
         :disabled="!navigation.canIncreaseFontSize"
+        aria-label="Increase font size"
         @click="handleIncrease"
       ><Plus :size="16" /></button>
     </div>

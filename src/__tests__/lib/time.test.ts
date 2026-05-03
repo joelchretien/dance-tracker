@@ -21,6 +21,23 @@ describe('parseTime', () => {
     expect(parseTime('')).toBe(-1)
     expect(parseTime('invalid')).toBe(-1)
   })
+
+  it('rejects out-of-range 12-hour values', () => {
+    // 0:00 AM is not valid 12-hour notation (12:00 AM = midnight)
+    expect(parseTime('0:00 AM')).toBe(-1)
+    expect(parseTime('0:00 PM')).toBe(-1)
+    expect(parseTime('13:00 PM')).toBe(-1)
+    expect(parseTime('99:99 PM')).toBe(-1)
+  })
+
+  it('rejects out-of-range minutes', () => {
+    expect(parseTime('5:60 PM')).toBe(-1)
+    expect(parseTime('12:99 PM')).toBe(-1)
+  })
+
+  it('tolerates surrounding whitespace', () => {
+    expect(parseTime('  8:03 AM  ')).toBe(483)
+  })
 })
 
 describe('formatSameDayDiff', () => {

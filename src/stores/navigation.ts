@@ -7,6 +7,11 @@ import { findLikelyCurrentIndex } from '@/lib/auto-advance'
 import { parseTime, currentTimeMinutes, currentTimeFractionalMinutes, localDateString } from '@/lib/time'
 import { getEntryDurationMinutes } from '@/lib/entry-duration'
 import { titleCaseDanceTitle } from '@/lib/title-case'
+import {
+  normalizeMarkedIndex,
+  normalizeFontSize,
+  isAnchorCoherent,
+} from '@/lib/normalize-persisted'
 import type { FontSize } from '@/types/schedule'
 
 export const useNavigationStore = defineStore('navigation', () => {
@@ -53,10 +58,37 @@ export const useNavigationStore = defineStore('navigation', () => {
     anchorStorage = useLocalStorage<number | null>(`dt:${id}:anchor`, null)
     anchorTimestampStorage = useLocalStorage<number | null>(`dt:${id}:anchorTs`, null)
     fsStorage = useLocalStorage<FontSize>(`dt:${id}:fontSize`, 'default')
-    markedIndex.value = navStorage.value
+
+    // Normalize hydrated values: corrupt or out-of-bounds persisted state
+    // (markedIndex past end of a shrunk schedule, fontSize from a future
+    // version, hand-edited localStorage) shouldn't enter the runtime model.
+    // Each value reads and rewrites — the rewrite is harmless when the
+    // value was already valid.
+    const entryCount = schedule.flatEntries.length
+    const safeMarked = normalizeMarkedIndex(navStorage.value, entryCount)
+    const safeFontSize = normalizeFontSize(fsStorage.value)
+    markedIndex.value = safeMarked
+    navStorage.value = safeMarked
+    fontSize.value = safeFontSize
+    fsStorage.value = safeFontSize
+
     anchorWallMinutes.value = anchorStorage.value
     anchorTimestamp.value = anchorTimestampStorage.value
-    fontSize.value = fsStorage.value
+    // Anchors are a triple (wall-minutes, timestamp, markedIndex) — clear
+    // them all if the persisted triple is incoherent (e.g. a markedIndex
+    // that's out of bounds in the loaded schedule).
+    if (!isAnchorCoherent(
+      {
+        anchorWallMinutes: anchorWallMinutes.value,
+        anchorTimestamp: anchorTimestamp.value,
+        markedIndex: markedIndex.value,
+      },
+      entryCount,
+    )) {
+      anchorWallMinutes.value = null
+      anchorTimestamp.value = null
+    }
+
     selectedIndex.value = null
     // A select timer from a previous schedule could otherwise fire later and
     // clobber a fresh selection on the new schedule with null.

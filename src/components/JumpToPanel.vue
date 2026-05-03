@@ -79,7 +79,14 @@ function selectResult(globalIndex: number) {
 </script>
 
 <template>
-  <div role="dialog" aria-modal="true" class="fixed inset-0 z-40 bg-surface flex flex-col" style="padding-top: env(safe-area-inset-top, 0px)">
+  <div
+    role="dialog"
+    aria-modal="true"
+    aria-label="Search and jump to a dance"
+    class="fixed inset-0 z-40 bg-surface flex flex-col"
+    style="padding-top: env(safe-area-inset-top, 0px)"
+    @keydown.esc="ui.closeJumpToPanel()"
+  >
     <div class="flex items-center gap-2 px-3 py-3 border-b border-gray-800">
       <Search :size="18" class="text-gray-500 shrink-0" />
       <input
@@ -91,6 +98,7 @@ function selectResult(globalIndex: number) {
       />
       <button
         class="p-1.5 rounded-lg hover:bg-surface-raised transition-colors shrink-0"
+        aria-label="Close search panel"
         @click="ui.closeJumpToPanel()"
       >
         <X :size="18" />

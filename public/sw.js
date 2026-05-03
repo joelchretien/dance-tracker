@@ -1,5 +1,20 @@
 const CACHE_NAME = 'dance-tracker-v41'
 
+/**
+ * Only cache successful, basic-type responses. Without this guard, a
+ * transient 404 or 500 (auditorium WiFi captive portal, GitHub Pages
+ * deploy mid-flight, server hiccup) gets persisted into the app cache,
+ * and the SW then happily serves the bad response forever — the cache-
+ * first / SWR fallback paths return whatever was last put.
+ */
+async function cacheIfOk(request, response) {
+  if (response && response.ok && response.type === 'basic') {
+    const cache = await caches.open(CACHE_NAME)
+    await cache.put(request, response.clone())
+  }
+  return response
+}
+
 self.addEventListener('install', (event) => {
   // Activate immediately, don't wait for old SW to finish
   self.skipWaiting()
@@ -28,11 +43,7 @@ self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate' || event.request.destination === 'document') {
     event.respondWith(
       fetch(event.request)
-        .then(response => {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
-          return response
-        })
+        .then(response => cacheIfOk(event.request, response))
         .catch(() => caches.match(event.request))
     )
     return
@@ -43,11 +54,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(event.request).then(cached => {
         if (cached) return cached
-        return fetch(event.request).then(response => {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
-          return response
-        })
+        return fetch(event.request).then(response => cacheIfOk(event.request, response))
       })
     )
     return
@@ -62,11 +69,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(event.request).then(cached => {
         const networkPromise = fetch(event.request)
-          .then(response => {
-            const clone = response.clone()
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
-            return response
-          })
+          .then(response => cacheIfOk(event.request, response))
           .catch(() => cached) // if network fails and we had cache, use it
         return cached || networkPromise
       })
@@ -77,11 +80,7 @@ self.addEventListener('fetch', (event) => {
   // Everything else (manifest, etc): network-first
   event.respondWith(
     fetch(event.request)
-      .then(response => {
-        const clone = response.clone()
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
-        return response
-      })
+      .then(response => cacheIfOk(event.request, response))
       .catch(() => caches.match(event.request))
   )
 })

@@ -6,9 +6,22 @@
  * validator throws at the boundary so loadSchedule's catch can surface a
  * meaningful error instead of leaving the user staring at a half-rendered
  * schedule.
+ *
+ * Goes beyond shape: every entry's time must be a parseable, in-range
+ * 12-hour value, and entries within a day must be chronologically ordered.
+ * Both invariants are assumed downstream by entry-duration, auto-advance,
+ * findNowIndex, and the gap rendering in WatchedDancesList — silent drift
+ * here would manifest as wrong "now" indices or negative durations far from
+ * the actual cause.
  */
 
+import { parseTime } from './time'
+
 const VALID_ENTRY_TYPES = new Set(['dance', 'awards', 'break'])
+
+/** Same grammar the route accepts; keeping these in sync prevents
+ * unloadable schedules whose ID contains characters the router rejects. */
+const SAFE_ID_RE = /^[a-zA-Z0-9_-]+$/
 
 function fail(path: string, msg: string): never {
   throw new Error(`Invalid schedule at ${path}: ${msg}`)
@@ -24,6 +37,9 @@ export function validateSchedule(data: unknown): void {
   const meta = data.meta
   if (!isPlainObject(meta)) fail('meta', 'expected object')
   if (typeof meta.id !== 'string' || !meta.id) fail('meta.id', 'expected non-empty string')
+  if (!SAFE_ID_RE.test(meta.id as string)) {
+    fail('meta.id', `must match ${SAFE_ID_RE} (alphanumeric, dash, underscore)`)
+  }
   if (typeof meta.name !== 'string' || !meta.name) fail('meta.name', 'expected non-empty string')
 
   const days = data.days
@@ -39,6 +55,7 @@ export function validateSchedule(data: unknown): void {
     }
     if (!Array.isArray(day.entries)) fail(`${path}.entries`, 'expected array')
 
+    let prevMinutes = -1
     day.entries.forEach((entry, ei) => {
       const ep = `${path}.entries[${ei}]`
       if (!isPlainObject(entry)) fail(ep, 'expected object')
@@ -48,6 +65,13 @@ export function validateSchedule(data: unknown): void {
       }
       if (typeof entry.time !== 'string' || !entry.time) fail(`${ep}.time`, 'expected non-empty string')
       if (typeof entry.title !== 'string') fail(`${ep}.title`, 'expected string')
+
+      const minutes = parseTime(entry.time as string)
+      if (minutes < 0) fail(`${ep}.time`, `unparseable time "${entry.time}"`)
+      if (minutes < prevMinutes) {
+        fail(`${ep}.time`, `entries must be chronological within a day (got ${entry.time} after a later time)`)
+      }
+      prevMinutes = minutes
 
       if (entry.type === 'dance') {
         // num optional but if present must be number
@@ -64,6 +88,14 @@ export function validateSchedule(data: unknown): void {
         // studio optional, string when present
         if (entry.studio !== undefined && typeof entry.studio !== 'string') {
           fail(`${ep}.studio`, 'expected string when present')
+        }
+        // category optional, string when present
+        if (entry.category !== undefined && typeof entry.category !== 'string') {
+          fail(`${ep}.category`, 'expected string when present')
+        }
+        // age optional, number when present
+        if (entry.age !== undefined && typeof entry.age !== 'number') {
+          fail(`${ep}.age`, 'expected number when present')
         }
       }
     })

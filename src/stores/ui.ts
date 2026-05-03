@@ -5,6 +5,7 @@ import { useScheduleStore } from './schedule'
 import { useNavigationStore } from './navigation'
 import { classifyScheduleStatus } from '@/lib/schedule-status'
 import { currentTimeMinutes, localDateString, parseTime } from '@/lib/time'
+import { normalizeViewMode } from '@/lib/normalize-persisted'
 import type { ScheduleStatus } from '@/types/schedule'
 
 export type ViewMode = 'all' | 'studio' | 'dancers'
@@ -27,7 +28,9 @@ export const useUiStore = defineStore('ui', () => {
 
   function initForSchedule(id: string) {
     viewModeStorage = useLocalStorage<ViewMode>(`dt:${id}:viewMode`, 'all')
-    viewMode.value = viewModeStorage.value
+    const safe = normalizeViewMode(viewModeStorage.value)
+    viewMode.value = safe
+    viewModeStorage.value = safe
   }
 
   // Toast

@@ -8,6 +8,7 @@ import { findNextTarget, countDancesUntil } from '@/lib/countdown'
 import { todayDayIndex } from '@/lib/navigation'
 import { extractSubtitle } from '@/lib/category'
 import { parseTime, formatSameDayDiff, currentTimeMinutes } from '@/lib/time'
+import { normalizeWatchedDancers } from '@/lib/normalize-persisted'
 import type { AwardsBlock } from '@/types/schedule'
 
 export const useWatchStore = defineStore('watch', () => {
@@ -19,7 +20,20 @@ export const useWatchStore = defineStore('watch', () => {
 
   function initForSchedule(id: string) {
     storage = useLocalStorage<string[]>(`dt:${id}:watch`, [])
-    watchedDancers.value = storage.value
+    // Build a roster of dancers actually present in the loaded schedule.
+    // Persisted names that no longer exist (because the schedule was
+    // edited or replaced) are silently dropped — keeping them in the
+    // watch list would render no entries and confuse the user. Also
+    // filters out non-string junk from corrupt localStorage.
+    const roster = new Set<string>()
+    for (const item of schedule.flatEntries) {
+      if (item.entry.type === 'dance' && item.entry.dancers) {
+        for (const d of item.entry.dancers) roster.add(d)
+      }
+    }
+    const safe = normalizeWatchedDancers(storage.value, roster)
+    watchedDancers.value = safe
+    storage.value = safe // rewrite cleaned-up list
   }
 
   watch(watchedDancers, (val) => { if (storage) storage.value = val }, { deep: true })

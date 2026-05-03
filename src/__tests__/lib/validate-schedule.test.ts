@@ -121,4 +121,61 @@ describe('validateSchedule', () => {
     })
     expect(() => validateSchedule(s)).toThrow(/days\[1\]\.entries\[1\]\.time/)
   })
+
+  it('rejects unparseable times even when string and non-empty', () => {
+    const s = validSchedule()
+    s.days[0].entries[0].time = '13:00 PM'
+    expect(() => validateSchedule(s)).toThrow(/unparseable time/)
+  })
+
+  it('rejects out-of-range hour (12-hour notation)', () => {
+    const s = validSchedule()
+    s.days[0].entries[0].time = '0:00 AM'
+    expect(() => validateSchedule(s)).toThrow(/unparseable time/)
+  })
+
+  it('rejects out-of-range minute', () => {
+    const s = validSchedule()
+    s.days[0].entries[0].time = '5:60 PM'
+    expect(() => validateSchedule(s)).toThrow(/unparseable time/)
+  })
+
+  it('rejects non-chronological entries within a day', () => {
+    const s = validSchedule()
+    s.days[0].entries = [
+      { type: 'dance', time: '10:00 AM', title: 'B' },
+      { type: 'dance', time: '9:00 AM', title: 'A' },
+    ]
+    expect(() => validateSchedule(s)).toThrow(/chronological/)
+  })
+
+  it('accepts entries at the same time within a day', () => {
+    // Two entries at the same scheduled time (e.g. an awards entry sharing
+    // a time with the preceding dance) is legitimate, not a chronology
+    // violation.
+    const s = validSchedule()
+    s.days[0].entries = [
+      { type: 'dance', time: '12:00 PM', title: 'A' },
+      { type: 'awards', time: '12:00 PM', title: 'AWARDS' },
+    ]
+    expect(() => validateSchedule(s)).not.toThrow()
+  })
+
+  it('rejects non-number age', () => {
+    const s = validSchedule()
+    ;(s.days[0].entries[0] as unknown as { age: unknown }).age = '12'
+    expect(() => validateSchedule(s)).toThrow(/age/)
+  })
+
+  it('rejects non-string category', () => {
+    const s = validSchedule()
+    ;(s.days[0].entries[0] as unknown as { category: unknown }).category = 42
+    expect(() => validateSchedule(s)).toThrow(/category/)
+  })
+
+  it('rejects route-unsafe meta.id', () => {
+    const s = validSchedule()
+    s.meta.id = 'evil:id'
+    expect(() => validateSchedule(s)).toThrow(/meta\.id/)
+  })
 })

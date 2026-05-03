@@ -135,10 +135,16 @@ function onBarClick(e: MouseEvent) {
 <template>
   <div
     :id="`entry-${globalIndex}`"
-    class="mx-2 my-0.5 rounded-lg cursor-pointer transition-colors border-l-[3px] relative"
+    class="mx-2 my-0.5 rounded-lg cursor-pointer transition-colors border-l-[3px] relative focus:outline-none focus:ring-2 focus:ring-indigo-400/60"
     :class="[borderClass, bgClass, isMarked ? 'px-3 pt-5 pb-2' : 'px-3 py-2']"
     :style="outlineStyle"
+    role="button"
+    tabindex="0"
+    :aria-label="`${entry.time} ${entry.title}`"
+    :aria-pressed="isSelected"
     @click="emit('select')"
+    @keydown.enter.prevent="emit('select')"
+    @keydown.space.prevent="emit('select')"
   >
     <!-- "CURRENT" badge — color matches bar state -->
     <span

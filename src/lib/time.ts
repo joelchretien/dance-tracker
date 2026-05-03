@@ -1,12 +1,19 @@
-/** Parse "8:03 AM" → minutes since midnight (483) */
+/**
+ * Parse "8:03 AM" → minutes since midnight (483).
+ * Returns -1 for any unparseable input or out-of-range hour/minute. The
+ * 12-hour notation only allows hours 1–12 and minutes 0–59; "0:00 AM" and
+ * "13:00 PM" and "12:60 PM" all return -1, not silent nonsense.
+ */
 export function parseTime(time: string): number {
-  const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
+  const match = time.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
   if (!match) return -1
-  let h = parseInt(match[1], 10)
+  const h12 = parseInt(match[1], 10)
   const m = parseInt(match[2], 10)
+  if (!Number.isInteger(h12) || h12 < 1 || h12 > 12) return -1
+  if (!Number.isInteger(m) || m < 0 || m > 59) return -1
   const ampm = match[3].toUpperCase()
-  if (ampm === 'PM' && h !== 12) h += 12
-  if (ampm === 'AM' && h === 12) h = 0
+  let h = h12 % 12
+  if (ampm === 'PM') h += 12
   return h * 60 + m
 }
 

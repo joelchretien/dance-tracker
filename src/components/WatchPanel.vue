@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { X } from 'lucide-vue-next'
 import { useScheduleStore } from '@/stores/schedule'
 import { useWatchStore } from '@/stores/watch'
@@ -8,6 +8,14 @@ import { useUiStore } from '@/stores/ui'
 const schedule = useScheduleStore()
 const watchStore = useWatchStore()
 const ui = useUiStore()
+
+const dialogRef = ref<HTMLElement | null>(null)
+onMounted(() => {
+  // Focus the dialog itself so Escape (bound at the dialog element) works
+  // without the user clicking inside first. tabindex="-1" makes the div
+  // programmatically focusable without inserting it into tab order.
+  nextTick(() => dialogRef.value?.focus())
+})
 
 const ONBOARDED_KEY = 'dt:onboardedWatchedDancers'
 
@@ -43,11 +51,21 @@ function close() {
 </script>
 
 <template>
-  <div role="dialog" aria-modal="true" class="fixed inset-0 z-40 bg-surface flex flex-col" style="padding-top: env(safe-area-inset-top, 0px)">
+  <div
+    ref="dialogRef"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="watch-panel-title"
+    class="fixed inset-0 z-40 bg-surface flex flex-col focus:outline-none"
+    style="padding-top: env(safe-area-inset-top, 0px)"
+    tabindex="-1"
+    @keydown.esc="close"
+  >
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-      <h2 class="text-lg font-semibold">Watched Dancers</h2>
+      <h2 id="watch-panel-title" class="text-lg font-semibold">Watched Dancers</h2>
       <button
         class="p-2 rounded-lg hover:bg-surface-raised transition-colors"
+        aria-label="Close watched dancers panel"
         @click="close"
       >
         <X :size="20" />
