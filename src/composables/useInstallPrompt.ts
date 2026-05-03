@@ -17,12 +17,12 @@
  *   desktop PWAs; `navigator.standalone` is iOS-specific. Both are
  *   probed and the union returned.
  *
- * - Persistent dismissal. The banner respects a localStorage flag
- *   (`dt:installNudgeDismissed`). The Settings entry ignores that flag
- *   so the user can always re-trigger from there.
+ * - Settings-only entry point. The Settings dropdown is the single
+ *   surface where the install affordance is offered; no top-banner
+ *   nag. So this composable doesn't track any "dismissed" state —
+ *   `canInstall` is the entire visibility gate.
  */
 import { ref, computed, type Ref } from 'vue'
-import { useLocalStorage } from '@vueuse/core'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -40,7 +40,7 @@ if (typeof window !== 'undefined') {
   })
 
   // Fires when the user accepts a native install prompt or installs from
-  // the browser's own UI. We hide the nudge in either case.
+  // the browser's own UI. We hide the affordance in either case.
   window.addEventListener('appinstalled', () => {
     deferredPrompt.value = null
     installed.value = true
@@ -70,7 +70,7 @@ const isIOS = detectIOS()
 const isStandalone = ref(detectStandalone())
 
 // Listen for changes to display-mode (e.g., user installs while the app
-// is open). Updates the standalone flag so the banner disappears live.
+// is open). Updates the standalone flag so the Settings entry hides live.
 if (typeof window !== 'undefined') {
   const mq = window.matchMedia?.('(display-mode: standalone)')
   mq?.addEventListener?.('change', (e) => {
@@ -79,8 +79,6 @@ if (typeof window !== 'undefined') {
 }
 
 export function useInstallPrompt() {
-  const dismissed = useLocalStorage<boolean>('dt:installNudgeDismissed', false)
-
   /** Native prompt available right now (Android/Chrome/Edge with engagement). */
   const canPromptNatively = computed(() => deferredPrompt.value !== null)
 
@@ -88,9 +86,6 @@ export function useInstallPrompt() {
   const canInstall = computed(
     () => !isStandalone.value && !installed.value && (canPromptNatively.value || isIOS),
   )
-
-  /** Should the auto-banner be shown? Layered on top of canInstall. */
-  const shouldShowBanner = computed(() => canInstall.value && !dismissed.value)
 
   /**
    * Trigger the native install prompt. No-op on iOS (the caller should
@@ -105,23 +100,11 @@ export function useInstallPrompt() {
     return outcome
   }
 
-  function dismissBanner() {
-    dismissed.value = true
-  }
-
-  /** Settings entry uses this to re-show the banner after dismissal. */
-  function resetDismissal() {
-    dismissed.value = false
-  }
-
   return {
     canInstall,
     canPromptNatively,
-    shouldShowBanner,
     isIOS,
     isStandalone,
     triggerNativeInstall,
-    dismissBanner,
-    resetDismissal,
   }
 }

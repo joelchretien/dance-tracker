@@ -9,7 +9,6 @@ import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 import { useSnapback } from '@/composables/useSnapback'
 import TopBar from '@/components/TopBar.vue'
-import InstallNudgeBanner from '@/components/InstallNudgeBanner.vue'
 import ScheduleList from '@/components/ScheduleList.vue'
 import WatchedDancesList from '@/components/WatchedDancesList.vue'
 import SnapbackPill from '@/components/SnapbackPill.vue'
@@ -218,15 +217,6 @@ function handleJumpToNext() {
     <TopBar
       :title="schedule.meta?.name ?? ''"
       :show-back="multipleSchedules"
-    />
-
-    <!-- Install nudge: shown only after the user has set up watched dancers
-         AND a current dance — at that point they're invested enough that
-         "install for one-tap access during the comp" is genuinely useful
-         rather than nagware. Self-hides when already installed (standalone
-         mode), when the user dismisses, or on browsers that can't install. -->
-    <InstallNudgeBanner
-      v-if="navigation.hasAnchor && watchStore.watchedDancers.length > 0"
     />
 
     <!-- Onboarding hint: shown after the user has watched dancers but
