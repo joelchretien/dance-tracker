@@ -43,7 +43,10 @@ export interface Suggestion {
 interface BuildOpts {
   flatEntries: IndexedEntry[]
   dayLabels: readonly string[]
-  /** Wall-clock minutes for "today". */
+  /**
+   * Wall-clock minutes for "today". Used as the fallback "where am I"
+   * pivot when no anchor is set.
+   */
   nowMinutes: number
   /** Today's date in YYYY-MM-DD, used to scope "today's awards". */
   todayDate: string
@@ -51,6 +54,13 @@ interface BuildOpts {
   dayDates: readonly string[]
   /** Next watched dancer's entry, if any are upcoming. */
   nextWatchedIndex: number | null
+  /**
+   * Active competition entry index (likely or marked). When set, this is
+   * the pivot for "previous"/"next" — schedule position rather than
+   * wall-clock time, so a comp running offset doesn't confuse the
+   * directionality of "previous awards" relative to where the user is.
+   */
+  activeIndex: number | null
 }
 
 export function buildSearchSuggestions(opts: BuildOpts): Suggestion[] {
@@ -123,8 +133,24 @@ export function matchesQuery(suggestion: Suggestion, query: string): boolean {
 }
 
 function findPreviousAwards(opts: BuildOpts, todayDayIdx: number): IndexedEntry | null {
-  // Walk backwards from end. First awards we find with (day < today) OR
-  // (day === today AND time <= now) is the most recent.
+  // When the user has anchored a current dance, "previous" means
+  // earlier in the SCHEDULE than where they are, not earlier than
+  // wall-clock-now. This matters when the comp is running offset:
+  // wall-clock 11:35 with an anchor at scheduled-11:05 means the user
+  // is "at" 11:05 in the schedule. Awards scheduled for 11:32 are
+  // FUTURE for them, even though wall-clock has already passed 11:32.
+  //
+  // Walking by globalIndex (schedule order) instead of time sidesteps
+  // the offset translation entirely.
+  if (opts.activeIndex !== null && opts.activeIndex >= 0) {
+    for (let i = opts.activeIndex - 1; i >= 0; i--) {
+      if (opts.flatEntries[i].entry.type === 'awards') return opts.flatEntries[i]
+    }
+    return null
+  }
+
+  // No anchor — fall back to wall-clock-now. Walk backwards from the
+  // end of today, then prior days.
   for (let i = opts.flatEntries.length - 1; i >= 0; i--) {
     const e = opts.flatEntries[i]
     if (e.entry.type !== 'awards') continue
@@ -142,6 +168,16 @@ function findPreviousAwards(opts: BuildOpts, todayDayIdx: number): IndexedEntry 
 }
 
 function findNextAwards(opts: BuildOpts, todayDayIdx: number): IndexedEntry | null {
+  // Symmetric to findPreviousAwards: when an anchor is set, "next"
+  // means later in the schedule than the active entry. Otherwise fall
+  // back to wall-clock comparison.
+  if (opts.activeIndex !== null && opts.activeIndex >= 0) {
+    for (let i = opts.activeIndex + 1; i < opts.flatEntries.length; i++) {
+      if (opts.flatEntries[i].entry.type === 'awards') return opts.flatEntries[i]
+    }
+    return null
+  }
+
   for (let i = 0; i < opts.flatEntries.length; i++) {
     const e = opts.flatEntries[i]
     if (e.entry.type !== 'awards') continue

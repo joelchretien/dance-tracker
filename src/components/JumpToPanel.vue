@@ -68,6 +68,13 @@ const suggestions = computed(() =>
     todayDate: localDateString(),
     nowMinutes: currentTimeMinutes(),
     nextWatchedIndex: watchStore.nextTargetIndex,
+    // hasAnchor gates whether activeIndex is meaningful. Without an
+    // anchor, activeIndex defaults to 0 (markedIndex's reset value),
+    // which would make "previous awards" always return null and
+    // "next awards" always pick the very first one — wrong in both
+    // directions. Pass null in that case so the wall-clock fallback
+    // runs.
+    activeIndex: navigation.hasAnchor ? navigation.activeIndex : null,
   }),
 )
 

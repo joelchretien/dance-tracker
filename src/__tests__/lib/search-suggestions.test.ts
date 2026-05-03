@@ -28,6 +28,7 @@ describe('buildSearchSuggestions', () => {
       todayDate: '2026-04-15', // not a schedule day → no awards anchored
       nowMinutes: 600,
       nextWatchedIndex: null,
+      activeIndex: null,
     })
     // Off-schedule date: previous-awards walks backwards and finds the
     // last awards entry; next-awards walks forward and finds the first.
@@ -44,6 +45,7 @@ describe('buildSearchSuggestions', () => {
       todayDate: '2026-05-02',
       nowMinutes: 8 * 60,
       nextWatchedIndex: 3,
+      activeIndex: null,
     })
     const watched = out.find(s => s.key === 'next-watched')
     expect(watched?.globalIndex).toBe(3)
@@ -58,6 +60,7 @@ describe('buildSearchSuggestions', () => {
       todayDate: '2026-05-02',
       nowMinutes: 12 * 60,
       nextWatchedIndex: null,
+      activeIndex: null,
     })
     expect(out.find(s => (s.key as string) === 'current')).toBeUndefined()
   })
@@ -71,6 +74,7 @@ describe('buildSearchSuggestions', () => {
         todayDate: '2026-05-02',
         nowMinutes: 18 * 60, // 6 PM, after Sat 4 PM awards
         nextWatchedIndex: null,
+      activeIndex: null,
       })
       const prev = out.find(s => s.key === 'previous-awards')
       expect(prev?.globalIndex).toBe(2) // Sat 4 PM
@@ -86,6 +90,7 @@ describe('buildSearchSuggestions', () => {
         todayDate: '2026-05-03',
         nowMinutes: 9 * 60,
         nextWatchedIndex: null,
+      activeIndex: null,
       })
       const prev = out.find(s => s.key === 'previous-awards')
       expect(prev?.globalIndex).toBe(2) // Sat 4 PM
@@ -104,6 +109,7 @@ describe('buildSearchSuggestions', () => {
         todayDate: '2026-05-02',
         nowMinutes: 7 * 60,
         nextWatchedIndex: null,
+      activeIndex: null,
       })
       expect(out.find(s => s.key === 'previous-awards')).toBeUndefined()
     })
@@ -118,6 +124,7 @@ describe('buildSearchSuggestions', () => {
         todayDate: '2026-05-02',
         nowMinutes: 12 * 60, // before Sat 4 PM
         nextWatchedIndex: null,
+      activeIndex: null,
       })
       const next = out.find(s => s.key === 'next-awards')
       expect(next?.globalIndex).toBe(2) // Sat 4 PM
@@ -132,6 +139,7 @@ describe('buildSearchSuggestions', () => {
         todayDate: '2026-05-02',
         nowMinutes: 17 * 60,
         nextWatchedIndex: null,
+      activeIndex: null,
       })
       const next = out.find(s => s.key === 'next-awards')
       expect(next?.globalIndex).toBe(4) // Sun 5 PM
@@ -145,6 +153,7 @@ describe('buildSearchSuggestions', () => {
         todayDate: '2026-05-03',
         nowMinutes: 23 * 60, // after Sun 5 PM, last awards
         nextWatchedIndex: null,
+      activeIndex: null,
       })
       expect(out.find(s => s.key === 'next-awards')).toBeUndefined()
     })
@@ -158,8 +167,124 @@ describe('buildSearchSuggestions', () => {
       todayDate: '2026-05-02',
       nowMinutes: 17 * 60, // after 4 PM awards
       nextWatchedIndex: 3,
+      activeIndex: null,
     })
     expect(out.map(s => s.key)).toEqual(['next-watched', 'previous-awards', 'next-awards'])
+  })
+
+  // The bug: when the comp runs offset from wall-clock, "previous"/"next"
+  // by wall-clock-time is wrong. A user sitting on the awards block whose
+  // scheduled time was 9:33 AM, with comp running 30min late, has wall-
+  // clock = 10:03 AM. Walking by wall-clock-time would say "previous
+  // awards" is the SAME awards block we're sitting on (its scheduled
+  // 9:33 AM <= 10:03 AM wall now). Walking by activeIndex correctly
+  // says "previous awards before the one we're sitting on" — and finds
+  // the prior day's awards (or none, if it's the first awards in the
+  // schedule).
+  describe('activeIndex pivot (when anchor is set)', () => {
+    it('previous-awards uses schedule position, not wall-clock', () => {
+      // User is sitting on the Sunday 5 PM awards (index 4). Wall-clock
+      // says 6 PM. By wall-clock-time, both Saturday 4 PM and Sunday
+      // 5 PM are "previous" — and walking backwards from the end picks
+      // the latest one, which is Sunday 5 PM (the one the user is ON).
+      // By activeIndex, "previous" means earlier in the schedule, so
+      // Saturday 4 PM (index 2) is picked.
+      const out = buildSearchSuggestions({
+        flatEntries: FLAT,
+        dayLabels: DAY_LABELS,
+        dayDates: DAY_DATES,
+        todayDate: '2026-05-03',
+        nowMinutes: 18 * 60,
+        nextWatchedIndex: null,
+        activeIndex: 4, // Sunday 5 PM awards
+      })
+      const prev = out.find(s => s.key === 'previous-awards')
+      expect(prev?.globalIndex).toBe(2) // Saturday 4 PM, NOT 4
+    })
+
+    it('next-awards uses schedule position, not wall-clock', () => {
+      // User on Saturday's 4 PM awards (index 2). Comp running EARLY,
+      // wall-clock is 3 PM. By wall-clock-time, Saturday 4 PM is "next"
+      // (it's later than 3 PM) — and forward-walk picks Saturday 4 PM,
+      // the SAME awards we're on. By activeIndex, "next" is the awards
+      // block AFTER index 2, which is Sunday 5 PM (index 4).
+      const out = buildSearchSuggestions({
+        flatEntries: FLAT,
+        dayLabels: DAY_LABELS,
+        dayDates: DAY_DATES,
+        todayDate: '2026-05-02',
+        nowMinutes: 15 * 60,
+        nextWatchedIndex: null,
+        activeIndex: 2, // Saturday 4 PM awards
+      })
+      const next = out.find(s => s.key === 'next-awards')
+      expect(next?.globalIndex).toBe(4) // Sunday 5 PM, NOT 2
+    })
+
+    it('previous-awards finds the one immediately before activeIndex even if anchored to a non-awards entry', () => {
+      // User anchored on Sunday's "Sunday Open" dance (index 3).
+      // The previous awards in schedule order is Saturday's 4 PM
+      // (index 2). Wall-clock-comparison would also pick this one,
+      // so this test isn't a regression catch — but it locks the
+      // expected behavior for the common case.
+      const out = buildSearchSuggestions({
+        flatEntries: FLAT,
+        dayLabels: DAY_LABELS,
+        dayDates: DAY_DATES,
+        todayDate: '2026-05-03',
+        nowMinutes: 8 * 60 + 30,
+        nextWatchedIndex: null,
+        activeIndex: 3,
+      })
+      const prev = out.find(s => s.key === 'previous-awards')
+      expect(prev?.globalIndex).toBe(2)
+    })
+
+    it('returns null for previous when activeIndex is at or before the first awards block', () => {
+      // User on the very first dance, before any awards. There IS
+      // no previous awards.
+      const out = buildSearchSuggestions({
+        flatEntries: FLAT,
+        dayLabels: DAY_LABELS,
+        dayDates: DAY_DATES,
+        todayDate: '2026-05-02',
+        nowMinutes: 8 * 60,
+        nextWatchedIndex: null,
+        activeIndex: 0,
+      })
+      expect(out.find(s => s.key === 'previous-awards')).toBeUndefined()
+    })
+
+    it('returns null for next when activeIndex is at or past the last awards block', () => {
+      // User on the very last awards. Nothing comes after.
+      const out = buildSearchSuggestions({
+        flatEntries: FLAT,
+        dayLabels: DAY_LABELS,
+        dayDates: DAY_DATES,
+        todayDate: '2026-05-03',
+        nowMinutes: 17 * 60,
+        nextWatchedIndex: null,
+        activeIndex: 4,
+      })
+      expect(out.find(s => s.key === 'next-awards')).toBeUndefined()
+    })
+
+    it('falls back to wall-clock when activeIndex is null (no anchor)', () => {
+      // Same input as the offset bug repro, but without an anchor.
+      // Should pick by wall-clock now (current behavior preserved).
+      const out = buildSearchSuggestions({
+        flatEntries: FLAT,
+        dayLabels: DAY_LABELS,
+        dayDates: DAY_DATES,
+        todayDate: '2026-05-03',
+        nowMinutes: 18 * 60,
+        nextWatchedIndex: null,
+        activeIndex: null,
+      })
+      const prev = out.find(s => s.key === 'previous-awards')
+      // Wall-clock-walking finds Sunday 5 PM (index 4) since 5 PM <= 6 PM.
+      expect(prev?.globalIndex).toBe(4)
+    })
   })
 })
 
