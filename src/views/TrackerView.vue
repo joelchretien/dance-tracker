@@ -9,6 +9,7 @@ import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 import { useSnapback } from '@/composables/useSnapback'
 import TopBar from '@/components/TopBar.vue'
+import InstallNudgeBanner from '@/components/InstallNudgeBanner.vue'
 import ScheduleList from '@/components/ScheduleList.vue'
 import WatchedDancesList from '@/components/WatchedDancesList.vue'
 import SnapbackPill from '@/components/SnapbackPill.vue'
@@ -20,6 +21,7 @@ import ToastNotification from '@/components/ToastNotification.vue'
 import CountdownBanner from '@/components/CountdownBanner.vue'
 import WatchedDancersTipModal from '@/components/WatchedDancersTipModal.vue'
 import CurrentDanceTipModal from '@/components/CurrentDanceTipModal.vue'
+import InstallInstructionsModal from '@/components/InstallInstructionsModal.vue'
 
 const props = defineProps<{ scheduleId: string }>()
 
@@ -218,6 +220,15 @@ function handleJumpToNext() {
       :show-back="multipleSchedules"
     />
 
+    <!-- Install nudge: shown only after the user has set up watched dancers
+         AND a current dance — at that point they're invested enough that
+         "install for one-tap access during the comp" is genuinely useful
+         rather than nagware. Self-hides when already installed (standalone
+         mode), when the user dismisses, or on browsers that can't install. -->
+    <InstallNudgeBanner
+      v-if="navigation.hasAnchor && watchStore.watchedDancers.length > 0"
+    />
+
     <!-- Onboarding hint: shown after the user has watched dancers but
          before they've set a current dance. Sequences the onboarding so
          only one CTA competes for attention at a time. Suppressed
@@ -271,5 +282,6 @@ function handleJumpToNext() {
     <ToastNotification v-if="ui.toastMessage" :message="ui.toastMessage" />
     <WatchedDancersTipModal v-if="ui.watchedDancersTipOpen" @close="ui.watchedDancersTipOpen = false" />
     <CurrentDanceTipModal v-if="ui.currentDanceTipOpen" @close="ui.currentDanceTipOpen = false" />
+    <InstallInstructionsModal v-if="ui.installInstructionsOpen" @close="ui.installInstructionsOpen = false" />
   </div>
 </template>

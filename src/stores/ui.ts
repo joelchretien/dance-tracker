@@ -49,6 +49,11 @@ export const useUiStore = defineStore('ui', () => {
   // First-time educational modal after marking a dance as current
   const currentDanceTipOpen = ref(false)
 
+  // Install instructions modal (iOS) — hoisted to view level so it
+  // outlives the SettingsDropdown unmount or the banner re-render that
+  // would otherwise kill it.
+  const installInstructionsOpen = ref(false)
+
   function showToast(msg: string, durationMs = 1800) {
     toastMessage.value = msg
     if (toastTimerId.value) clearTimeout(toastTimerId.value)
@@ -166,6 +171,7 @@ export const useUiStore = defineStore('ui', () => {
     scheduleStatus,
     watchedDancersTipOpen,
     currentDanceTipOpen,
+    installInstructionsOpen,
     showToast,
     openJumpToPanel, closeJumpToPanel,
     openWatchPanel, closeWatchPanel,
