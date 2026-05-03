@@ -104,7 +104,7 @@ The schedule JSON format is fully documented in `skills/convert-schedule.md`.
 ```bash
 npm install
 npm run dev      # Vite dev server
-npm test         # Run tests (213 tests, 18 files)
+npm test         # Run tests (246 tests, 19 files)
 npm run lint     # ESLint (Vue 3 + TypeScript flat config)
 npm run typecheck  # vue-tsc --noEmit
 npm run build    # Type-check + production build
@@ -136,6 +136,37 @@ device.
 Push to `main` triggers GitHub Actions which builds and deploys to GitHub Pages. The service worker handles cache busting — the home-screen app picks up new versions within 60 seconds.
 
 Build SHA is visible in Settings dropdown for version verification.
+
+## Data classification
+
+The repository and the deployed app are **public**. Schedule JSON files in
+`public/schedules/` are world-readable both via `https://<user>.github.io/dance-tracker/schedules/<id>.json`
+and via the GitHub repository's raw-file URLs. The `noindex,nofollow` meta
+tag in `index.html` reduces discoverability via search engines but is **not
+access control** — anyone who has or guesses the URL can read the data.
+
+**What's safe to publish:** entry numbers, scheduled times, dance titles,
+studio names, age divisions, and category descriptors. These are also
+printed in the official competition program distributed at the venue.
+
+**Dancer names:** the source PDFs published by competition organizers
+contain dancer first and last names of minors. The conversion pipeline
+(`scripts/build-schedule.ts`) preserves these names verbatim. **If a
+schedule containing minor's names should not be world-readable, this
+deployment model is the wrong fit.** Options:
+
+- Strip last names in the `.dat` DSL source before building (the DSL is
+  the source of truth and what gets committed).
+- Move the app behind authentication (Cloudflare Access, a per-event
+  password, or an authenticated host like Vercel with middleware).
+- Don't publish schedules containing minor's names at all.
+
+**Removal:** if a parent or organizer requests removal of a name, removing
+it from the `.dat` source and re-running `npm run build:schedule` updates
+the deployed site within ~60 seconds (SW cache TTL). Git history retains
+the prior version unless explicitly rewritten with `git filter-repo`;
+deployed cache copies on user devices clear when the SW activates the
+next deploy.
 
 ## Tech Stack
 

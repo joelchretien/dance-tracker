@@ -101,3 +101,48 @@ export function validateSchedule(data: unknown): void {
     })
   })
 }
+
+/**
+ * Validates the shape of public/schedules/index.json. Schedules listed
+ * here drive the picker, the route resolution, and which JSON files
+ * the SW caches as schedule data. A typo or wrong shape would surface
+ * as confusing "Failed to load" errors deeper in the stack rather than
+ * a clear "manifest is malformed" at boundary load time.
+ *
+ * Each manifest entry's id must match the same SAFE_ID_RE that the
+ * router and the schedule-file validator already use, so a manifest
+ * can never reference a schedule that the route would reject or that
+ * the schedule-file validator would block from loading.
+ */
+export interface ManifestEntry {
+  id: string
+  name: string
+}
+
+export interface Manifest {
+  schedules: ManifestEntry[]
+}
+
+export function validateManifest(data: unknown): asserts data is Manifest {
+  if (!isPlainObject(data)) fail('manifest', 'expected an object')
+  if (!Array.isArray(data.schedules)) fail('manifest.schedules', 'expected array')
+  data.schedules.forEach((entry: unknown, i: number) => {
+    const path = `manifest.schedules[${i}]`
+    if (!isPlainObject(entry)) fail(path, 'expected object')
+    if (typeof entry.id !== 'string' || !entry.id) fail(`${path}.id`, 'expected non-empty string')
+    if (!SAFE_ID_RE.test(entry.id)) {
+      fail(`${path}.id`, `must match ${SAFE_ID_RE} (got "${entry.id}")`)
+    }
+    if (typeof entry.name !== 'string' || !entry.name) {
+      fail(`${path}.name`, 'expected non-empty string')
+    }
+  })
+
+  // Reject duplicate ids — last-write-wins routing would silently mask
+  // one of the entries.
+  const seen = new Set<string>()
+  for (const entry of data.schedules) {
+    if (seen.has(entry.id)) fail('manifest.schedules', `duplicate id "${entry.id}"`)
+    seen.add(entry.id)
+  }
+}

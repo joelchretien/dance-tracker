@@ -13,6 +13,11 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# Validation lives in validate.yml and runs on every push to main as well
+# as on PRs. This workflow assumes validation has already succeeded — it
+# rebuilds and deploys but doesn't re-run lint/typecheck/test. The
+# alternative (duplicate gates here) wastes ~2 minutes per deploy.
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,9 +28,6 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -75,4 +75,38 @@ describe('isWithinActiveHours', () => {
   it('returns false on empty schedule', () => {
     expect(isWithinActiveHours([], [], '2026-05-02', 12 * 60)).toBe(false)
   })
+
+  // Offset-aware behavior. The `offsetMinutes` parameter shifts both ends
+  // of the window equally to track the actual competition wall-clock when
+  // it's running ±N minutes off the printed schedule.
+
+  it('positive offset (running late) extends the window past scheduled end', () => {
+    // Without offset, 11:10 PM Saturday is past Awards 10:39 PM end.
+    expect(isWithinActiveHours(flat, dayDates, '2026-05-02', 23 * 60 + 10)).toBe(false)
+    // With a 60-minute delay, the same wall-clock time is well inside
+    // the offset-adjusted window (Awards is "running" at ~10:39 PM + 60m).
+    expect(isWithinActiveHours(flat, dayDates, '2026-05-02', 23 * 60 + 10, 60)).toBe(true)
+  })
+
+  it('positive offset shifts the start as well', () => {
+    // Saturday 7:55 AM is pre-show without offset; with a -30 minute
+    // offset (event running early) it counts as inside the window.
+    expect(isWithinActiveHours(flat, dayDates, '2026-05-02', 7 * 60 + 55)).toBe(false)
+    expect(isWithinActiveHours(flat, dayDates, '2026-05-02', 7 * 60 + 55, -30)).toBe(true)
+  })
+
+  it('negative offset (running early) shifts the end earlier too', () => {
+    // 5:00 PM Sunday is at the scheduled last-entry time. A negative
+    // offset means the event finished before its scheduled time, so
+    // 5:00 PM is past the offset-adjusted window.
+    // (Last entry's duration is the awards/dance default, ~3 minutes.)
+    const SUNDAY_5PM = 17 * 60
+    // Negative 60: last entry's end-of-window is at lastTime + duration - 60.
+    expect(isWithinActiveHours(flat, dayDates, '2026-05-03', SUNDAY_5PM, -60)).toBe(false)
+  })
+
+  it('zero offset matches default (backward compat)', () => {
+    expect(isWithinActiveHours(flat, dayDates, '2026-05-02', 12 * 60))
+      .toBe(isWithinActiveHours(flat, dayDates, '2026-05-02', 12 * 60, 0))
+  })
 })

@@ -6,7 +6,7 @@ import globals from 'globals'
 export default [
   {
     name: 'app/files-to-lint',
-    files: ['**/*.{ts,mts,tsx,vue}'],
+    files: ['**/*.{js,ts,mts,tsx,vue}'],
   },
 
   {
@@ -15,8 +15,7 @@ export default [
       '**/dist/**',
       '**/dist-ssr/**',
       '**/coverage/**',
-      'public/sw.js',  // SW is plain JS, not part of TS app
-      'scripts/**',    // converter scripts have their own conventions
+      'public/manifest.webmanifest',
     ],
   },
 
@@ -72,6 +71,17 @@ export default [
     languageOptions: {
       globals: {
         ...globals.serviceworker,
+      },
+    },
+  },
+
+  // scripts/** are Node CLIs run via tsx; Node globals + relaxed rules
+  // appropriate for command-line tools (process.exit, console.error etc).
+  {
+    files: ['scripts/**/*.{js,ts}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
       },
     },
   },

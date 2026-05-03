@@ -1,4 +1,4 @@
-import { ref, computed, type Ref } from 'vue'
+import { ref, computed, onUnmounted, type Ref } from 'vue'
 
 /**
  * Drag-to-seek + click-to-seek + keyboard-to-seek progress control,
@@ -62,6 +62,16 @@ export function useSeekableBar(opts: UseSeekableBarOptions) {
     }
   }
 
+  /**
+   * Symmetric cleanup of document-level mouse listeners. Called both on
+   * normal drag-end (mouseup) and on component unmount, so a route change
+   * mid-drag doesn't leave stale closures attached to document.
+   */
+  function removeDocumentListeners() {
+    document.removeEventListener('mousemove', onDragMove)
+    document.removeEventListener('mouseup', onDragEnd)
+  }
+
   function onDragMove(e: TouchEvent | MouseEvent) {
     if (!isDragging.value) return
     e.stopPropagation()
@@ -73,8 +83,7 @@ export function useSeekableBar(opts: UseSeekableBarOptions) {
     e.stopPropagation()
     isDragging.value = false
     if (!('touches' in e || 'changedTouches' in e)) {
-      document.removeEventListener('mousemove', onDragMove)
-      document.removeEventListener('mouseup', onDragEnd)
+      removeDocumentListeners()
     }
     // For touchend the event has no current touches; reuse last known dragProgress.
     let final: number
@@ -91,6 +100,12 @@ export function useSeekableBar(opts: UseSeekableBarOptions) {
     }
     opts.onSeek(clamp01(final))
   }
+
+  // If a component unmounts mid-drag (route change, view-mode flip,
+  // entry leaving the watched list), the mouseup handler on document
+  // would otherwise hang around with a stale closure until the user
+  // happened to mouseup somewhere.
+  onUnmounted(removeDocumentListeners)
 
   function onBarClick(e: MouseEvent) {
     if (!opts.seekable.value) return

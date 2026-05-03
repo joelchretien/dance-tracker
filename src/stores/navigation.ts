@@ -214,14 +214,21 @@ export const useNavigationStore = defineStore('navigation', () => {
     const duration = getEntryDurationMinutes(schedule.flatEntries, idx)
     const now = currentTimeFractionalMinutes()
 
-    // Back-compute anchor: what anchorWallMinutes makes progress = seeked value?
+    // Clamp the input before using it to derive the anchor — otherwise
+    // an out-of-range progress (e.g. from a future keyboard shortcut or
+    // test caller) would compute an anchor inconsistent with the clamped
+    // activeProgress stored afterward. The visible seek bar already
+    // clamps, but store-level APIs should be defensive at the boundary.
+    const clamped = Math.max(0, Math.min(1, progress))
+
+    // Back-compute anchor: what anchorWallMinutes makes progress = clamped?
     // progress = (now - startWall) / duration, startWall = anchorWall when marked = active
     // → anchorWall = now - progress * duration
     markedIndex.value = idx
-    anchorWallMinutes.value = now - progress * duration
+    anchorWallMinutes.value = now - clamped * duration
     anchorTimestamp.value = Date.now()
     likelyIndex.value = idx
-    activeProgress.value = Math.max(0, Math.min(1, progress))
+    activeProgress.value = clamped
   }
 
   // Progress through the active entry (0 to 1), updated every second.
@@ -351,6 +358,11 @@ export const useNavigationStore = defineStore('navigation', () => {
    * and "set as current" onboarding hint all key off this so users opening
    * the app at midnight or a week before the event don't see misleading
    * "current dance" UI.
+   *
+   * Offset-aware: when an anchor is set and the competition is running
+   * ±N minutes off schedule, the window shifts by that offset. A delayed
+   * competition won't flip to off-hours just because the scheduled end
+   * time has passed.
    */
   const isWithinActiveHours = computed<boolean>(() =>
     computeIsWithinActiveHours(
@@ -358,6 +370,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       schedule.dayDates,
       localDateString(),
       nowMinutes.value,
+      scheduleOffsetMinutes.value ?? 0,
     ),
   )
 

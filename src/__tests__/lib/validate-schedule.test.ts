@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateSchedule } from '@/lib/validate-schedule'
+import { validateSchedule, validateManifest } from '@/lib/validate-schedule'
 
 function validSchedule() {
   return {
@@ -177,5 +177,74 @@ describe('validateSchedule', () => {
     const s = validSchedule()
     s.meta.id = 'evil:id'
     expect(() => validateSchedule(s)).toThrow(/meta\.id/)
+  })
+})
+
+describe('validateManifest', () => {
+  it('accepts a well-formed manifest', () => {
+    const m = { schedules: [{ id: 'otf-2026', name: 'OTF 2026' }] }
+    expect(() => validateManifest(m)).not.toThrow()
+  })
+
+  it('accepts multiple schedule entries', () => {
+    const m = {
+      schedules: [
+        { id: 'otf-2026', name: 'OTF 2026' },
+        { id: 'world-finals_2027', name: 'World Finals 2027' },
+      ],
+    }
+    expect(() => validateManifest(m)).not.toThrow()
+  })
+
+  it('rejects non-object root', () => {
+    expect(() => validateManifest(null)).toThrow(/manifest/)
+    expect(() => validateManifest([])).toThrow(/manifest/)
+    expect(() => validateManifest('hi')).toThrow(/manifest/)
+  })
+
+  it('rejects missing schedules array', () => {
+    expect(() => validateManifest({})).toThrow(/schedules/)
+    expect(() => validateManifest({ schedules: 'nope' })).toThrow(/schedules/)
+  })
+
+  it('rejects missing or empty id', () => {
+    expect(() => validateManifest({ schedules: [{ name: 'X' }] })).toThrow(/id/)
+    expect(() => validateManifest({ schedules: [{ id: '', name: 'X' }] })).toThrow(/id/)
+  })
+
+  it('rejects unsafe id characters (matches route + schedule-file grammar)', () => {
+    // Anything outside [a-zA-Z0-9_-] is rejected, matching the
+    // SAFE_ID_RE used by the route and schedule-file validator.
+    expect(() => validateManifest({ schedules: [{ id: 'evil:id', name: 'X' }] })).toThrow(/id/)
+    expect(() => validateManifest({ schedules: [{ id: 'has space', name: 'X' }] })).toThrow(/id/)
+    expect(() => validateManifest({ schedules: [{ id: '../escape', name: 'X' }] })).toThrow(/id/)
+  })
+
+  it('rejects missing or empty name', () => {
+    expect(() => validateManifest({ schedules: [{ id: 'otf' }] })).toThrow(/name/)
+    expect(() => validateManifest({ schedules: [{ id: 'otf', name: '' }] })).toThrow(/name/)
+  })
+
+  it('rejects duplicate ids', () => {
+    const m = {
+      schedules: [
+        { id: 'otf-2026', name: 'A' },
+        { id: 'otf-2026', name: 'B' },
+      ],
+    }
+    expect(() => validateManifest(m)).toThrow(/duplicate/)
+  })
+
+  it('error messages include the index of the offending entry', () => {
+    const m = {
+      schedules: [
+        { id: 'otf-2026', name: 'OTF 2026' },
+        { id: 'otf-2026', name: 'B' },
+      ],
+    }
+    // Duplicate is on index 1 — the path-style message should let the
+    // author find the bad entry without scrolling.
+    expect(() => validateManifest({ schedules: [{ id: 'a', name: 'A' }, {}] })).toThrow(/\[1\]/)
+    void m
   })
 })

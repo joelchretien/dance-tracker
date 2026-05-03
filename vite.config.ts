@@ -32,6 +32,11 @@ const gitHash = getGitHash()
  * Vite copies public/* into dist/* verbatim near the end of the build.
  * We overwrite dist/sw.js after that copy completes (closeBundle runs
  * after writeBundle, after publicDir is copied).
+ *
+ * Fails the build if the CACHE_NAME pattern can't be found — without this
+ * guard, a future refactor of public/sw.js (single-quote → double-quote,
+ * different declaration shape, etc.) would silently leave the cache name
+ * unstamped and ship stale caches to production.
  */
 function stampServiceWorker() {
   return {
@@ -48,15 +53,65 @@ function stampServiceWorker() {
           /const CACHE_NAME = '[^']*'/,
           `const CACHE_NAME = 'dance-tracker-${gitHash}'`,
         )
+        if (stamped === src) {
+          throw new Error(
+            'stamp-sw-cache-version: failed to find `const CACHE_NAME = \'...\'` in dist/sw.js. ' +
+            'The replacement pattern in vite.config.ts no longer matches public/sw.js source.',
+          )
+        }
         writeFileSync(distPath, stamped)
       },
     },
   }
 }
 
+/**
+ * Assert that PWA asset links in the built index.html resolve to the
+ * configured base path, not to the domain root. On a non-root deploy
+ * (project page at /dance-tracker/), root-relative paths like
+ * /manifest.webmanifest would 404.
+ *
+ * The source uses `./` relative paths and Vite leaves those alone; this
+ * check is a smoke alarm in case someone reverts to absolute paths or
+ * a future Vite version changes how it processes them.
+ */
+function assertPwaAssetPaths(base: string) {
+  return {
+    name: 'assert-pwa-asset-paths',
+    apply: 'build' as const,
+    closeBundle: {
+      sequential: true,
+      order: 'post' as const,
+      async handler() {
+        if (base === '/') return
+        const { readFileSync } = await import('fs')
+        const html = readFileSync(resolve(__dirname, 'dist/index.html'), 'utf8')
+        const offenders: string[] = []
+        // Match href on icon / apple-touch-icon / manifest links and check
+        // that each href resolves under the configured base or is relative.
+        const linkPattern = /<link[^>]+rel=["'](?:icon|apple-touch-icon|manifest)["'][^>]+href=["']([^"']+)["']/g
+        let m: RegExpExecArray | null
+        while ((m = linkPattern.exec(html))) {
+          const href = m[1]
+          if (href.startsWith('/') && !href.startsWith(base)) {
+            offenders.push(href)
+          }
+        }
+        if (offenders.length > 0) {
+          throw new Error(
+            `assert-pwa-asset-paths: dist/index.html contains root-relative PWA links that don't honor base="${base}": ${offenders.join(', ')}`,
+          )
+        }
+      },
+    },
+  }
+}
+
+const PROJECT_BASE = '/dance-tracker/'
+
 export default defineConfig({
-  plugins: [vue(), tailwindcss(), stampServiceWorker()],
-  base: '/dance-tracker/',
+  plugins: [vue(), tailwindcss(), stampServiceWorker(), assertPwaAssetPaths(PROJECT_BASE)],
+  base: PROJECT_BASE,
   define: {
     __GIT_HASH__: JSON.stringify(gitHash),
   },

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ScheduleFile, ScheduleManifest, IndexedEntry } from '@/types/schedule'
-import { validateSchedule } from '@/lib/validate-schedule'
+import { validateSchedule, validateManifest } from '@/lib/validate-schedule'
 
 export const useScheduleStore = defineStore('schedule', () => {
   const scheduleFile = ref<ScheduleFile | null>(null)
@@ -59,9 +59,7 @@ export const useScheduleStore = defineStore('schedule', () => {
       const res = await fetch(`${base}schedules/index.json`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
-      if (!data?.schedules || !Array.isArray(data.schedules)) {
-        throw new Error('Invalid manifest: missing schedules array')
-      }
+      validateManifest(data)
       manifest.value = data
     } catch (e) {
       console.error('Failed to load schedule list:', e)
