@@ -86,10 +86,18 @@ export const useUiStore = defineStore('ui', () => {
     viewModeDropdownOpen.value = false
   }
 
-  function setViewMode(mode: ViewMode) {
+  function setViewMode(mode: ViewMode, opts: { skipAutoJump?: boolean } = {}) {
+    if (opts.skipAutoJump) skipNextViewModeJump.value = true
     viewMode.value = mode
     viewModeDropdownOpen.value = false
   }
+
+  /**
+   * One-shot signal used by JumpToPanel to tell TrackerView's viewMode watcher
+   * "I just changed the mode but I have my own scroll target — don't auto-jump
+   * to now." TrackerView reads + clears it inside the watcher.
+   */
+  const skipNextViewModeJump = ref(false)
 
   function setSnapback(visible: boolean) {
     snapbackVisible.value = visible
@@ -139,6 +147,7 @@ export const useUiStore = defineStore('ui', () => {
     settingsDropdownOpen,
     viewModeDropdownOpen,
     viewMode,
+    skipNextViewModeJump,
     toastMessage, toastTimerId,
     snapbackVisible,
     scheduleStatus,

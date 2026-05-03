@@ -51,6 +51,14 @@ function nowIndexForCurrentMode(): number | null {
   return navigation.jumpToNow()?.index ?? null
 }
 
+/** True if the given global index is rendered in the current view's filtered list. */
+function isVisibleInCurrentMode(idx: number): boolean {
+  if (ui.viewMode === 'all') return true
+  const indices =
+    ui.viewMode === 'dancers' ? watchStore.watchedEntryIndices : watchStore.studioEntryIndices
+  return indices.includes(idx)
+}
+
 onMounted(async () => {
   await Promise.all([
     schedule.loadSchedule(props.scheduleId),
@@ -80,16 +88,22 @@ onMounted(async () => {
 
   await nextTick()
   // First-time users (no anchor) land near wall-clock-now. Returning users
-  // land on their last marked/active entry. The "now" target is mode-aware
-  // because filtered lists only render their subset of entries — using
-  // navigation.nowIndex in studio/dancers mode would target an element
-  // that isn't on the page.
+  // land on their last marked/active entry. Both targets are mode-aware
+  // because filtered lists only render their subset of entries — using a
+  // global index that isn't in the filtered set would silently no-op.
   if (!navigation.hasAnchor) {
     const idx = nowIndexForCurrentMode()
     scrollToEntry(idx ?? navigation.activeIndex, false)
   } else {
-    scrollToEntry(navigation.activeIndex, false)
+    // Try the active (anchored) entry first; if it isn't visible in the
+    // current filter, fall back to the mode-aware now index.
+    const target = isVisibleInCurrentMode(navigation.activeIndex)
+      ? navigation.activeIndex
+      : nowIndexForCurrentMode() ?? navigation.activeIndex
+    scrollToEntry(target, false)
   }
+
+  initComplete.value = true
 })
 
 // Unified 1-second tick: auto-advance, progress bar, now-index
@@ -104,9 +118,18 @@ onUnmounted(() => {
 
 const CURRENT_DANCE_ONBOARDED_KEY = 'dt:onboardedCurrentDance'
 
+// Watchers below need to distinguish "user marked something" from "init loaded
+// persisted state into the ref". Vue watchers fire on any value change after
+// registration, including the one that init triggers. initComplete flips true
+// once onMounted finishes, which gates the user-action-only side effects.
+const initComplete = ref(false)
+
 // Scroll only on manual marks — not timer-driven changes, which would
-// yank the user away from wherever they're browsing.
+// yank the user away from wherever they're browsing. The initComplete gate
+// prevents the deferred smooth-scroll from firing during init and overriding
+// onMounted's explicit scroll-to-now.
 watch(() => navigation.markedIndex, () => {
+  if (!initComplete.value) return
   ui.updateScheduleStatus()
   nextTick(() => scrollToEntry(navigation.activeIndex, true))
 })
@@ -114,7 +137,10 @@ watch(() => navigation.markedIndex, () => {
 // First-time educational modal: fires when the anchor goes from "not set"
 // to "set" — the moment the user has marked any dance. Watching markedIndex
 // alone misses the case where the user marks entry 0 (no index change).
+// Gated by initComplete so a returning user with a persisted anchor doesn't
+// see the modal on every app open.
 watch(() => navigation.hasAnchor, (newVal, oldVal) => {
+  if (!initComplete.value) return
   if (!newVal || oldVal) return
   if (localStorage.getItem(CURRENT_DANCE_ONBOARDED_KEY) === '1') return
   localStorage.setItem(CURRENT_DANCE_ONBOARDED_KEY, '1')
@@ -145,8 +171,14 @@ function handleJumpToNow() {
 
 // When the user picks a different filter, jump to the wall-clock-now entry
 // in the new view. nextTick gives the new list a frame to render before
-// we look up its DOM elements.
+// we look up its DOM elements. Search-driven mode changes set
+// ui.skipNextViewModeJump so the search-jump scroll isn't immediately
+// overridden by a scroll-to-now from this watcher.
 watch(() => ui.viewMode, () => {
+  if (ui.skipNextViewModeJump) {
+    ui.skipNextViewModeJump = false
+    return
+  }
   nextTick(() => {
     const idx = nowIndexForCurrentMode()
     if (idx !== null) scrollToEntry(idx, true)

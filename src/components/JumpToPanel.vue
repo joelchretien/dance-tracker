@@ -50,7 +50,7 @@ function borderClass(r: EnrichedSearchResult): string {
   if (r.isMarked) return 'border-l-indigo-400'
   if (r.isWatched) return 'border-l-gold-400'
   if (r.sameStudio) return 'border-l-cyan-400/40'
-  return 'border-l-gray-800'
+  return 'border-l-transparent'
 }
 
 function bgClass(r: EnrichedSearchResult): string {
@@ -63,11 +63,13 @@ function selectResult(globalIndex: number) {
   // If the target isn't rendered in the current filtered list, switch to All
   // first so the scroll target's DOM element actually exists. The user
   // explicitly searched for it — they want to see it regardless of filter.
+  // skipAutoJump prevents TrackerView's viewMode watcher from immediately
+  // scrolling to "now" and overriding the search-jump scroll.
   if (ui.viewMode !== 'all') {
     const visibleIndices =
       ui.viewMode === 'dancers' ? watchStore.watchedEntryIndices : watchStore.studioEntryIndices
     if (!visibleIndices.includes(globalIndex)) {
-      ui.setViewMode('all')
+      ui.setViewMode('all', { skipAutoJump: true })
     }
   }
   navigation.select(globalIndex)
@@ -104,8 +106,8 @@ function selectResult(globalIndex: number) {
         <button
           v-for="r in searchResults"
           :key="r.globalIndex"
-          class="relative block w-full my-0.5 px-3 py-2 rounded-lg border text-left active:bg-surface-overlay transition-colors"
-          :class="[borderClass(r), bgClass(r), 'border-gray-800']"
+          class="relative block w-full my-0.5 px-3 py-2 rounded-lg border-l-[3px] text-left active:bg-surface-overlay transition-colors"
+          :class="[borderClass(r), bgClass(r)]"
           @click="selectResult(r.globalIndex)"
         >
           <span
@@ -126,11 +128,12 @@ function selectResult(globalIndex: number) {
                 :class="r.isWatched ? 'text-gold-400' : 'text-gray-200'"
               >{{ titleCaseDanceTitle(r.title) }}</div>
               <div v-if="r.subtitle" class="text-[11px] text-gray-500 truncate">{{ r.subtitle }}</div>
-              <div v-if="r.watchedDancers.length" class="flex flex-wrap gap-1 mt-1">
-                <DancerBadge v-for="name in r.watchedDancers" :key="name" :name="name" />
-              </div>
             </div>
             <span v-if="r.num" class="fs-time text-gray-500 shrink-0">#{{ r.num }}</span>
+          </div>
+
+          <div v-if="r.watchedDancers.length" class="flex flex-wrap gap-1 mt-1">
+            <DancerBadge v-for="name in r.watchedDancers" :key="name" :name="name" />
           </div>
         </button>
       </template>
