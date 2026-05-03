@@ -33,6 +33,11 @@ export function useRecentSearches(scheduleId: Ref<string | null>) {
   // reactive key directly.
   function getStorage() {
     return useLocalStorage<string[]>(storageKey.value, [], {
+      // Sync writes so a search-and-immediately-force-close persists.
+      // The latency of localStorage.setItem is negligible (microseconds);
+      // the previous default of 'pre' deferred to nextTick which is the
+      // wrong default for state we want durable on demand.
+      flush: 'sync',
       // Tolerate corrupt JSON without throwing — return [] in that case.
       // Without this, a hand-edit or partial write blocks the entire
       // search panel from rendering its empty state.

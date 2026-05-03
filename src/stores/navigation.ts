@@ -56,10 +56,17 @@ export const useNavigationStore = defineStore('navigation', () => {
   const anchorTimestamp = ref<number | null>(null)
 
   function initForSchedule(id: string) {
-    navStorage = useLocalStorage(`dt:${id}:nav`, 0)
-    anchorStorage = useLocalStorage<number | null>(`dt:${id}:anchor`, null)
-    anchorTimestampStorage = useLocalStorage<number | null>(`dt:${id}:anchorTs`, null)
-    fsStorage = useLocalStorage<FontSize>(`dt:${id}:fontSize`, 'default')
+    // flush: 'sync' on all storage refs so writes hit localStorage in the
+    // same tick as the ref assignment, not on the next nextTick(). Without
+    // this, marking a dance and immediately force-closing the PWA can lose
+    // the anchor: the user assignment fires the watcher async, which fires
+    // useLocalStorage's internal watcher async, and force-close happens
+    // before either reaches localStorage.setItem. Repro: tap "Set as
+    // current", swipe up, force-close. Reopen: anchor gone.
+    navStorage = useLocalStorage(`dt:${id}:nav`, 0, { flush: 'sync' })
+    anchorStorage = useLocalStorage<number | null>(`dt:${id}:anchor`, null, { flush: 'sync' })
+    anchorTimestampStorage = useLocalStorage<number | null>(`dt:${id}:anchorTs`, null, { flush: 'sync' })
+    fsStorage = useLocalStorage<FontSize>(`dt:${id}:fontSize`, 'default', { flush: 'sync' })
 
     // Normalize hydrated values: corrupt or out-of-bounds persisted state
     // (markedIndex past end of a shrunk schedule, fontSize from a future
@@ -120,10 +127,15 @@ export const useNavigationStore = defineStore('navigation', () => {
     }
   }
 
-  watch(markedIndex, (val) => { if (navStorage) navStorage.value = val })
-  watch(anchorWallMinutes, (val) => { if (anchorStorage) anchorStorage.value = val })
-  watch(anchorTimestamp, (val) => { if (anchorTimestampStorage) anchorTimestampStorage.value = val })
-  watch(fontSize, (val) => { if (fsStorage) fsStorage.value = val })
+  // flush: 'sync' here mirrors the storage refs above. The persistence
+  // chain is: user action → in-memory ref assignment → THIS watcher →
+  // useLocalStorage's internal watcher → localStorage.setItem. Each
+  // 'pre' hop adds an event-loop tick before the write hits disk. Sync
+  // collapses the chain so write-then-force-close is durable.
+  watch(markedIndex, (val) => { if (navStorage) navStorage.value = val }, { flush: 'sync' })
+  watch(anchorWallMinutes, (val) => { if (anchorStorage) anchorStorage.value = val }, { flush: 'sync' })
+  watch(anchorTimestamp, (val) => { if (anchorTimestampStorage) anchorTimestampStorage.value = val }, { flush: 'sync' })
+  watch(fontSize, (val) => { if (fsStorage) fsStorage.value = val }, { flush: 'sync' })
 
   /** Twelve hours in ms. Anchors older than this are stale regardless of date. */
   const ANCHOR_MAX_AGE_MS = 12 * 60 * 60 * 1000

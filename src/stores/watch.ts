@@ -19,7 +19,9 @@ export const useWatchStore = defineStore('watch', () => {
   let storage: ReturnType<typeof useLocalStorage<string[]>> | null = null
 
   function initForSchedule(id: string) {
-    storage = useLocalStorage<string[]>(`dt:${id}:watch`, [])
+    // flush: 'sync' so toggling a watched dancer + force-close persists.
+    // See navigation.ts for the full reasoning.
+    storage = useLocalStorage<string[]>(`dt:${id}:watch`, [], { flush: 'sync' })
     // Build a roster of dancers actually present in the loaded schedule.
     // Persisted names that no longer exist (because the schedule was
     // edited or replaced) are silently dropped — keeping them in the
@@ -36,7 +38,7 @@ export const useWatchStore = defineStore('watch', () => {
     storage.value = safe // rewrite cleaned-up list
   }
 
-  watch(watchedDancers, (val) => { if (storage) storage.value = val }, { deep: true })
+  watch(watchedDancers, (val) => { if (storage) storage.value = val }, { deep: true, flush: 'sync' })
 
   const watchedDancerSet = computed(() => new Set(watchedDancers.value))
 

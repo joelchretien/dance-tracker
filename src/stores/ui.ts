@@ -27,7 +27,9 @@ export const useUiStore = defineStore('ui', () => {
   let viewModeStorage: ReturnType<typeof useLocalStorage<ViewMode>> | null = null
 
   function initForSchedule(id: string) {
-    viewModeStorage = useLocalStorage<ViewMode>(`dt:${id}:viewMode`, 'all')
+    // flush: 'sync' so view-mode toggle + force-close persists. See
+    // navigation.ts for the full reasoning.
+    viewModeStorage = useLocalStorage<ViewMode>(`dt:${id}:viewMode`, 'all', { flush: 'sync' })
     const safe = normalizeViewMode(viewModeStorage.value)
     viewMode.value = safe
     viewModeStorage.value = safe
