@@ -5,6 +5,7 @@ import {
   normalizeViewMode,
   normalizeWatchedDancers,
   isAnchorCoherent,
+  reconcileMarkedIndexWithAnchor,
 } from '@/lib/normalize-persisted'
 
 describe('normalizeMarkedIndex', () => {
@@ -112,5 +113,39 @@ describe('isAnchorCoherent', () => {
   it('rejects invalid timestamp', () => {
     expect(isAnchorCoherent({ anchorWallMinutes: 600, anchorTimestamp: -1, markedIndex: 0 }, ENTRY_COUNT)).toBe(false)
     expect(isAnchorCoherent({ anchorWallMinutes: 600, anchorTimestamp: NaN, markedIndex: 0 }, ENTRY_COUNT)).toBe(false)
+  })
+})
+
+describe('reconcileMarkedIndexWithAnchor', () => {
+  it('passes markedIndex through when anchor is set', () => {
+    // Anchor is set → coherent state, leave the user's mark alone.
+    expect(reconcileMarkedIndexWithAnchor(42, 600, 0)).toBe(42)
+  })
+
+  it('resets markedIndex to today\'s firstOfDay when anchor is null', () => {
+    // The screenshot bug: anchor went null but markedIndex stayed at a
+    // mid-schedule entry, causing the phantom CURRENT highlight + the
+    // 'set as current' hint to coexist.
+    expect(reconcileMarkedIndexWithAnchor(42, null, 10)).toBe(10)
+  })
+
+  it('leaves markedIndex alone when there is no day-start to reset to', () => {
+    // No schedule day matches today (e.g., user opens a week before the
+    // event with a corrupt persisted state). With nowhere to canonicalize
+    // to, leave the index alone — the active-hours gate hides the visual
+    // treatment anyway.
+    expect(reconcileMarkedIndexWithAnchor(42, null, -1)).toBe(42)
+  })
+
+  it('is a no-op when markedIndex already matches firstOfDay', () => {
+    expect(reconcileMarkedIndexWithAnchor(0, null, 0)).toBe(0)
+    expect(reconcileMarkedIndexWithAnchor(15, null, 15)).toBe(15)
+  })
+
+  it('handles markedIndex 0 with non-zero firstOfDay (multi-day schedule)', () => {
+    // Day 1's first entry is index 0; day 2's first entry is index 271.
+    // A user opening fresh on day 2 with no anchor would have markedIndex=0
+    // (default) but should land at 271.
+    expect(reconcileMarkedIndexWithAnchor(0, null, 271)).toBe(271)
   })
 })

@@ -67,3 +67,31 @@ export function isAnchorCoherent(state: AnchorState, entryCount: number): boolea
   if (!Number.isInteger(markedIndex) || markedIndex < 0 || markedIndex >= entryCount) return false
   return true
 }
+
+/**
+ * When the anchor is null, the only legitimate markedIndex is today's
+ * day-start (matching clearAnchor's invariant elsewhere in the navigation
+ * store). Any other value looks like a phantom "current" mark — render
+ * with the indigo CURRENT highlight but with no auto-advance, and would
+ * also trigger the "set as current" onboarding hint at the same time.
+ *
+ * In practice this happens when storage was partially cleared (browser
+ * eviction of just the anchor key, downgrade across app versions, or
+ * hand-edited localStorage) — the four mutation sites in the store all
+ * write markedIndex and anchor together, so a coherent app session
+ * cannot produce this divergence on its own.
+ *
+ * Returns the markedIndex the caller should use. Pass -1 for
+ * firstOfTodayIndex if the schedule has no day matching today (e.g.,
+ * a user opening the app a week before the event); in that case we
+ * leave markedIndex alone since there's nothing to canonicalize to.
+ */
+export function reconcileMarkedIndexWithAnchor(
+  markedIndex: number,
+  anchorWallMinutes: number | null,
+  firstOfTodayIndex: number,
+): number {
+  if (anchorWallMinutes !== null) return markedIndex
+  if (firstOfTodayIndex < 0) return markedIndex
+  return firstOfTodayIndex
+}

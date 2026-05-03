@@ -12,6 +12,7 @@ import {
   normalizeMarkedIndex,
   normalizeFontSize,
   isAnchorCoherent,
+  reconcileMarkedIndexWithAnchor,
 } from '@/lib/normalize-persisted'
 import type { FontSize } from '@/types/schedule'
 
@@ -89,6 +90,18 @@ export const useNavigationStore = defineStore('navigation', () => {
       anchorWallMinutes.value = null
       anchorTimestamp.value = null
     }
+
+    // When anchor is null, markedIndex must point at today's day-start;
+    // any other value paints a phantom "current" highlight without the
+    // auto-advance machinery behind it. Reconcile here, before the UI
+    // reads any of these values.
+    const todayIdxAtInit = todayDayIndex(schedule.dayDates)
+    const firstOfTodayAtInit = schedule.flatEntries.findIndex(e => e.dayIndex === todayIdxAtInit)
+    markedIndex.value = reconcileMarkedIndexWithAnchor(
+      markedIndex.value,
+      anchorWallMinutes.value,
+      firstOfTodayAtInit,
+    )
 
     selectedIndex.value = null
     // A select timer from a previous schedule could otherwise fire later and
