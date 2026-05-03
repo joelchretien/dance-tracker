@@ -23,6 +23,7 @@ A mobile-first web app for tracking dancers through multi-day dance competition 
 ```
 src/
 ├── lib/           Pure functions (tested)
+│   ├── active-hours.ts     Is wall-clock-now inside today's run window
 │   ├── auto-advance.ts     findLikelyCurrentIndex (anchor + offset → likely now)
 │   ├── awards.ts           Awards block computation
 │   ├── category.ts         Category string formatting
@@ -103,7 +104,7 @@ The schedule JSON format is fully documented in `skills/convert-schedule.md`.
 ```bash
 npm install
 npm run dev      # Vite dev server
-npm test         # Run tests (203 tests, 17 files)
+npm test         # Run tests (213 tests, 18 files)
 npm run lint     # ESLint (Vue 3 + TypeScript flat config)
 npm run typecheck  # vue-tsc --noEmit
 npm run build    # Type-check + production build

@@ -6,6 +6,7 @@ import { findNowIndex, todayDayIndex } from '@/lib/navigation'
 import { findLikelyCurrentIndex } from '@/lib/auto-advance'
 import { parseTime, currentTimeMinutes, currentTimeFractionalMinutes, localDateString } from '@/lib/time'
 import { getEntryDurationMinutes } from '@/lib/entry-duration'
+import { isWithinActiveHours as computeIsWithinActiveHours } from '@/lib/active-hours'
 import { titleCaseDanceTitle } from '@/lib/title-case'
 import {
   normalizeMarkedIndex,
@@ -260,6 +261,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   /** Unified 1-second tick: updates auto-advance, progress, and now-index. */
   function tick() {
     const now = currentTimeFractionalMinutes()
+    nowMinutes.value = now
     updateLikelyCurrent(now)
     updateProgress(now)
     updateNowIndex()
@@ -326,6 +328,41 @@ export const useNavigationStore = defineStore('navigation', () => {
   // The entry closest to current wall clock time (updated periodically)
   const nowIndex = ref<number | null>(null)
 
+  /** Wall-clock minutes at the latest tick. Drives time-dependent computeds. */
+  const nowMinutes = ref<number>(currentTimeMinutes())
+
+  /**
+   * Whether wall-clock now is inside today's competition day window. False
+   * before the first entry, after the estimated end of the last entry, or
+   * on any non-schedule day. The "current" highlight, schedule-status pill,
+   * and "set as current" onboarding hint all key off this so users opening
+   * the app at midnight or a week before the event don't see misleading
+   * "current dance" UI.
+   */
+  const isWithinActiveHours = computed<boolean>(() =>
+    computeIsWithinActiveHours(
+      schedule.flatEntries,
+      schedule.dayDates,
+      localDateString(),
+      nowMinutes.value,
+    ),
+  )
+
+  /**
+   * Should the "current dance" highlight (▶ CURRENT badge, indigo border,
+   * progress bar) render at all? Two conditions must hold:
+   *   - We're inside today's active hours (else everything is stale).
+   *   - The user has an actual anchor set. Without an anchor, `activeIndex`
+   *     falls back to a persisted markedIndex, which can legitimately be
+   *     zero or stale from before the anchor model existed — highlighting
+   *     a random entry just because something's stored there is misleading,
+   *     and it's exactly what made the onboarding hint and the highlight
+   *     contradict each other in the off-hours screenshot.
+   */
+  const currentIsVisible = computed<boolean>(
+    () => hasAnchor.value && isWithinActiveHours.value,
+  )
+
   function updateNowIndex() {
     const dayIdx = todayDayIndex(schedule.dayDates)
     const now = currentTimeMinutes()
@@ -338,6 +375,8 @@ export const useNavigationStore = defineStore('navigation', () => {
     anchorWallMinutes,
     selectedIndex, fontSize,
     activeEntry, activeDayIndex, activeTimeOfEntry, markedTimeOfEntry,
+    isWithinActiveHours,
+    currentIsVisible,
     initForSchedule, select, markAsCurrent, seekProgress, tick,
     canIncreaseFontSize, canDecreaseFontSize,
     increaseFontSize, decreaseFontSize, jumpToNow,

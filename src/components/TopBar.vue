@@ -3,12 +3,14 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, ListFilter, Settings, ChevronLeft } from 'lucide-vue-next'
 import { useUiStore } from '@/stores/ui'
+import { useNavigationStore } from '@/stores/navigation'
 import ScheduleStatus from './ScheduleStatus.vue'
 
 defineProps<{ title: string; showBack: boolean }>()
 
 const router = useRouter()
 const ui = useUiStore()
+const navigation = useNavigationStore()
 
 const filterButtonClass = computed(() => {
   if (ui.viewMode === 'dancers') return 'bg-gold-400/15 active:bg-gold-400/25'
@@ -40,7 +42,7 @@ const filterIconFill = computed(() =>
       </button>
       <div class="flex items-baseline gap-2 flex-1 mr-2 min-w-0">
         <div class="text-lg font-bold truncate">{{ title }}</div>
-        <ScheduleStatus :status="ui.scheduleStatus" />
+        <ScheduleStatus v-if="navigation.isWithinActiveHours" :status="ui.scheduleStatus" />
       </div>
       <div class="flex items-center gap-1">
         <button
