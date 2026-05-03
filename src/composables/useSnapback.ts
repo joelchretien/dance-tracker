@@ -1,4 +1,4 @@
-import { watch, onBeforeUnmount, type Ref } from 'vue'
+import { watch, nextTick, onBeforeUnmount, type Ref } from 'vue'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
@@ -61,7 +61,12 @@ export function useSnapback(scrollContainer: Ref<HTMLElement | null>) {
 
   watch(
     [() => navigation.nowIndex, () => navigation.markedIndex, () => ui.viewMode],
-    () => { requestAnimationFrame(observe) },
+    // nextTick runs after Vue's flush, so when viewMode flips between
+    // 'all' / 'studio' / 'dancers' (which unmounts ScheduleList and mounts
+    // WatchedDancesList or vice versa) the new component's DOM is in place
+    // before observe() looks for elements. requestAnimationFrame can fire
+    // mid-flush and observe a stale element.
+    () => { nextTick(observe) },
     { immediate: true },
   )
 

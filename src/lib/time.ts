@@ -33,11 +33,20 @@ export function localDateString(d: Date = new Date()): string {
  * Format the difference between two minute-values as a human-readable string.
  * Wraps around midnight (adds 1440 if negative, matching original tD behavior).
  */
-export function formatTimeDiff(fromMinutes: number, toMinutes: number): string {
+/**
+ * Format a same-day time difference as "~1h 23min" / "~45min" / "~3h".
+ *
+ * Both inputs must be minutes since midnight on the SAME day, with
+ * `toMinutes >= fromMinutes`. The function returns empty string if the
+ * diff is negative — callers crossing a day boundary should detect that
+ * separately and not call this function (or guard the result), because a
+ * "10pm Friday → 8am Saturday" diff isn't meaningfully expressible as a
+ * single number of hours/minutes.
+ */
+export function formatSameDayDiff(fromMinutes: number, toMinutes: number): string {
   if (fromMinutes < 0 || toMinutes < 0) return ''
-  let diff = toMinutes - fromMinutes
-  if (diff < 0) diff += 1440
-  if (diff === 0) return ''
+  const diff = toMinutes - fromMinutes
+  if (diff <= 0) return ''
   const h = Math.floor(diff / 60)
   const m = diff % 60
   if (h === 0) return `~${m}min`

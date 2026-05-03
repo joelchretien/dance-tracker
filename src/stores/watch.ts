@@ -7,7 +7,7 @@ import { computeAwardsBlocks } from '@/lib/awards'
 import { findNextTarget, countDancesUntil } from '@/lib/countdown'
 import { todayDayIndex } from '@/lib/navigation'
 import { extractSubtitle } from '@/lib/category'
-import { parseTime, formatTimeDiff, currentTimeMinutes } from '@/lib/time'
+import { parseTime, formatSameDayDiff, currentTimeMinutes } from '@/lib/time'
 import type { AwardsBlock } from '@/types/schedule'
 
 export const useWatchStore = defineStore('watch', () => {
@@ -155,7 +155,7 @@ export const useWatchStore = defineStore('watch', () => {
     if (!curEntry || !nxtEntry) return ''
     const from = parseTime(curEntry.time)
     const to = parseTime(nxtEntry.time)
-    return formatTimeDiff(from, to)
+    return formatSameDayDiff(from, to)
   })
 
   function toggleDancer(name: string) {
@@ -167,25 +167,6 @@ export const useWatchStore = defineStore('watch', () => {
       watchedDancers.value.push(name)
       return true // added
     }
-  }
-
-  function isWatchedEntry(globalIndex: number): boolean {
-    const item = schedule.flatEntries[globalIndex]
-    if (!item) return false
-    const entry = item.entry
-    if (entry.type === 'dance' && entry.dancers) {
-      return entry.dancers.some(d => watchedDancerSet.value.has(d))
-    }
-    if (entry.type === 'awards') {
-      return watchedAwardsSet.value.has(globalIndex)
-    }
-    return false
-  }
-
-  function getWatchedDancersForEntry(globalIndex: number): string[] {
-    const item = schedule.flatEntries[globalIndex]
-    if (!item || item.entry.type !== 'dance' || !item.entry.dancers) return []
-    return item.entry.dancers.filter(d => watchedDancerSet.value.has(d))
   }
 
   /** Sorted global indices of all watched dances + watched awards */
@@ -201,6 +182,21 @@ export const useWatchStore = defineStore('watch', () => {
     }
     return indices
   })
+
+  /** Set form of watchedEntryIndices for O(1) `isWatchedEntry` lookups. */
+  const watchedEntryIndexSet = computed<Set<number>>(
+    () => new Set(watchedEntryIndices.value),
+  )
+
+  function isWatchedEntry(globalIndex: number): boolean {
+    return watchedEntryIndexSet.value.has(globalIndex)
+  }
+
+  function getWatchedDancersForEntry(globalIndex: number): string[] {
+    const item = schedule.flatEntries[globalIndex]
+    if (!item || item.entry.type !== 'dance' || !item.entry.dancers) return []
+    return item.entry.dancers.filter(d => watchedDancerSet.value.has(d))
+  }
 
   /**
    * Sorted global indices of every dance from a watched studio (i.e. studios

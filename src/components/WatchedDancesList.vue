@@ -4,7 +4,7 @@ import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
-import { parseTime, formatTimeDiff } from '@/lib/time'
+import { parseTime, formatSameDayDiff } from '@/lib/time'
 import { countDancesUntil } from '@/lib/countdown'
 import { titleCaseDanceTitle } from '@/lib/title-case'
 import type { DanceEntry as DanceEntryType, BreakEntry as BreakEntryType, AwardsEntry } from '@/types/schedule'
@@ -59,13 +59,20 @@ const listItems = computed<ListItem[]>(() => {
     // Gap indicator between consecutive filtered entries
     if (i > 0) {
       const prevGi = indices[i - 1]
-      const prevEntry = schedule.flatEntries[prevGi]?.entry
+      const prevItem = schedule.flatEntries[prevGi]
+      const prevEntry = prevItem?.entry
       const curEntry = item.entry
+
+      // Don't render a gap across a day boundary. The day-header above
+      // already separates the two days; adding "~14h · 47 dances" below it
+      // is nonsense (timeDiff wraps via +1440, danceCount walks across the
+      // first day's tail into the second day's head).
+      const dayChanged = prevItem && prevItem.dayIndex !== item.dayIndex
 
       const fromMin = parseTime(prevEntry?.time ?? '')
       const toMin = parseTime(curEntry.time)
-      const timeDiff = formatTimeDiff(fromMin, toMin)
-      const danceCount = countDancesUntil(schedule.flatEntries, prevGi, gi)
+      const timeDiff = dayChanged ? '' : formatSameDayDiff(fromMin, toMin)
+      const danceCount = dayChanged ? 0 : countDancesUntil(schedule.flatEntries, prevGi, gi)
 
       // Check if the marked dance falls between previous and current
       const markedBetween = markedIdx > prevGi && markedIdx < gi

@@ -60,6 +60,15 @@ function isVisibleInCurrentMode(idx: number): boolean {
 }
 
 onMounted(async () => {
+  // Reject IDs that would produce ambiguous localStorage keys when
+  // interpolated into `dt:${id}:nav` etc. Safe charset is alphanumeric
+  // + dash + underscore; manifest IDs are author-controlled today but
+  // a stray colon would silently shadow keys from another schedule.
+  if (!/^[a-zA-Z0-9_-]+$/.test(props.scheduleId)) {
+    router.replace('/')
+    return
+  }
+
   await Promise.all([
     schedule.loadSchedule(props.scheduleId),
     schedule.manifest ? Promise.resolve() : schedule.loadManifest(),
@@ -73,6 +82,7 @@ onMounted(async () => {
 
   navigation.initForSchedule(props.scheduleId)
   watchStore.initForSchedule(props.scheduleId)
+  ui.initForSchedule(props.scheduleId)
 
   // Stored viewMode could be 'studio' or 'dancers' from a previous session
   // while the watched-dancers list is empty — for example after the user

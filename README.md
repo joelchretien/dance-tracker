@@ -22,14 +22,20 @@ A mobile-first web app for tracking dancers through multi-day dance competition 
 
 ```
 src/
-├── lib/           Pure functions (tested, 98% coverage)
-│   ├── awards.ts         Awards block computation
-│   ├── category.ts       Category string formatting
-│   ├── countdown.ts      Next target + dance counting
-│   ├── fuzzy-search.ts   Fuzzy search scoring
-│   ├── navigation.ts     Jump-to-now + day index
+├── lib/           Pure functions (tested)
+│   ├── auto-advance.ts     findLikelyCurrentIndex (anchor + offset → likely now)
+│   ├── awards.ts           Awards block computation
+│   ├── category.ts         Category string formatting
+│   ├── countdown.ts        Next target + dance counting
+│   ├── entry-duration.ts   Per-entry duration from neighbour times
+│   ├── fuzzy-search.ts     Fuzzy search scoring
+│   ├── navigation.ts       Jump-to-now + day index
+│   ├── predicted-time.ts   Apply schedule offset to a scheduled time
 │   ├── schedule-status.ts  Behind/ahead classification
-│   └── time.ts           Time parsing + formatting
+│   ├── search-enrich.ts    JumpToPanel result enrichment (pure)
+│   ├── time.ts             Time parsing + formatting
+│   ├── title-case.ts       Dance title formatting
+│   └── validate-schedule.ts  JSON schema validator at load boundary
 ├── stores/        Pinia stores (state + derived data)
 │   ├── schedule.ts       Static schedule data (read-only after load)
 │   ├── navigation.ts     Position, selection, font size
@@ -92,7 +98,7 @@ The schedule JSON format is fully documented in `skills/convert-schedule.md`.
 ```bash
 npm install
 npm run dev      # Vite dev server
-npm test         # Run tests (57 tests, 7 files)
+npm test         # Run tests (137 tests, 13 files)
 npm run build    # Type-check + production build
 ```
 

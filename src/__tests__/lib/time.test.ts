@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseTime, formatTimeDiff, localDateString } from '@/lib/time'
+import { parseTime, formatSameDayDiff, localDateString } from '@/lib/time'
 
 describe('parseTime', () => {
   it('parses morning time', () => {
@@ -23,26 +23,29 @@ describe('parseTime', () => {
   })
 })
 
-describe('formatTimeDiff', () => {
+describe('formatSameDayDiff', () => {
   it('returns empty string for zero diff', () => {
-    expect(formatTimeDiff(100, 100)).toBe('')
+    expect(formatSameDayDiff(100, 100)).toBe('')
   })
   it('formats minutes only', () => {
-    expect(formatTimeDiff(100, 145)).toBe('~45min')
+    expect(formatSameDayDiff(100, 145)).toBe('~45min')
   })
   it('formats hours only', () => {
-    expect(formatTimeDiff(0, 120)).toBe('~2h')
+    expect(formatSameDayDiff(0, 120)).toBe('~2h')
   })
   it('formats hours and minutes', () => {
-    expect(formatTimeDiff(0, 105)).toBe('~1h 45min')
+    expect(formatSameDayDiff(0, 105)).toBe('~1h 45min')
   })
-  it('wraps around midnight for negative diff', () => {
-    // 23:00 (1380) to 1:00 (60): should be ~2h
-    expect(formatTimeDiff(1380, 60)).toBe('~2h')
+  it('returns empty when toMinutes < fromMinutes (same-day contract)', () => {
+    // 23:00 (1380) to 1:00 (60): negative same-day diff → empty.
+    // Callers crossing a day boundary suppress the call themselves;
+    // this function refuses to invent a number that wrapped through
+    // midnight.
+    expect(formatSameDayDiff(1380, 60)).toBe('')
   })
   it('returns empty for invalid times', () => {
-    expect(formatTimeDiff(-1, 100)).toBe('')
-    expect(formatTimeDiff(100, -1)).toBe('')
+    expect(formatSameDayDiff(-1, 100)).toBe('')
+    expect(formatSameDayDiff(100, -1)).toBe('')
   })
 })
 

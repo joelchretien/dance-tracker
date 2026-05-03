@@ -18,8 +18,17 @@ export const useUiStore = defineStore('ui', () => {
   const settingsDropdownOpen = ref(false)
   const viewModeDropdownOpen = ref(false)
 
-  // View mode — All Dances, Watched Studio, Watched Dancers
-  const viewMode = useLocalStorage<ViewMode>('dt:viewMode', 'all')
+  // View mode — All Dances, Watched Studio, Watched Dancers.
+  // Per-schedule: two competitions can have completely different watched
+  // dancer sets, so the filter that makes sense for one (e.g. "studio")
+  // doesn't necessarily make sense for the other.
+  const viewMode = ref<ViewMode>('all')
+  let viewModeStorage: ReturnType<typeof useLocalStorage<ViewMode>> | null = null
+
+  function initForSchedule(id: string) {
+    viewModeStorage = useLocalStorage<ViewMode>(`dt:${id}:viewMode`, 'all')
+    viewMode.value = viewModeStorage.value
+  }
 
   // Toast
   const toastMessage = ref('')
@@ -89,6 +98,7 @@ export const useUiStore = defineStore('ui', () => {
   function setViewMode(mode: ViewMode, opts: { skipAutoJump?: boolean } = {}) {
     if (opts.skipAutoJump) skipNextViewModeJump.value = true
     viewMode.value = mode
+    if (viewModeStorage) viewModeStorage.value = mode
     viewModeDropdownOpen.value = false
   }
 
@@ -159,5 +169,6 @@ export const useUiStore = defineStore('ui', () => {
     toggleSettingsDropdown, closeSettingsDropdown,
     toggleViewModeDropdown, closeViewModeDropdown, setViewMode,
     setSnapback, updateScheduleStatus,
+    initForSchedule,
   }
 })

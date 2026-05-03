@@ -41,14 +41,20 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   let navStorage: ReturnType<typeof useLocalStorage<number>> | null = null
   let anchorStorage: ReturnType<typeof useLocalStorage<number | null>> | null = null
+  let anchorTimestampStorage: ReturnType<typeof useLocalStorage<number | null>> | null = null
   let fsStorage: ReturnType<typeof useLocalStorage<FontSize>> | null = null
+
+  /** Wall-clock ms when the current anchor was set. Used for time-based staleness. */
+  const anchorTimestamp = ref<number | null>(null)
 
   function initForSchedule(id: string) {
     navStorage = useLocalStorage(`dt:${id}:nav`, 0)
     anchorStorage = useLocalStorage<number | null>(`dt:${id}:anchor`, null)
+    anchorTimestampStorage = useLocalStorage<number | null>(`dt:${id}:anchorTs`, null)
     fsStorage = useLocalStorage<FontSize>(`dt:${id}:fontSize`, 'default')
     markedIndex.value = navStorage.value
     anchorWallMinutes.value = anchorStorage.value
+    anchorTimestamp.value = anchorTimestampStorage.value
     fontSize.value = fsStorage.value
     selectedIndex.value = null
     applyFontSize()
@@ -63,20 +69,37 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   watch(markedIndex, (val) => { if (navStorage) navStorage.value = val })
   watch(anchorWallMinutes, (val) => { if (anchorStorage) anchorStorage.value = val })
+  watch(anchorTimestamp, (val) => { if (anchorTimestampStorage) anchorTimestampStorage.value = val })
   watch(fontSize, (val) => { if (fsStorage) fsStorage.value = val })
 
-  /** Check if the anchor belongs to a different competition day than today. */
+  /** Twelve hours in ms. Anchors older than this are stale regardless of date. */
+  const ANCHOR_MAX_AGE_MS = 12 * 60 * 60 * 1000
+
+  /**
+   * An anchor is stale when either:
+   *  - the marked entry's competition day isn't today (handles the common case
+   *    of "set anchor on Friday, open app Saturday"), OR
+   *  - more than 12 hours have elapsed since the anchor was set (defense in
+   *    depth — covers any code path that could leave markedIndex pointing
+   *    at a future day, plus the edge case of leaving the app open across
+   *    midnight without a reload).
+   */
   function isAnchorStale(): boolean {
     const entry = schedule.flatEntries[markedIndex.value]
     if (!entry) return true
     const anchorDate = schedule.days[entry.dayIndex]?.date
     if (!anchorDate) return true
-    return anchorDate !== localDateString()
+    if (anchorDate !== localDateString()) return true
+    if (anchorTimestamp.value !== null && Date.now() - anchorTimestamp.value > ANCHOR_MAX_AGE_MS) {
+      return true
+    }
+    return false
   }
 
   /** Clear the anchor, stopping auto-advance. Resets to first entry of today. */
   function clearAnchor() {
     anchorWallMinutes.value = null
+    anchorTimestamp.value = null
     likelyIndex.value = null
 
     // Move markedIndex to the first entry of today's day
@@ -122,6 +145,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (target !== null && target !== undefined && target >= 0 && target < schedule.flatEntries.length) {
       markedIndex.value = target
       anchorWallMinutes.value = currentTimeFractionalMinutes()
+      anchorTimestamp.value = Date.now()
       likelyIndex.value = target // immediately matches manual
       activeProgress.value = 0
     }
@@ -144,6 +168,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     // → anchorWall = now - progress * duration
     markedIndex.value = idx
     anchorWallMinutes.value = now - progress * duration
+    anchorTimestamp.value = Date.now()
     likelyIndex.value = idx
     activeProgress.value = Math.max(0, Math.min(1, progress))
   }

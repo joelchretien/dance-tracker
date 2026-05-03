@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ScheduleFile, ScheduleManifest, IndexedEntry } from '@/types/schedule'
+import { validateSchedule } from '@/lib/validate-schedule'
 
 export const useScheduleStore = defineStore('schedule', () => {
   const scheduleFile = ref<ScheduleFile | null>(null)
@@ -76,13 +77,16 @@ export const useScheduleStore = defineStore('schedule', () => {
       const res = await fetch(`${base}schedules/${id}.json`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
-      if (!data?.meta || !Array.isArray(data?.days)) {
-        throw new Error('Invalid schedule: missing meta or days')
-      }
+      validateSchedule(data)
       scheduleFile.value = data
     } catch (e) {
       console.error('Failed to load schedule:', id, e)
       error.value = `Failed to load schedule: ${id}`
+      // Reset on failure so isLoaded reflects reality. Otherwise switching
+      // from a good schedule to a 404'd one would leave the previous
+      // schedule's data visible while error is set, and TrackerView's
+      // redirect-on-fail (gated on !isLoaded) would never fire.
+      scheduleFile.value = null
     } finally {
       loading.value = false
     }
