@@ -75,8 +75,8 @@ export function enrichSearchResults(
     const best = Math.max(titleScore, numScore)
     if (best <= 0) continue
 
-    let watchedDancers: string[] = []
-    let isWatched = false
+    let watchedDancers: string[]
+    let isWatched: boolean
     let sameStudio = false
 
     if (entry.type === 'dance') {

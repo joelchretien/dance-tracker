@@ -18,6 +18,7 @@ const text = computed(() => {
     case 'way-behind': return `Current is ~${props.status.minutes} min ago`
     case 'wrong-day': return props.status.dayLabel
     case 'not-started': return ''
+    default: return ''
   }
 })
 

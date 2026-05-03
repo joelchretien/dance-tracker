@@ -32,6 +32,7 @@ src/
 │   ├── navigation.ts       Jump-to-now + day index
 │   ├── normalize-persisted.ts  Sanitize/clamp localStorage values at hydration
 │   ├── offset-threshold.ts Single source of truth for the meaningful-offset min
+│   ├── parse-schedule-dsl.ts  Pure parser for the schedule .dat DSL (testable)
 │   ├── predicted-time.ts   Apply schedule offset to a scheduled time
 │   ├── schedule-status.ts  Behind/ahead classification
 │   ├── search-enrich.ts    JumpToPanel result enrichment (pure)
@@ -102,9 +103,32 @@ The schedule JSON format is fully documented in `skills/convert-schedule.md`.
 ```bash
 npm install
 npm run dev      # Vite dev server
-npm test         # Run tests (189 tests, 16 files)
+npm test         # Run tests (203 tests, 17 files)
+npm run lint     # ESLint (Vue 3 + TypeScript flat config)
+npm run typecheck  # vue-tsc --noEmit
 npm run build    # Type-check + production build
 ```
+
+## Adding a new competition
+
+Schedules live in two places:
+
+- `scripts/schedules-source/<id>.dat` — DSL source (pipe-separated, one
+  line per entry). The DSL grammar is documented at the top of
+  `src/lib/parse-schedule-dsl.ts`.
+- `public/schedules/<id>.json` — generated; what the browser fetches.
+
+To add a new competition:
+
+1. Add a `{ id, name }` entry to `public/schedules/index.json`.
+2. Drop a `<id>.dat` file under `scripts/schedules-source/` (the
+   `convert-schedule` Claude skill produces this directly from a PDF).
+3. Build it: `npm run build:schedule -- <id>`.
+
+The build runs the DSL through the same validator the runtime uses
+(time parseability, chronological ordering, optional field types) so a
+malformed `.dat` fails before producing a JSON, not at the user's
+device.
 
 ## Deployment
 
