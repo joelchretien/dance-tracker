@@ -6,6 +6,7 @@ import {
   normalizeWatchedDancers,
   isAnchorCoherent,
   reconcileMarkedIndexWithAnchor,
+  numberOrNullSerializer,
 } from '@/lib/normalize-persisted'
 
 describe('normalizeMarkedIndex', () => {
@@ -147,5 +148,108 @@ describe('reconcileMarkedIndexWithAnchor', () => {
     // A user opening fresh on day 2 with no anchor would have markedIndex=0
     // (default) but should land at 271.
     expect(reconcileMarkedIndexWithAnchor(0, null, 271)).toBe(271)
+  })
+})
+
+describe('numberOrNullSerializer', () => {
+  // The bug this serializer fixes:
+  //
+  // Without it, `useLocalStorage(key, null)` falls back to VueUse's
+  // 'any' serializer (because the null default makes `guessSerializerType`
+  // pick 'any'), whose read function is `(v) => v` — returning the raw
+  // localStorage string. So a number written as 695.5 is stored as
+  // "695.5" but read back as the STRING "695.5". Anything downstream
+  // that uses Number.isFinite to validate the value rejects it.
+  //
+  // These tests pin down both halves of the round-trip so any future
+  // regression (e.g., 'simplifying' by removing the explicit serializer)
+  // fails loudly instead of silently breaking anchor persistence.
+
+  describe('write', () => {
+    it('serializes a number to its string representation', () => {
+      expect(numberOrNullSerializer.write(695.5)).toBe('695.5')
+      expect(numberOrNullSerializer.write(0)).toBe('0')
+      expect(numberOrNullSerializer.write(-12.34)).toBe('-12.34')
+    })
+
+    it('serializes null to empty string', () => {
+      // Empty string round-trips to null on read, which keeps localStorage
+      // free of the literal token "null" (which would also work but reads
+      // less cleanly when inspected in devtools).
+      expect(numberOrNullSerializer.write(null)).toBe('')
+    })
+  })
+
+  describe('read', () => {
+    it('parses a numeric string back to a number — the critical case', () => {
+      // This is the round-trip that VueUse's 'any' serializer broke.
+      // Number.isFinite('695.5') is false; Number.isFinite(695.5) is true.
+      // The whole bug hinged on whether read returned a number or a string.
+      const result = numberOrNullSerializer.read('695.5')
+      expect(result).toBe(695.5)
+      expect(typeof result).toBe('number')
+      expect(Number.isFinite(result)).toBe(true)
+    })
+
+    it('parses integers', () => {
+      expect(numberOrNullSerializer.read('42')).toBe(42)
+      expect(numberOrNullSerializer.read('0')).toBe(0)
+      expect(numberOrNullSerializer.read('-7')).toBe(-7)
+    })
+
+    it('returns null for empty string', () => {
+      expect(numberOrNullSerializer.read('')).toBeNull()
+    })
+
+    it('returns null for the literal token "null"', () => {
+      // Defensive: if some other writer puts the string "null" in storage
+      // (hand edit, migration from a different serializer), don't try to
+      // parseFloat it and end up with NaN.
+      expect(numberOrNullSerializer.read('null')).toBeNull()
+    })
+
+    it('returns null for unparseable strings', () => {
+      // parseFloat('abc') is NaN, Number.isFinite(NaN) is false, so we
+      // coerce back to null rather than letting NaN flow downstream.
+      expect(numberOrNullSerializer.read('abc')).toBeNull()
+      expect(numberOrNullSerializer.read('not a number')).toBeNull()
+    })
+
+    it('returns null for Infinity', () => {
+      // parseFloat('Infinity') === Infinity, Number.isFinite(Infinity) is
+      // false. Anchor minutes should never be infinite — null is the
+      // safer default than letting it through.
+      expect(numberOrNullSerializer.read('Infinity')).toBeNull()
+      expect(numberOrNullSerializer.read('-Infinity')).toBeNull()
+    })
+  })
+
+  describe('round-trip', () => {
+    // Property: write then read returns the original value (modulo the
+    // null<->'' canonicalization). This is the test that would have
+    // caught the original bug if it had existed.
+    function roundTrip(value: number | null): number | null {
+      return numberOrNullSerializer.read(numberOrNullSerializer.write(value))
+    }
+
+    it('preserves numbers across write+read', () => {
+      expect(roundTrip(695.5)).toBe(695.5)
+      expect(roundTrip(0)).toBe(0)
+      expect(roundTrip(-12.34)).toBe(-12.34)
+      expect(roundTrip(1439.98)).toBe(1439.98) // largest plausible anchor
+    })
+
+    it('preserves null across write+read', () => {
+      expect(roundTrip(null)).toBeNull()
+    })
+
+    it('round-tripped value passes Number.isFinite (the bug-trigger check)', () => {
+      // Belt and braces: this is the specific predicate isAnchorCoherent
+      // calls on the persisted value. If any future change to the
+      // serializer breaks this assertion, the anchor-clearing bug is back.
+      const result = roundTrip(695.5)
+      expect(result).not.toBeNull()
+      expect(Number.isFinite(result)).toBe(true)
+    })
   })
 })

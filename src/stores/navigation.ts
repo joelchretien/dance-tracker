@@ -13,6 +13,7 @@ import {
   normalizeFontSize,
   isAnchorCoherent,
   reconcileMarkedIndexWithAnchor,
+  numberOrNullSerializer,
 } from '@/lib/normalize-persisted'
 import type { FontSize } from '@/types/schedule'
 
@@ -63,9 +64,22 @@ export const useNavigationStore = defineStore('navigation', () => {
     // useLocalStorage's internal watcher async, and force-close happens
     // before either reaches localStorage.setItem. Repro: tap "Set as
     // current", swipe up, force-close. Reopen: anchor gone.
+    //
+    // numberOrNullSerializer is required (not optional) for both anchor
+    // refs because VueUse's auto-detected serializer for null defaults
+    // is the 'any' serializer, whose read function returns the raw
+    // localStorage string verbatim — so a written number reads back as
+    // a string, and Number.isFinite('695.5') === false sends it through
+    // isAnchorCoherent's reject path on every PWA reopen.
     navStorage = useLocalStorage(`dt:${id}:nav`, 0, { flush: 'sync' })
-    anchorStorage = useLocalStorage<number | null>(`dt:${id}:anchor`, null, { flush: 'sync' })
-    anchorTimestampStorage = useLocalStorage<number | null>(`dt:${id}:anchorTs`, null, { flush: 'sync' })
+    anchorStorage = useLocalStorage<number | null>(`dt:${id}:anchor`, null, {
+      flush: 'sync',
+      serializer: numberOrNullSerializer,
+    })
+    anchorTimestampStorage = useLocalStorage<number | null>(`dt:${id}:anchorTs`, null, {
+      flush: 'sync',
+      serializer: numberOrNullSerializer,
+    })
     fsStorage = useLocalStorage<FontSize>(`dt:${id}:fontSize`, 'default', { flush: 'sync' })
 
     // Normalize hydrated values: corrupt or out-of-bounds persisted state

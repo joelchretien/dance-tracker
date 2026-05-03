@@ -95,3 +95,36 @@ export function reconcileMarkedIndexWithAnchor(
   if (firstOfTodayIndex < 0) return markedIndex
   return firstOfTodayIndex
 }
+
+/**
+ * Serializer for `useLocalStorage<number | null>(key, null, ...)`.
+ *
+ * VueUse's `guessSerializerType(rawInit)` returns `'any'` when the
+ * default value is null, and the `any` serializer's read function is
+ * `(v) => v` — it returns the raw localStorage string verbatim, not a
+ * parsed number. So writing a number stores `"695.5"` (correct), but
+ * reading it back yields the string `"695.5"`, not the number 695.5.
+ * `Number.isFinite("695.5")` is false (no auto-coerce), so anywhere
+ * downstream that uses Number.isFinite as a sanity check rejects the
+ * value as corrupt and clears it.
+ *
+ * In dance-tracker this manifested as the anchor being silently
+ * discarded on every PWA reopen — isAnchorCoherent in this same file
+ * uses Number.isFinite to validate the persisted anchor minutes.
+ *
+ * The fix is an explicit serializer that parses on read. Empty string
+ * and the literal "null" both round-trip to null so a deliberately
+ * cleared anchor stays cleared; anything else gets parseFloat'd, with
+ * non-finite results coerced back to null defensively.
+ *
+ * Exported so it can be passed to multiple useLocalStorage calls
+ * (anchor + anchorTimestamp) and tested in isolation.
+ */
+export const numberOrNullSerializer = {
+  read: (raw: string): number | null => {
+    if (raw === '' || raw === 'null') return null
+    const parsed = Number.parseFloat(raw)
+    return Number.isFinite(parsed) ? parsed : null
+  },
+  write: (v: number | null): string => v === null ? '' : String(v),
+}
