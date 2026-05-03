@@ -1,30 +1,43 @@
 /**
- * Suggested searches for the JumpToPanel empty state — the chips that
- * appear when the user opens search but hasn't typed anything yet.
+ * Suggested searches for the JumpToPanel.
  *
  * These are entry-points, not search queries. Each has a label, an
- * optional helper line, and a target globalIndex. Tapping a suggestion
- * jumps directly without typing.
+ * optional helper line, and a target globalIndex. Tapping jumps
+ * directly without further typing.
  *
- * Suggestion order is intentional: the most useful action is usually
- * the watched dancers' next appearance, then the current/likely entry
- * if running, then today's awards if any are still ahead. The list is
- * trimmed to whatever is genuinely actionable for the current state.
+ * Suggestions appear in two places:
  *
- * Pure: takes everything it needs as arguments so it's testable.
+ *   1. The empty state (no query typed) — always show every suggestion
+ *      that's actionable for the current state.
+ *   2. Above text-match results when the typed query semantically
+ *      matches one of the suggestion's keywords (e.g. typing "next" or
+ *      "awards" surfaces the awards chips above the literal results).
+ *      The matchesQuery helper exposes that check so the panel can
+ *      filter the list per-query without rebuilding it.
+ *
+ * Notable omissions:
+ *   - "Jump to current dance" was dropped — the dedicated "Jump to now"
+ *     button on the topbar already serves that purpose, and listing it
+ *     here was redundant.
+ *
+ * Pure: takes everything it needs as arguments so it's testable without
+ * the navigation/watch/ui stores.
  */
 import type { IndexedEntry } from '@/types/schedule'
 import { parseTime } from './time'
 
+export type SuggestionKey = 'next-watched' | 'previous-awards' | 'next-awards'
+
 export interface Suggestion {
-  /** Stable key for v-for. */
-  key: string
+  key: SuggestionKey
   /** Primary label, shown in the chip. */
   label: string
-  /** Optional secondary line — context like "9:22 AM Sunday". */
+  /** Optional secondary line — context like "Sun May 3 · 11:51 AM". */
   detail?: string
   /** Global index to jump to when tapped. */
   globalIndex: number
+  /** Lowercase keywords this suggestion responds to in typed search. */
+  keywords: readonly string[]
 }
 
 interface BuildOpts {
@@ -36,10 +49,6 @@ interface BuildOpts {
   todayDate: string
   /** Per-day dates from the schedule, parallel to dayLabels. */
   dayDates: readonly string[]
-  /** Active competition entry index (likely or marked). null when no anchor. */
-  activeIndex: number | null
-  /** Whether the active highlight is currently visible — drives "Currently dancing". */
-  showCurrent: boolean
   /** Next watched dancer's entry, if any are upcoming. */
   nextWatchedIndex: number | null
 }
@@ -47,24 +56,10 @@ interface BuildOpts {
 export function buildSearchSuggestions(opts: BuildOpts): Suggestion[] {
   const out: Suggestion[] = []
 
-  // Currently dancing — only useful when an anchor is set AND we're in
-  // active hours (the showCurrent gate already encodes both).
-  if (opts.showCurrent && opts.activeIndex !== null) {
-    const e = opts.flatEntries[opts.activeIndex]
-    if (e) {
-      out.push({
-        key: 'current',
-        label: 'Jump to current dance',
-        detail: titleOrType(e),
-        globalIndex: opts.activeIndex,
-      })
-    }
-  }
-
-  // Next watched dancer — biggest day-2/3 win for users who came back to
-  // see their kid. Skipped when nothing is watched or the next is the
-  // active entry (would duplicate the chip above).
-  if (opts.nextWatchedIndex !== null && opts.nextWatchedIndex !== opts.activeIndex) {
+  // Next watched dancer — primary entry-point during a comp. Day + time
+  // detail line so users coming from elsewhere in the schedule can tell
+  // whether the next watched dance is imminent or hours away.
+  if (opts.nextWatchedIndex !== null) {
     const e = opts.flatEntries[opts.nextWatchedIndex]
     if (e) {
       out.push({
@@ -72,38 +67,96 @@ export function buildSearchSuggestions(opts: BuildOpts): Suggestion[] {
         label: 'Next watched dance',
         detail: dayAndTime(e, opts.dayLabels),
         globalIndex: opts.nextWatchedIndex,
+        keywords: ['next', 'watched', 'dance'],
       })
     }
   }
 
-  // Today's next awards block — useful for parents who are tracking
-  // when scoring announcements happen, even without a watched dancer.
   const todayDayIdx = opts.dayDates.indexOf(opts.todayDate)
-  if (todayDayIdx >= 0) {
-    const nextAwards = opts.flatEntries.find(e => {
-      if (e.dayIndex !== todayDayIdx) return false
-      if (e.entry.type !== 'awards') return false
-      const t = parseTime(e.entry.time)
-      return t >= 0 && t >= opts.nowMinutes
+
+  // Previous awards — most-recent awards entry whose scheduled time has
+  // already passed today, OR (when nothing has happened yet today) the
+  // last awards entry from a prior day. Useful for parents catching up
+  // late, e.g. "did Emma's category get scored yet?"
+  const previousAwards = findPreviousAwards(opts, todayDayIdx)
+  if (previousAwards) {
+    out.push({
+      key: 'previous-awards',
+      label: 'Previous awards',
+      detail: dayAndTime(previousAwards, opts.dayLabels),
+      globalIndex: previousAwards.globalIndex,
+      keywords: ['previous', 'prev', 'last', 'awards'],
     })
-    if (nextAwards && nextAwards.globalIndex !== opts.activeIndex) {
-      out.push({
-        key: 'next-awards',
-        label: "Today's next awards",
-        detail: timeOnly(nextAwards),
-        globalIndex: nextAwards.globalIndex,
-      })
-    }
+  }
+
+  // Next awards — first upcoming awards entry, today or any later day.
+  // Distinct from "today's awards" — if today's are done but tomorrow
+  // has more, surfacing tomorrow's is still useful.
+  const nextAwards = findNextAwards(opts, todayDayIdx)
+  if (nextAwards) {
+    out.push({
+      key: 'next-awards',
+      label: 'Next awards',
+      detail: dayAndTime(nextAwards, opts.dayLabels),
+      globalIndex: nextAwards.globalIndex,
+      keywords: ['next', 'awards', 'upcoming'],
+    })
   }
 
   return out
 }
 
-function titleOrType(e: IndexedEntry): string {
-  if (e.entry.type === 'dance') return e.entry.title
-  if (e.entry.type === 'awards') return 'Awards'
-  if (e.entry.type === 'break') return 'Break'
-  return ''
+/**
+ * True if the typed query (any case) is a prefix of any of the
+ * suggestion's keywords. "next" matches all chips with "next" in their
+ * keyword list; "aw" matches "awards"; "previo" matches "previous".
+ *
+ * Prefix matching (rather than substring) keeps the behavior obvious:
+ * partial-word completion as the user types, no surprise hits from
+ * mid-word fragments. Substring matching would surface "next awards"
+ * when typing "ward" which is more confusing than helpful.
+ */
+export function matchesQuery(suggestion: Suggestion, query: string): boolean {
+  const q = query.trim().toLowerCase()
+  if (q.length === 0) return false
+  return suggestion.keywords.some(kw => kw.startsWith(q))
+}
+
+function findPreviousAwards(opts: BuildOpts, todayDayIdx: number): IndexedEntry | null {
+  // Walk backwards from end. First awards we find with (day < today) OR
+  // (day === today AND time <= now) is the most recent.
+  for (let i = opts.flatEntries.length - 1; i >= 0; i--) {
+    const e = opts.flatEntries[i]
+    if (e.entry.type !== 'awards') continue
+    if (todayDayIdx < 0) {
+      // Off-schedule date: any prior awards entry is "previous".
+      return e
+    }
+    if (e.dayIndex < todayDayIdx) return e
+    if (e.dayIndex === todayDayIdx) {
+      const t = parseTime(e.entry.time)
+      if (t >= 0 && t <= opts.nowMinutes) return e
+    }
+  }
+  return null
+}
+
+function findNextAwards(opts: BuildOpts, todayDayIdx: number): IndexedEntry | null {
+  for (let i = 0; i < opts.flatEntries.length; i++) {
+    const e = opts.flatEntries[i]
+    if (e.entry.type !== 'awards') continue
+    if (todayDayIdx < 0) {
+      // Off-schedule date: forward-walk picks the first awards entry,
+      // which is the next thing happening regardless of when.
+      return e
+    }
+    if (e.dayIndex > todayDayIdx) return e
+    if (e.dayIndex === todayDayIdx) {
+      const t = parseTime(e.entry.time)
+      if (t >= 0 && t > opts.nowMinutes) return e
+    }
+  }
+  return null
 }
 
 function dayAndTime(e: IndexedEntry, dayLabels: readonly string[]): string {
@@ -114,8 +167,4 @@ function dayAndTime(e: IndexedEntry, dayLabels: readonly string[]): string {
     .replace(/^\w/, c => c.toUpperCase())
     .replace(/(\w+)day/, (_, prefix) => prefix.slice(0, 3))
   return compact ? `${compact} · ${e.entry.time}` : e.entry.time
-}
-
-function timeOnly(e: IndexedEntry): string {
-  return e.entry.time
 }

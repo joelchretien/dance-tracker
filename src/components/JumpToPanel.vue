@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, nextTick, onMounted } from 'vue'
-import { X, Search, Clock, Play, Star, Trophy } from 'lucide-vue-next'
+import { X, Search, Clock, Star, Trophy } from 'lucide-vue-next'
 import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 import { enrichSearchResults, type EnrichedSearchResult } from '@/lib/search-enrich'
 import { titleCaseDanceTitle } from '@/lib/title-case'
-import { buildSearchSuggestions } from '@/lib/search-suggestions'
+import { buildSearchSuggestions, matchesQuery } from '@/lib/search-suggestions'
 import { localDateString, currentTimeMinutes } from '@/lib/time'
 import { useFocusTrap } from '@/composables/useFocusTrap'
 import { useRecentSearches } from '@/composables/useRecentSearches'
@@ -67,10 +67,15 @@ const suggestions = computed(() =>
     dayDates: schedule.days.map(d => d.date),
     todayDate: localDateString(),
     nowMinutes: currentTimeMinutes(),
-    activeIndex: navigation.activeIndex,
-    showCurrent: navigation.hasAnchor && navigation.isWithinActiveHours,
     nextWatchedIndex: watchStore.nextTargetIndex,
   }),
+)
+
+// While typing, surface only the suggestions whose keywords match the
+// typed query (prefix match against keys like "next", "previous",
+// "awards"). Empty state still shows the full list.
+const matchingSuggestions = computed(() =>
+  suggestions.value.filter(s => matchesQuery(s, ui.jumpToQuery)),
 )
 
 // "Empty truly" — no recents, no suggestions, no watched dancers. The
@@ -80,15 +85,17 @@ const isTrulyEmpty = computed(
 )
 
 function suggestionIcon(key: string) {
-  if (key === 'current') return Play
   if (key === 'next-watched') return Star
+  if (key === 'previous-awards') return Trophy
   if (key === 'next-awards') return Trophy
   return Search
 }
 
 function suggestionIconClass(key: string): string {
-  if (key === 'current') return 'text-indigo-300'
   if (key === 'next-watched') return 'text-gold-400'
+  // Both awards chips share the cyan accent, but previous gets a
+  // slightly muted variant to telegraph "already happened".
+  if (key === 'previous-awards') return 'text-cyan-400/70'
   if (key === 'next-awards') return 'text-cyan-400'
   return 'text-gray-400'
 }
@@ -178,9 +185,48 @@ const spotlightUrl = `${import.meta.env.BASE_URL}empty-spotlight.webp`
     <div class="flex-1 overflow-y-auto py-1 px-2">
       <!-- Search results when typing -->
       <template v-if="hasQuery">
-        <div v-if="searchResults.length === 0" class="text-center text-gray-500 text-sm py-12">
+        <!-- Matching suggestions: surface "Next awards", "Previous awards",
+             etc. when the typed query is a prefix of one of their keywords.
+             Sits above text-match results so semantic shortcuts get
+             priority over literal title matches. -->
+        <div v-if="matchingSuggestions.length > 0" class="mt-3 mb-1">
+          <div class="text-[11px] font-semibold tracking-wider uppercase text-gray-500 px-2 mb-1.5">
+            Suggestions
+          </div>
+          <button
+            v-for="s in matchingSuggestions"
+            :key="s.key"
+            class="w-full px-3 py-2.5 my-0.5 flex items-center gap-3 rounded-lg bg-surface-raised/40 active:bg-surface-overlay transition-colors text-left"
+            @click="jumpTo(s.globalIndex)"
+          >
+            <component :is="suggestionIcon(s.key)" :size="18" :class="['shrink-0', suggestionIconClass(s.key)]" />
+            <div class="flex-1 min-w-0">
+              <div class="fs-title text-gray-200 truncate">{{ s.label }}</div>
+              <div v-if="s.detail" class="text-[11px] text-gray-500 truncate">{{ s.detail }}</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Section header for text-match results, only when both a
+             matching suggestion and at least one text result are present.
+             Single-section displays don't need the header. -->
+        <div
+          v-if="matchingSuggestions.length > 0 && searchResults.length > 0"
+          class="text-[11px] font-semibold tracking-wider uppercase text-gray-500 px-2 mt-3 mb-1.5"
+        >
+          Results
+        </div>
+
+        <!-- "No matches" message: only when text results AND suggestions
+             are both empty. With a matching suggestion, the user has
+             something to tap; we don't need to apologize. -->
+        <div
+          v-if="searchResults.length === 0 && matchingSuggestions.length === 0"
+          class="text-center text-gray-500 text-sm py-12"
+        >
           No dances match "{{ ui.jumpToQuery }}"
         </div>
+
         <button
           v-for="r in searchResults"
           :key="r.globalIndex"
@@ -218,7 +264,7 @@ const spotlightUrl = `${import.meta.env.BASE_URL}empty-spotlight.webp`
 
       <!-- Empty state: suggestions, then recents, then illustration fallback. -->
       <template v-else>
-        <!-- Suggestions: "Currently dancing", "Next watched", "Today's awards".
+        <!-- Suggestions: Next watched dance, Previous awards, Next awards.
              Tappable shortcuts that bypass typing entirely. -->
         <div v-if="suggestions.length > 0" class="mt-3 mb-1">
           <div class="text-[11px] font-semibold tracking-wider uppercase text-gray-500 px-2 mb-1.5">
