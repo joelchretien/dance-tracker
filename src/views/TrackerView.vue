@@ -65,6 +65,16 @@ onMounted(async () => {
 
   navigation.initForSchedule(props.scheduleId)
   watchStore.initForSchedule(props.scheduleId)
+
+  // Stored viewMode could be 'studio' or 'dancers' from a previous session
+  // while the watched-dancers list is empty — for example after the user
+  // cleared dancers in another tab, or after a localStorage migration. The
+  // length-watcher only fires on the 1→0 transition, so we also check once
+  // explicitly after init.
+  if (ui.viewMode !== 'all' && watchStore.watchedDancers.length === 0) {
+    ui.setViewMode('all')
+  }
+
   ui.updateScheduleStatus()
   navigation.updateNowIndex()
 

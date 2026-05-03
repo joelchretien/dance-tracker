@@ -5,10 +5,8 @@ import { useScheduleStore } from '@/stores/schedule'
 import { useNavigationStore } from '@/stores/navigation'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
-import { fuzzyScore, type SearchResult } from '@/lib/fuzzy-search'
-import { extractSubtitle } from '@/lib/category'
+import { enrichSearchResults, type EnrichedSearchResult } from '@/lib/search-enrich'
 import { titleCaseDanceTitle } from '@/lib/title-case'
-import { predictedTime } from '@/lib/predicted-time'
 import DancerBadge from './DancerBadge.vue'
 
 const schedule = useScheduleStore()
@@ -26,80 +24,52 @@ onMounted(() => {
 
 const hasQuery = computed(() => ui.jumpToQuery.trim().length > 0)
 
-interface EnrichedResult extends SearchResult {
-  dayShort: string
-  isMarked: boolean
-  isLikely: boolean
-  isWatched: boolean
-  watchedDancers: string[]
-  sameStudio: boolean
-  hasOffset: boolean
-  displayTime: string
-}
-
-const searchResults = computed<EnrichedResult[]>(() => {
-  const q = ui.jumpToQuery.trim()
-  if (!q) return []
-
-  const offset = navigation.scheduleOffsetMinutes
-  const hasOffset = offset !== null && Math.abs(offset) > 5
-
-  const scored: EnrichedResult[] = []
-  for (const item of schedule.flatEntries) {
-    const entry = item.entry
-    if (entry.type !== 'dance' && entry.type !== 'awards') continue
-    const titleScore = fuzzyScore(q, entry.title)
-    const numStr = entry.type === 'dance' && entry.num ? String(entry.num) : ''
-    const numScore = numStr && q === numStr ? 50 : 0
-    const best = Math.max(titleScore, numScore)
-    if (best > 0) {
-      const isWatched = watchStore.isWatchedEntry(item.globalIndex)
-      const watchedDancers =
-        entry.type === 'awards'
-          ? watchStore.getWatchedDancersForAwards(item.globalIndex)
-          : watchStore.getWatchedDancersForEntry(item.globalIndex)
-      const studio = entry.type === 'dance' ? entry.studio : undefined
-      const sameStudio = !!(studio && watchStore.watchedStudios.has(studio))
-      const dayLabel = schedule.days[item.dayIndex]?.label ?? ''
-      const dayShort = dayLabel.substring(0, 3)
-
-      scored.push({
-        globalIndex: item.globalIndex,
-        title: entry.title,
-        time: entry.time,
-        num: entry.type === 'dance' ? entry.num : undefined,
-        subtitle: entry.type === 'dance' ? extractSubtitle(entry.category) : 'Awards',
-        score: best,
-        dayShort,
-        isMarked: item.globalIndex === navigation.activeIndex,
-        isLikely: navigation.activeIsLikely,
-        isWatched,
-        watchedDancers,
-        sameStudio,
-        hasOffset,
-        displayTime: hasOffset ? '~' + predictedTime(entry.time, offset!) : entry.time,
-      })
-    }
+const watchedDancersByAwardsIndex = computed(() => {
+  const map = new Map<number, string[]>()
+  for (const block of watchStore.awardsBlocks) {
+    if (block.hasWatchedDancer) map.set(block.awardsGlobalIndex, block.watchedDancersInBlock)
   }
-
-  scored.sort((a, b) => b.score - a.score)
-  return scored.slice(0, 20)
+  return map
 })
 
-function borderClass(r: EnrichedResult): string {
+const searchResults = computed<EnrichedSearchResult[]>(() =>
+  enrichSearchResults(ui.jumpToQuery, {
+    flatEntries: schedule.flatEntries,
+    dayLabels: schedule.days.map(d => d.label),
+    watchedDancerSet: watchStore.watchedDancerSet,
+    watchedAwardsSet: watchStore.watchedAwardsSet,
+    watchedStudios: watchStore.watchedStudios,
+    watchedDancersByAwardsIndex: watchedDancersByAwardsIndex.value,
+    activeIndex: navigation.activeIndex,
+    activeIsLikely: navigation.activeIsLikely,
+    scheduleOffsetMinutes: navigation.scheduleOffsetMinutes,
+  }),
+)
+
+function borderClass(r: EnrichedSearchResult): string {
   if (r.isMarked) return 'border-l-indigo-400'
   if (r.isWatched) return 'border-l-gold-400'
   if (r.sameStudio) return 'border-l-cyan-400/40'
   return 'border-l-gray-800'
 }
 
-function bgClass(r: EnrichedResult): string {
+function bgClass(r: EnrichedSearchResult): string {
   if (r.isMarked) return 'bg-indigo-500/5'
   if (r.isWatched) return 'bg-gold-400/10'
   return 'bg-surface-raised/40'
 }
 
 function selectResult(globalIndex: number) {
+  // If the target isn't rendered in the current filtered list, switch to All
+  // first so the scroll target's DOM element actually exists. The user
+  // explicitly searched for it — they want to see it regardless of filter.
+  if (ui.viewMode !== 'all') {
+    const visibleIndices =
+      ui.viewMode === 'dancers' ? watchStore.watchedEntryIndices : watchStore.studioEntryIndices
+    if (!visibleIndices.includes(globalIndex)) {
+      ui.setViewMode('all')
+    }
+  }
   navigation.select(globalIndex)
   ui.closeJumpToPanel()
   emit('jump-to', globalIndex)
