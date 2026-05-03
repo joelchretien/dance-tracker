@@ -17,6 +17,8 @@ const props = defineProps<{
   watchedDancers?: string[]
   progress: number
   offsetMinutes?: number | null
+  /** Whether the "Set as current" affordance should be offered. False off-hours. */
+  canSetCurrent: boolean
 }>()
 
 const emit = defineEmits<{
@@ -117,7 +119,7 @@ const {
     </div>
 
     <template v-if="isSelected">
-      <div v-if="!isMarked" class="flex justify-end mt-2">
+      <div v-if="!isMarked && canSetCurrent" class="flex justify-end mt-2">
         <button
           class="text-xs font-semibold text-white px-4 py-2 rounded-md bg-indigo-500 active:bg-indigo-600 shadow-sm transition-colors"
           @click.stop="emit('mark-current')"
