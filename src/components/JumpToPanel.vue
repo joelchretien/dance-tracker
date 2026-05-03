@@ -125,7 +125,7 @@ function selectResult(globalIndex: number) {
       </button>
     </div>
 
-    <div class="flex-1 overflow-y-auto py-1">
+    <div class="flex-1 overflow-y-auto py-1 px-2">
       <!-- Search results when typing -->
       <template v-if="hasQuery">
         <div v-if="searchResults.length === 0" class="text-center text-gray-500 text-sm py-12">
@@ -134,9 +134,8 @@ function selectResult(globalIndex: number) {
         <button
           v-for="r in searchResults"
           :key="r.globalIndex"
-          class="relative block w-full mx-2 my-0.5 px-3 py-2 rounded-lg border border-l-2 text-left active:bg-surface-overlay transition-colors"
+          class="relative block w-full my-0.5 px-3 py-2 rounded-lg border text-left active:bg-surface-overlay transition-colors"
           :class="[borderClass(r), bgClass(r), 'border-gray-800']"
-          :style="{ width: 'calc(100% - 1rem)' }"
           @click="selectResult(r.globalIndex)"
         >
           <span

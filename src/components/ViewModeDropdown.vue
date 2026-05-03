@@ -34,16 +34,18 @@ const options: Option[] = [
     <button
       v-for="(opt, i) in options"
       :key="opt.mode"
-      class="w-full px-3 py-2.5 flex items-center gap-2.5 text-left active:bg-surface-overlay transition-colors"
-      :class="[i > 0 ? 'border-t border-gray-700' : '']"
+      class="w-full px-3 py-2.5 flex items-center gap-2.5 text-left transition-colors"
+      :class="[
+        i > 0 ? 'border-t border-gray-700' : '',
+        opt.mode !== 'all' && watchStore.watchedDancers.length === 0
+          ? 'opacity-40 cursor-not-allowed'
+          : 'active:bg-surface-overlay',
+      ]"
       :disabled="opt.mode !== 'all' && watchStore.watchedDancers.length === 0"
       @click="ui.setViewMode(opt.mode)"
     >
       <component :is="opt.icon" :size="16" :class="opt.iconClass" :fill="opt.iconFill" />
-      <span
-        class="text-sm flex-1"
-        :class="opt.mode !== 'all' && watchStore.watchedDancers.length === 0 ? 'text-gray-600' : 'text-gray-200'"
-      >{{ opt.label }}</span>
+      <span class="text-sm flex-1 text-gray-200">{{ opt.label }}</span>
       <Check v-if="ui.viewMode === opt.mode" :size="16" class="text-indigo-300 shrink-0" />
     </button>
   </div>

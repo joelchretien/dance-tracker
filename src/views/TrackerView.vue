@@ -37,6 +37,20 @@ const multipleSchedules = computed(() =>
   (schedule.manifest?.schedules.length ?? 0) > 1
 )
 
+function scrollToEntry(index: number, smooth: boolean) {
+  const el = document.getElementById(`entry-${index}`)
+  if (el) {
+    el.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant', block: 'center' })
+  }
+}
+
+/** The index closest to wall-clock-now within the currently rendered list. */
+function nowIndexForCurrentMode(): number | null {
+  if (ui.viewMode === 'dancers') return watchStore.nearestWatchedToNow()
+  if (ui.viewMode === 'studio') return watchStore.nearestStudioToNow()
+  return navigation.jumpToNow()?.index ?? null
+}
+
 onMounted(async () => {
   await Promise.all([
     schedule.loadSchedule(props.scheduleId),
@@ -67,13 +81,6 @@ onMounted(async () => {
     scrollToEntry(navigation.activeIndex, false)
   }
 })
-
-/** The index closest to wall-clock-now within the currently rendered list. */
-function nowIndexForCurrentMode(): number | null {
-  if (ui.viewMode === 'dancers') return watchStore.nearestWatchedToNow()
-  if (ui.viewMode === 'studio') return watchStore.nearestStudioToNow()
-  return navigation.jumpToNow()?.index ?? null
-}
 
 // Unified 1-second tick: auto-advance, progress bar, now-index
 const { pause } = useIntervalFn(() => {
@@ -110,12 +117,14 @@ watch(() => navigation.anchorWallMinutes, () => {
   ui.updateScheduleStatus()
 })
 
-function scrollToEntry(index: number, smooth: boolean) {
-  const el = document.getElementById(`entry-${index}`)
-  if (el) {
-    el.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant', block: 'center' })
+// Filter modes other than 'all' show nothing useful when there are no watched
+// dancers. If the user removes their last one while in studio/dancers view,
+// fall back to 'all' so they aren't stuck looking at an empty list.
+watch(() => watchStore.watchedDancers.length, (count) => {
+  if (count === 0 && ui.viewMode !== 'all') {
+    ui.setViewMode('all')
   }
-}
+})
 
 function handleJumpToNow() {
   const idx = nowIndexForCurrentMode()
