@@ -4,12 +4,14 @@ import { X } from 'lucide-vue-next'
 import { useScheduleStore } from '@/stores/schedule'
 import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
+import { useFocusTrap } from '@/composables/useFocusTrap'
 
 const schedule = useScheduleStore()
 const watchStore = useWatchStore()
 const ui = useUiStore()
 
 const dialogRef = ref<HTMLElement | null>(null)
+useFocusTrap(dialogRef)
 onMounted(() => {
   // Focus the dialog itself so Escape (bound at the dialog element) works
   // without the user clicking inside first. tabindex="-1" makes the div

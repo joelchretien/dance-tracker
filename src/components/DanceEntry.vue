@@ -4,6 +4,7 @@ import type { DanceEntry as DanceEntryType } from '@/types/schedule'
 import { titleCaseDanceTitle } from '@/lib/title-case'
 import { predictedTime } from '@/lib/predicted-time'
 import { OFFSET_DISPLAY_THRESHOLD_MIN } from '@/lib/offset-threshold'
+import { useSeekableBar } from '@/composables/useSeekableBar'
 import DancerBadge from './DancerBadge.vue'
 import DanceDetails from './DanceDetails.vue'
 
@@ -67,69 +68,24 @@ const displayTime = computed(() => {
   return '~' + predictedTime(props.entry.time, props.offsetMinutes!)
 })
 
-// Drag state
+// Drag/click/keyboard seek encapsulated in a shared composable.
 const barRef = ref<HTMLElement | null>(null)
-const isDragging = ref(false)
-const dragProgress = ref(0)
-
-const displayProgress = computed(() =>
-  isDragging.value ? dragProgress.value : props.progress
-)
-
-function progressFromEvent(e: TouchEvent | MouseEvent): number {
-  if (!barRef.value) return 0
-  const rect = barRef.value.getBoundingClientRect()
-  const x = 'touches' in e ? e.touches[0].clientX : e.clientX
-  return Math.max(0, Math.min(1, (x - rect.left) / rect.width))
-}
-
-function onDragStart(e: TouchEvent | MouseEvent) {
-  if (!seekable.value) return
-  e.stopPropagation()
-  isDragging.value = true
-  dragProgress.value = progressFromEvent(e)
-  // For mouse drags, attach move/up to the document so the drag continues
-  // even when the pointer leaves the bar element. Touch events route to
-  // the originating element automatically, so they only need element-level
-  // handlers (wired in template).
-  if (!('touches' in e)) {
-    document.addEventListener('mousemove', onDragMove)
-    document.addEventListener('mouseup', onDragEnd)
-  }
-}
-
-function onDragMove(e: TouchEvent | MouseEvent) {
-  if (!isDragging.value) return
-  e.stopPropagation()
-  dragProgress.value = progressFromEvent(e)
-}
-
-function onDragEnd(e: TouchEvent | MouseEvent) {
-  if (!isDragging.value) return
-  e.stopPropagation()
-  isDragging.value = false
-  // Symmetric cleanup of the document-level mouse listeners.
-  if (!('touches' in e || 'changedTouches' in e)) {
-    document.removeEventListener('mousemove', onDragMove)
-    document.removeEventListener('mouseup', onDragEnd)
-  }
-  // For touchend, use the last known dragProgress (no touches in the event)
-  const final = 'changedTouches' in e
-    ? Math.max(0, Math.min(1, (() => {
-        if (!barRef.value) return dragProgress.value
-        const rect = barRef.value.getBoundingClientRect()
-        return (e.changedTouches[0].clientX - rect.left) / rect.width
-      })()))
-    : progressFromEvent(e)
-  emit('seek', Math.max(0, Math.min(1, final)))
-}
-
-function onBarClick(e: MouseEvent) {
-  if (!seekable.value) return
-  e.stopPropagation()
-  const p = progressFromEvent(e)
-  emit('seek', p)
-}
+const progressRef = computed(() => props.progress)
+const {
+  isDragging,
+  displayProgress,
+  onDragStart,
+  onDragMove,
+  onDragEnd,
+  onBarClick,
+  onKeyDown,
+  ariaProps,
+} = useSeekableBar({
+  barRef,
+  seekable,
+  progress: progressRef,
+  onSeek: (p) => emit('seek', p),
+})
 </script>
 
 <template>
@@ -185,13 +141,15 @@ function onBarClick(e: MouseEvent) {
     <div
       v-if="isMarked"
       ref="barRef"
-      class="relative h-1.5 mt-3 mb-1 ml-[5.5rem] rounded-full bg-white/15"
+      v-bind="ariaProps"
+      class="relative h-1.5 mt-3 mb-1 ml-[5.5rem] rounded-full bg-white/15 focus:outline-none focus:ring-2 focus:ring-indigo-400/60"
       :class="seekable ? 'cursor-grab' : ''"
       @click.stop="onBarClick"
       @touchstart.prevent="onDragStart"
       @touchmove.prevent="onDragMove"
       @touchend.prevent="onDragEnd"
       @mousedown.prevent="onDragStart"
+      @keydown="onKeyDown"
     >
       <!-- Filled portion -->
       <div

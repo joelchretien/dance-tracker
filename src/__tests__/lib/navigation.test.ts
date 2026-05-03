@@ -34,6 +34,22 @@ describe('findNowIndex', () => {
   it('returns null if no entries for day', () => {
     expect(findNowIndex(entries, 8 * 60, 5)).toBeNull()
   })
+
+  it('semantics: next-or-current, NOT closest-by-distance', () => {
+    // The function name "findNowIndex" + the original doc could be read
+    // as "the entry closest to now". It's not — it's "next-or-current".
+    // Pin the distinction: at 8:55 AM (just 5 min before 9:00 and 55 min
+    // after 8:00), the function returns 9:00 AM because that's the next
+    // entry, even though 8:00 AM might be closer in some metric (e.g. if
+    // we considered "still ongoing"). The "jump to now" pill wants
+    // forward-looking semantics.
+    expect(findNowIndex(entries, 8 * 60 + 55, 0)).toBe(1) // 9:00 AM
+  })
+
+  it('returns the entry exactly at now (boundary case)', () => {
+    // At exactly 9:00 AM, the 9:00 entry is returned (>= comparison).
+    expect(findNowIndex(entries, 9 * 60, 0)).toBe(1)
+  })
 })
 
 describe('todayDayIndex', () => {

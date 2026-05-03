@@ -53,6 +53,8 @@ src/
 │   ├── SettingsDropdown.vue  Font size + watch dancers
 │   └── ...
 ├── composables/   Reusable behavior
+│   ├── useFocusTrap.ts   Tab containment + restore-focus for dialogs
+│   ├── useSeekableBar.ts Drag/click/keyboard seek + ARIA slider props
 │   └── useSnapback.ts    Jump-to-now pill visibility
 └── views/         Route-level components
     ├── HomeView.vue      Schedule selector (auto-redirects with single schedule)
@@ -100,7 +102,7 @@ The schedule JSON format is fully documented in `skills/convert-schedule.md`.
 ```bash
 npm install
 npm run dev      # Vite dev server
-npm test         # Run tests (168 tests, 15 files)
+npm test         # Run tests (189 tests, 16 files)
 npm run build    # Type-check + production build
 ```
 

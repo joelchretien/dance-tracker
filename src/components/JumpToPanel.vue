@@ -7,6 +7,7 @@ import { useWatchStore } from '@/stores/watch'
 import { useUiStore } from '@/stores/ui'
 import { enrichSearchResults, type EnrichedSearchResult } from '@/lib/search-enrich'
 import { titleCaseDanceTitle } from '@/lib/title-case'
+import { useFocusTrap } from '@/composables/useFocusTrap'
 import DancerBadge from './DancerBadge.vue'
 
 const schedule = useScheduleStore()
@@ -16,7 +17,9 @@ const ui = useUiStore()
 
 const emit = defineEmits<{ 'jump-to': [index: number] }>()
 
+const dialogRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
+useFocusTrap(dialogRef)
 
 onMounted(() => {
   nextTick(() => inputRef.value?.focus())
@@ -80,11 +83,13 @@ function selectResult(globalIndex: number) {
 
 <template>
   <div
+    ref="dialogRef"
     role="dialog"
     aria-modal="true"
     aria-label="Search and jump to a dance"
-    class="fixed inset-0 z-40 bg-surface flex flex-col"
+    class="fixed inset-0 z-40 bg-surface flex flex-col focus:outline-none"
     style="padding-top: env(safe-area-inset-top, 0px)"
+    tabindex="-1"
     @keydown.esc="ui.closeJumpToPanel()"
   >
     <div class="flex items-center gap-2 px-3 py-3 border-b border-gray-800">
