@@ -185,7 +185,7 @@ function handleSeek(progress: number) {
           v-if="schedule.flatEntries[li.globalIndex!].entry.type === 'dance'"
           :entry="(schedule.flatEntries[li.globalIndex!].entry as DanceEntryType)"
           :global-index="li.globalIndex!"
-          :is-marked="li.globalIndex === navigation.activeIndex && navigation.isWithinActiveHours"
+          :is-marked="li.globalIndex === navigation.activeIndex && navigation.currentIsVisible"
           :is-likely="navigation.activeIsLikely"
           :is-selected="li.globalIndex === navigation.selectedIndex"
           :is-watched="watchStore.isWatchedEntry(li.globalIndex!)"
@@ -201,7 +201,7 @@ function handleSeek(progress: number) {
           v-else
           :entry="(schedule.flatEntries[li.globalIndex!].entry as BreakEntryType | AwardsEntry)"
           :global-index="li.globalIndex!"
-          :is-marked="li.globalIndex === navigation.activeIndex && navigation.isWithinActiveHours"
+          :is-marked="li.globalIndex === navigation.activeIndex && navigation.currentIsVisible"
           :is-likely="navigation.activeIsLikely"
           :is-selected="li.globalIndex === navigation.selectedIndex"
           :is-watched-awards="true"

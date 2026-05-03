@@ -58,7 +58,7 @@ function handleSeek(progress: number) {
         v-if="item.entry.type === 'dance'"
         :entry="item.entry"
         :global-index="item.globalIndex"
-        :is-marked="item.globalIndex === navigation.activeIndex && navigation.isWithinActiveHours"
+        :is-marked="item.globalIndex === navigation.activeIndex && navigation.currentIsVisible"
         :is-likely="navigation.activeIsLikely"
         :is-selected="item.globalIndex === navigation.selectedIndex"
         :is-watched="watchStore.isWatchedEntry(item.globalIndex)"
@@ -75,7 +75,7 @@ function handleSeek(progress: number) {
         v-else
         :entry="item.entry"
         :global-index="item.globalIndex"
-        :is-marked="item.globalIndex === navigation.activeIndex && navigation.isWithinActiveHours"
+        :is-marked="item.globalIndex === navigation.activeIndex && navigation.currentIsVisible"
         :is-likely="navigation.activeIsLikely"
         :is-selected="item.globalIndex === navigation.selectedIndex"
         :is-watched-awards="item.entry.type === 'awards' && watchStore.watchedAwardsSet.has(item.globalIndex)"
