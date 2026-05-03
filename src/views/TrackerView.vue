@@ -60,6 +60,21 @@ function isVisibleInCurrentMode(idx: number): boolean {
   return indices.includes(idx)
 }
 
+// Unified 1-second tick: auto-advance, progress bar, now-index. Started
+// only after onMounted finishes initializing the stores — VueUse's
+// default `immediate: true` would otherwise fire tick() against
+// uninitialized schedule state on a slow first load (the stores have
+// defensive fallbacks, but starting the loop before its inputs exist
+// is an avoidable race in the most-trafficked route).
+const { pause, resume } = useIntervalFn(() => {
+  navigation.tick()
+  ui.updateScheduleStatus()
+}, 1000, { immediate: false })
+
+onUnmounted(() => {
+  pause()
+})
+
 onMounted(async () => {
   // Reject IDs that would produce ambiguous localStorage keys when
   // interpolated into `dt:${id}:nav` etc. Safe charset is alphanumeric
@@ -117,16 +132,9 @@ onMounted(async () => {
   }
 
   initComplete.value = true
-})
-
-// Unified 1-second tick: auto-advance, progress bar, now-index
-const { pause } = useIntervalFn(() => {
-  navigation.tick()
-  ui.updateScheduleStatus()
-}, 1000)
-
-onUnmounted(() => {
-  pause()
+  // Now safe to start the 1-second tick loop; all stores are initialized
+  // and the schedule is loaded.
+  resume()
 })
 
 const CURRENT_DANCE_ONBOARDED_KEY = 'dt:onboardedCurrentDance'

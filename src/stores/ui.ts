@@ -54,6 +54,15 @@ export const useUiStore = defineStore('ui', () => {
   // would otherwise kill it.
   const installInstructionsOpen = ref(false)
 
+  // SW update available. Set by main.ts when a new SW reaches the
+  // 'waiting' state. The banner is the user's opt-in to apply the
+  // update — without this, a controllerchange auto-reload during a
+  // live competition would interrupt the user mid-tracking. Stored as
+  // a function so main.ts can attach the actual SW transition logic
+  // without the UI store importing service-worker code.
+  const updateAvailable = ref(false)
+  const applyUpdate = ref<(() => void) | null>(null)
+
   function showToast(msg: string, durationMs = 1800) {
     toastMessage.value = msg
     if (toastTimerId.value) clearTimeout(toastTimerId.value)
@@ -172,6 +181,8 @@ export const useUiStore = defineStore('ui', () => {
     watchedDancersTipOpen,
     currentDanceTipOpen,
     installInstructionsOpen,
+    updateAvailable,
+    applyUpdate,
     showToast,
     openJumpToPanel, closeJumpToPanel,
     openWatchPanel, closeWatchPanel,

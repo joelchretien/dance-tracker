@@ -56,16 +56,25 @@ const filterIconFill = computed(() =>
           class="p-2 rounded-lg transition-colors"
           :class="filterButtonClass"
           title="View mode" aria-label="View mode"
+          aria-haspopup="menu"
+          :aria-expanded="ui.viewModeDropdownOpen"
           @click="ui.toggleViewModeDropdown()"
         >
           <ListFilter :size="20" :class="filterIconClass" :fill="filterIconFill" />
         </button>
         <button
-          class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors"
+          class="p-2 rounded-lg hover:bg-surface-raised active:bg-surface-overlay transition-colors relative"
           title="Settings" aria-label="Settings"
+          aria-haspopup="menu"
+          :aria-expanded="ui.settingsDropdownOpen"
           @click="ui.toggleSettingsDropdown()"
         >
           <Settings :size="20" :class="ui.settingsDropdownOpen ? 'text-gray-100' : 'text-gray-300'" />
+          <span
+            v-if="ui.updateAvailable"
+            class="absolute top-1 right-1 w-2 h-2 rounded-full bg-indigo-400 ring-2 ring-surface"
+            aria-hidden="true"
+          ></span>
         </button>
       </div>
     </div>

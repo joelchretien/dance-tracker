@@ -25,8 +25,19 @@ async function cacheIfOk(request, response) {
 }
 
 self.addEventListener('install', () => {
-  // Activate immediately, don't wait for old SW to finish
-  self.skipWaiting()
+  // Don't auto-skipWaiting any more — the page surfaces an "Update
+  // available" banner so the user can opt in. Without this change, an
+  // update during a live competition would auto-reload the tracker
+  // mid-interaction. main.ts posts SKIP_WAITING when the user clicks
+  // Apply.
+})
+
+// Honor SKIP_WAITING from the page so the user-controlled update flow
+// in main.ts can transition this worker out of 'waiting' on demand.
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting()
+  }
 })
 
 self.addEventListener('activate', (event) => {
@@ -58,13 +69,18 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Hashed assets (JS/CSS with content hashes): cache-first (immutable).
-  // Vite emits base64-style hashes like `index-99YY4e3X.js`, not pure hex,
-  // so the character class accepts mixed-case alphanumerics. (The earlier
-  // pattern `[a-f0-9]+` only matched hex hashes and silently fell through
-  // to the network-first catch-all for every real Vite asset — caching
-  // was effectively disabled for the immutable bundle.)
-  if (url.pathname.match(/\/assets\/.*-[A-Za-z0-9_-]{8,}\.(js|css|woff2?|ttf|otf|eot)$/)) {
+  // Hashed assets: cache-first (immutable). Vite emits everything in
+  // /assets/ with a content hash in the filename (JS, CSS, fonts,
+  // images), so we can match the directory rather than try to
+  // enumerate file extensions. Anything Vite places here is treated
+  // as cacheable forever — a content change produces a new filename.
+  //
+  // Earlier regex variants tried to be more specific:
+  //   /\/assets\/.*\.[a-f0-9]+\./    only matched hex hashes (Vite uses base64-ish)
+  //   /\/assets\/.*-[A-Za-z0-9_-]{8,}\.(js|css|woff2?|...)$/  missed images
+  // Both had real consumers falling through to network-first. The
+  // directory match is the simple correct version.
+  if (url.pathname.includes('/assets/')) {
     event.respondWith(
       caches.match(event.request).then(cached => {
         if (cached) return cached

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted, nextTick, ref } from 'vue'
 import { LayoutList, Building2, Star, Check } from 'lucide-vue-next'
 import { useUiStore } from '@/stores/ui'
 import { useWatchStore } from '@/stores/watch'
@@ -20,16 +21,26 @@ const options: Option[] = [
   { mode: 'studio', label: 'Watched Studios', icon: Building2, iconClass: 'text-cyan-400', iconFill: 'none' },
   { mode: 'dancers', label: 'Watched Dancers', icon: Star, iconClass: 'text-gold-400', iconFill: 'currentColor' },
 ]
+
+const dropdownRef = ref<HTMLElement | null>(null)
+onMounted(() => {
+  // Focus the container so Escape closes without requiring a Tab first.
+  nextTick(() => dropdownRef.value?.focus())
+})
 </script>
 
 <template>
   <!-- Backdrop -->
   <div class="fixed inset-0 z-30 bg-black/30" @click="ui.closeViewModeDropdown()"></div>
 
-  <!-- Dropdown -->
+  <!-- Dropdown. role=menu + Escape-to-close mirrors SettingsDropdown so
+       both popovers share keyboard behavior. -->
   <div
-    class="absolute right-12 z-40 w-52 bg-surface-raised border border-gray-700 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] overflow-hidden"
+    class="absolute right-12 z-40 w-52 bg-surface-raised border border-gray-700 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] overflow-hidden focus:outline-none"
     style="top: calc(env(safe-area-inset-top, 0px) + 48px)"
+    role="menu"
+    tabindex="-1"
+    @keydown.esc="ui.closeViewModeDropdown()"
   >
     <button
       v-for="(opt, i) in options"

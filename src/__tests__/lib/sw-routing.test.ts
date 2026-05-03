@@ -17,7 +17,7 @@ type Route = 'navigation' | 'hashed-asset' | 'manifest' | 'schedule' | 'other'
 function classify(url: string, request: { mode?: string; destination?: string } = {}): Route {
   const { pathname } = new URL(url)
   if (request.mode === 'navigate' || request.destination === 'document') return 'navigation'
-  if (pathname.match(/\/assets\/.*-[A-Za-z0-9_-]{8,}\.(js|css|woff2?|ttf|otf|eot)$/)) return 'hashed-asset'
+  if (pathname.includes('/assets/')) return 'hashed-asset'
   if (pathname.endsWith('/schedules/index.json')) return 'manifest'
   if (pathname.match(/\/schedules\/[^/]+\.json$/)) return 'schedule'
   return 'other'
@@ -40,11 +40,11 @@ describe('service worker route classification', () => {
     it('classifies content-hashed CSS as a hashed asset', () => {
       expect(classify('https://app.example/dance-tracker/assets/index-qzh-ryJG.css')).toBe('hashed-asset')
     })
-    it('does not classify non-hashed asset paths', () => {
-      // Defensive: an unhashed asset path shouldn't get immutable
-      // cache-first behavior.
-      expect(classify('https://app.example/dance-tracker/assets/manifest.json')).toBe('other')
-      expect(classify('https://app.example/dance-tracker/assets/logo.png')).toBe('other')
+    it('classifies images and other Vite-emitted assets as hashed-asset', () => {
+      // Under Vite, anything in /assets/ has a content hash and is
+      // immutable. PNG/JPG/SVG/WebP from imports all land here.
+      expect(classify('https://app.example/dance-tracker/assets/logo-abc12345.png')).toBe('hashed-asset')
+      expect(classify('https://app.example/dance-tracker/assets/hero-9YY4e3Xz.svg')).toBe('hashed-asset')
     })
     it('matches hashed fonts too', () => {
       expect(classify('https://app.example/dance-tracker/assets/Inter-abc12345.woff2')).toBe('hashed-asset')
