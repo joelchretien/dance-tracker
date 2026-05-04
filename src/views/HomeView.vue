@@ -26,7 +26,10 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="flex items-center justify-center min-h-screen p-4">
+  <!-- min-h-dvh accounts for dynamic viewport (iOS Safari address bar
+       collapse, etc.) so the empty state actually centers vertically on
+       a real device, not just on a fixed-height desktop window. -->
+  <div class="flex items-center justify-center min-h-dvh p-4">
     <div v-if="schedule.error" class="text-center">
       <div class="text-gray-400 mb-4">{{ schedule.error }}</div>
       <button
