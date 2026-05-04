@@ -8259,7 +8259,253 @@
         {
           "type": "awards",
           "time": "8:00 PM",
-          "title": "ULTIMATE BATTLE"
+          "title": "FIRST OVERALL SOLO DIVISION 3"
+        },
+        {
+          "type": "dance",
+          "time": "8:01 PM",
+          "title": "IN THIS ROOM THAT YOU FORGOT",
+          "num": 865,
+          "studio": "D",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "dancers": [
+            "Diya Singh"
+          ],
+          "age": 0
+        },
+        {
+          "type": "awards",
+          "time": "8:04 PM",
+          "title": "FIRST OVERALL SOLO DIVISION 4"
+        },
+        {
+          "type": "dance",
+          "time": "8:05 PM",
+          "title": "ALL BY MYSELF",
+          "num": 683,
+          "studio": "D",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "dancers": [
+            "Emily Labarbera"
+          ],
+          "age": 0
+        },
+        {
+          "type": "awards",
+          "time": "8:08 PM",
+          "title": "12 & UNDER BATTLE"
+        },
+        {
+          "type": "dance",
+          "time": "8:09 PM",
+          "title": "MY WAY",
+          "num": 561,
+          "studio": "A",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:11 PM",
+          "title": "17 GLIMPSES OF SPRING",
+          "num": 764,
+          "studio": "C",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:13 PM",
+          "title": "HEY PACHUCO!",
+          "num": 576,
+          "studio": "E",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:15 PM",
+          "title": "I'M ALIVE",
+          "num": 579,
+          "studio": "F",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "dancers": [
+            "Aurora Albisi",
+            "Julia Albudane",
+            "Aubrey Allen",
+            "Maddison Beauchamp",
+            "Adriana Berardi",
+            "Kensie Brunette",
+            "Alianna Chretien",
+            "Abigail Chretien",
+            "Audrey Dewar",
+            "Cristiana Dumencu",
+            "Ellie Fram",
+            "Laela Fram",
+            "Ruby Gagnon",
+            "Mia Gauthier",
+            "Claire Lafortune",
+            "Brynn McColeman",
+            "Kiana Mechefske",
+            "Brooklyn Migrino",
+            "Aila Nurmi",
+            "Elin Nurmi",
+            "Emilie Paul",
+            "Alexis Pavacic",
+            "Claire Peng",
+            "Bethany Shewchuk",
+            "Charlotte Villeneuve",
+            "Peyton Walker",
+            "Katherine Wallace"
+          ],
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:17 PM",
+          "title": "VERSAILLES",
+          "num": 782,
+          "studio": "G",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:19 PM",
+          "title": "LUCKY 7",
+          "num": 594,
+          "studio": "J",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:21 PM",
+          "title": "UNDEAD AND WED",
+          "num": 810,
+          "studio": "K",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:23 PM",
+          "title": "LA DOLCE VITA",
+          "num": 616,
+          "studio": "D",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
+        },
+        {
+          "type": "awards",
+          "time": "8:26 PM",
+          "title": "FIRST OVERALL SOLO DIVISION 1"
+        },
+        {
+          "type": "dance",
+          "time": "8:27 PM",
+          "title": "BORN IN LIGHT",
+          "num": 525,
+          "studio": "C",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "dancers": [
+            "Giselle Del Angel"
+          ],
+          "age": 0
+        },
+        {
+          "type": "awards",
+          "time": "8:30 PM",
+          "title": "FIRST OVERALL SOLO DIVISION 2"
+        },
+        {
+          "type": "dance",
+          "time": "8:31 PM",
+          "title": "WHITE DOVE",
+          "num": 377,
+          "studio": "C",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "dancers": [
+            "Sofia Zhmudzikava"
+          ],
+          "age": 0
+        },
+        {
+          "type": "awards",
+          "time": "8:34 PM",
+          "title": "SOLO SHOWCASE"
+        },
+        {
+          "type": "awards",
+          "time": "8:35 PM",
+          "title": "13 & OVER BATTLE"
+        },
+        {
+          "type": "dance",
+          "time": "8:36 PM",
+          "title": "TIME",
+          "num": 582,
+          "studio": "A",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:38 PM",
+          "title": "VIVA",
+          "num": 555,
+          "studio": "F",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "dancers": [
+            "Aurora Albisi",
+            "Adriana Berardi",
+            "Sophia Berardi",
+            "Adeline Boudreau",
+            "Abigail Chretien",
+            "Sienna Deziel",
+            "Cristiana Dumencu",
+            "Adrianna Forsyth",
+            "Laela Fram",
+            "Marley Fram",
+            "Ruby Gagnon",
+            "Mia Gauthier",
+            "Elle Macdonald",
+            "Kiana Mechefske",
+            "Aila Nurmi",
+            "Jaden Palmquist",
+            "Alexis Pavacic",
+            "Mila Santos",
+            "Peyton Walker",
+            "Katherine Wallace"
+          ],
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:40 PM",
+          "title": "WHAT'S SO FUNNY?",
+          "num": 806,
+          "studio": "G",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:42 PM",
+          "title": "STARTIN' SOMETHIN'",
+          "num": 767,
+          "studio": "K",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
+        },
+        {
+          "type": "dance",
+          "time": "8:44 PM",
+          "title": "AFTER US",
+          "num": 605,
+          "studio": "D",
+          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "age": 0
         }
       ]
     }
