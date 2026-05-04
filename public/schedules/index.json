@@ -1,8 +1,3 @@
 {
-  "schedules": [
-    {
-      "id": "otf-2026",
-      "name": "OTF 2026"
-    }
-  ]
+  "schedules": []
 }

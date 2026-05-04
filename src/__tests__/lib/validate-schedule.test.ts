@@ -196,6 +196,14 @@ describe('validateManifest', () => {
     expect(() => validateManifest(m)).not.toThrow()
   })
 
+  it('accepts an empty schedules array (between competitions)', () => {
+    // Production case: when no live competition exists, the manifest is
+    // shipped with `schedules: []` and the home view renders an empty
+    // state. Validator must accept this rather than rejecting it as
+    // malformed — otherwise the empty state can't be served.
+    expect(() => validateManifest({ schedules: [] })).not.toThrow()
+  })
+
   it('rejects non-object root', () => {
     expect(() => validateManifest(null)).toThrow(/manifest/)
     expect(() => validateManifest([])).toThrow(/manifest/)
