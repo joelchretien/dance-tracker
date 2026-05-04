@@ -8257,26 +8257,15 @@
           "title": "AWARDS AND DINNER"
         },
         {
-          "type": "awards",
-          "time": "8:00 PM",
-          "title": "FIRST OVERALL SOLO DIVISION 3"
-        },
-        {
           "type": "dance",
           "time": "8:01 PM",
           "title": "IN THIS ROOM THAT YOU FORGOT",
           "num": 865,
           "studio": "D",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "category": "FIRST OVERALL SOLO DIVISION 3",
           "dancers": [
             "Diya Singh"
-          ],
-          "age": 0
-        },
-        {
-          "type": "awards",
-          "time": "8:04 PM",
-          "title": "FIRST OVERALL SOLO DIVISION 4"
+          ]
         },
         {
           "type": "dance",
@@ -8284,16 +8273,10 @@
           "title": "ALL BY MYSELF",
           "num": 683,
           "studio": "D",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "category": "FIRST OVERALL SOLO DIVISION 4",
           "dancers": [
             "Emily Labarbera"
-          ],
-          "age": 0
-        },
-        {
-          "type": "awards",
-          "time": "8:08 PM",
-          "title": "12 & UNDER BATTLE"
+          ]
         },
         {
           "type": "dance",
@@ -8301,8 +8284,7 @@
           "title": "MY WAY",
           "num": 561,
           "studio": "A",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
+          "category": "12 & UNDER BATTLE"
         },
         {
           "type": "dance",
@@ -8310,8 +8292,7 @@
           "title": "17 GLIMPSES OF SPRING",
           "num": 764,
           "studio": "C",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
+          "category": "12 & UNDER BATTLE"
         },
         {
           "type": "dance",
@@ -8319,8 +8300,7 @@
           "title": "HEY PACHUCO!",
           "num": 576,
           "studio": "E",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
+          "category": "12 & UNDER BATTLE"
         },
         {
           "type": "dance",
@@ -8328,7 +8308,7 @@
           "title": "I'M ALIVE",
           "num": 579,
           "studio": "F",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "category": "12 & UNDER BATTLE",
           "dancers": [
             "Aurora Albisi",
             "Julia Albudane",
@@ -8357,8 +8337,7 @@
             "Charlotte Villeneuve",
             "Peyton Walker",
             "Katherine Wallace"
-          ],
-          "age": 0
+          ]
         },
         {
           "type": "dance",
@@ -8366,8 +8345,7 @@
           "title": "VERSAILLES",
           "num": 782,
           "studio": "G",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
+          "category": "12 & UNDER BATTLE"
         },
         {
           "type": "dance",
@@ -8375,8 +8353,7 @@
           "title": "LUCKY 7",
           "num": 594,
           "studio": "J",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
+          "category": "12 & UNDER BATTLE"
         },
         {
           "type": "dance",
@@ -8384,8 +8361,7 @@
           "title": "UNDEAD AND WED",
           "num": 810,
           "studio": "K",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
+          "category": "12 & UNDER BATTLE"
         },
         {
           "type": "dance",
@@ -8393,13 +8369,7 @@
           "title": "LA DOLCE VITA",
           "num": 616,
           "studio": "D",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
-        },
-        {
-          "type": "awards",
-          "time": "8:26 PM",
-          "title": "FIRST OVERALL SOLO DIVISION 1"
+          "category": "12 & UNDER BATTLE"
         },
         {
           "type": "dance",
@@ -8407,16 +8377,10 @@
           "title": "BORN IN LIGHT",
           "num": 525,
           "studio": "C",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "category": "FIRST OVERALL SOLO DIVISION 1",
           "dancers": [
             "Giselle Del Angel"
-          ],
-          "age": 0
-        },
-        {
-          "type": "awards",
-          "time": "8:30 PM",
-          "title": "FIRST OVERALL SOLO DIVISION 2"
+          ]
         },
         {
           "type": "dance",
@@ -8424,21 +8388,10 @@
           "title": "WHITE DOVE",
           "num": 377,
           "studio": "C",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "category": "FIRST OVERALL SOLO DIVISION 2",
           "dancers": [
             "Sofia Zhmudzikava"
-          ],
-          "age": 0
-        },
-        {
-          "type": "awards",
-          "time": "8:34 PM",
-          "title": "SOLO SHOWCASE"
-        },
-        {
-          "type": "awards",
-          "time": "8:35 PM",
-          "title": "13 & OVER BATTLE"
+          ]
         },
         {
           "type": "dance",
@@ -8446,8 +8399,7 @@
           "title": "TIME",
           "num": 582,
           "studio": "A",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
+          "category": "13 & OVER BATTLE"
         },
         {
           "type": "dance",
@@ -8455,7 +8407,7 @@
           "title": "VIVA",
           "num": 555,
           "studio": "F",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
+          "category": "13 & OVER BATTLE",
           "dancers": [
             "Aurora Albisi",
             "Adriana Berardi",
@@ -8477,8 +8429,7 @@
             "Mila Santos",
             "Peyton Walker",
             "Katherine Wallace"
-          ],
-          "age": 0
+          ]
         },
         {
           "type": "dance",
@@ -8486,8 +8437,7 @@
           "title": "WHAT'S SO FUNNY?",
           "num": 806,
           "studio": "G",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
+          "category": "13 & OVER BATTLE"
         },
         {
           "type": "dance",
@@ -8495,8 +8445,7 @@
           "title": "STARTIN' SOMETHIN'",
           "num": 767,
           "studio": "K",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
+          "category": "13 & OVER BATTLE"
         },
         {
           "type": "dance",
@@ -8504,8 +8453,7 @@
           "title": "AFTER US",
           "num": 605,
           "studio": "D",
-          "category": "Ultimate · Division 1 · Battle · Showcase",
-          "age": 0
+          "category": "13 & OVER BATTLE"
         }
       ]
     }

@@ -161,4 +161,71 @@ E|abc|8:01 AM|OOPS|A|1|Bob`
     expect(() => parseScheduleDSL('', META)).toThrow(/no D/)
     expect(() => parseScheduleDSL('# just comments\n\n', META)).toThrow(/no D/)
   })
+
+  // S* literal section header — used for special segments where the
+  // structured "Group|Level|Div|Age|Style" format produces nonsense.
+  // Sets the current section's category to the verbatim text and
+  // clears age (no age semantics for free-form headers).
+  describe('S* literal section header', () => {
+    it('uses the literal text as the category', () => {
+      const dsl = `D|2026-05-03|SUNDAY
+S*|12 & UNDER BATTLE
+E|561|8:09 PM|MY WAY|A|9
+`
+      const out = parseScheduleDSL(dsl, META)
+      const entry = out.days[0].entries[0]
+      expect(entry.type).toBe('dance')
+      if (entry.type === 'dance') {
+        expect(entry.category).toBe('12 & UNDER BATTLE')
+        expect(entry.age).toBeUndefined()
+      }
+    })
+
+    it('multiple S* sections each take effect for the entries that follow', () => {
+      const dsl = `D|2026-05-03|SUNDAY
+S*|FIRST OVERALL SOLO DIVISION 3
+E|865|8:01 PM|IN THIS ROOM|D|1|Diya Singh
+S*|FIRST OVERALL SOLO DIVISION 4
+E|683|8:05 PM|ALL BY MYSELF|D|1|Emily Labarbera
+`
+      const out = parseScheduleDSL(dsl, META)
+      const [a, b] = out.days[0].entries
+      if (a.type === 'dance') expect(a.category).toBe('FIRST OVERALL SOLO DIVISION 3')
+      if (b.type === 'dance') expect(b.category).toBe('FIRST OVERALL SOLO DIVISION 4')
+    })
+
+    it('rejects S* with no literal text', () => {
+      const dsl = `D|2026-05-03|SUNDAY
+S*|
+E|561|8:09 PM|X|A|1
+`
+      expect(() => parseScheduleDSL(dsl, META)).toThrow(/literal category/)
+    })
+
+    it('rejects S* with the pipe-separator missing entirely', () => {
+      // `S*` alone with no `|...` would be parsed as parts=['S*'],
+      // length 1, which fails the same min-length check.
+      const dsl = `D|2026-05-03|SUNDAY
+S*
+E|561|8:09 PM|X|A|1
+`
+      expect(() => parseScheduleDSL(dsl, META)).toThrow(/literal category/)
+    })
+
+    it('S* and S can coexist; later one wins', () => {
+      // Documenting current behavior: section state is replaced on each
+      // S/S* line, so an S followed by S* swaps the category from
+      // structured to literal cleanly.
+      const dsl = `D|2026-05-03|SUNDAY
+S|Solo|Competitive|3|14|Jazz
+E|400|8:00 AM|JAZZ HANDS|A|1|Alice
+S*|FINALE
+E|401|8:05 AM|GRAND FINALE|A|1|Bob
+`
+      const out = parseScheduleDSL(dsl, META)
+      const [first, second] = out.days[0].entries
+      if (first.type === 'dance') expect(first.category).toBe('Competitive · Division 3 · Jazz · Solo')
+      if (second.type === 'dance') expect(second.category).toBe('FINALE')
+    })
+  })
 })

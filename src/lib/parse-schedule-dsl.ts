@@ -7,6 +7,7 @@
  *
  *   D|YYYY-MM-DD|LABEL                                          day header
  *   S|Group|Level|Div|Age|Style                                 section header (Age may be empty)
+ *   S*|literal text                                             section header (free-form, used by special/finale blocks)
  *   E|num|time|title|studio|count[|dancer1;dancer2;...]         dance entry
  *   A|time|title                                                awards entry
  *   B|time|title                                                break entry
@@ -68,6 +69,29 @@ export function parseScheduleDSL(text: string, meta: ScheduleMeta): ScheduleFile
         currentSection = {
           category: `${level} · Division ${div} · ${style} · ${group}`,
           age: ageNum,
+        }
+        break
+      }
+
+      // Literal section header: `S*|free form text`. Bypasses the
+      // structured Group|Level|Div|Age|Style format and uses the rest
+      // of the line as the category string verbatim. For special
+      // segments (e.g. Ultimate Battle subsections, finale showcases)
+      // where the structured format would produce nonsense like
+      // "Special · Division 0 · Ultimate · Battle".
+      //
+      // Categories shorter than 4 segments fall through formatCategoryHeader
+      // unchanged, so a 1-segment label like "12 & UNDER BATTLE" renders
+      // as-is in the inline category header, replacing the prior
+      // workaround of listing it as an awards entry (which made it
+      // tappable and scrollable as a row in the schedule).
+      case 'S*': {
+        if (parts.length < 2 || !parts[1]) {
+          fail(lineNo, `S* line needs a literal category text: "${line}"`)
+        }
+        currentSection = {
+          category: parts[1],
+          age: null,
         }
         break
       }
