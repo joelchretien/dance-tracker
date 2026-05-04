@@ -6,8 +6,7 @@
  * pipe-separated; the first column is a tag.
  *
  *   D|YYYY-MM-DD|LABEL                                          day header
- *   S|Group|Level|Div|Age|Style                                 section header (Age may be empty)
- *   S*|literal text                                             section header (free-form, used by special/finale blocks)
+ *   S|category[|age]                                            section header (sticky age, optional)
  *   E|num|time|title|studio|count[|dancer1;dancer2;...]         dance entry
  *   A|time|title                                                awards entry
  *   B|time|title                                                break entry
@@ -60,38 +59,31 @@ export function parseScheduleDSL(text: string, meta: ScheduleMeta): ScheduleFile
       }
 
       case 'S': {
-        if (parts.length < 6) fail(lineNo, `S line needs Group|Level|Div|Age|Style: "${line}"`)
-        const [, group, level, div, age, style] = parts
-        const ageNum = age ? parseInt(age, 10) : null
-        if (age && Number.isNaN(ageNum)) {
-          fail(lineNo, `S line has non-numeric age "${age}": "${line}"`)
-        }
-        currentSection = {
-          category: `${level} · Division ${div} · ${style} · ${group}`,
-          age: ageNum,
-        }
-        break
-      }
-
-      // Literal section header: `S*|free form text`. Bypasses the
-      // structured Group|Level|Div|Age|Style format and uses the rest
-      // of the line as the category string verbatim. For special
-      // segments (e.g. Ultimate Battle subsections, finale showcases)
-      // where the structured format would produce nonsense like
-      // "Special · Division 0 · Ultimate · Battle".
-      //
-      // Categories shorter than 4 segments fall through formatCategoryHeader
-      // unchanged, so a 1-segment label like "12 & UNDER BATTLE" renders
-      // as-is in the inline category header, replacing the prior
-      // workaround of listing it as an awards entry (which made it
-      // tappable and scrollable as a row in the schedule).
-      case 'S*': {
+        // Section header. Takes a free-form category string and an
+        // optional sticky age that applies to all entries until the
+        // next S line. Earlier versions of this DSL used a structured
+        // `S|Group|Level|Div|Age|Style` shape that mechanically built
+        // the category — this was retired in favor of free-form text
+        // because the structured fields offered no semantics beyond
+        // string assembly, and "special" sections (battle finals,
+        // showcases) didn't fit the structured mold without contortion.
+        //
+        // Migration path: any `.dat` file generated against the old
+        // grammar must be rewritten by `scripts/migrate-dsl.ts`.
         if (parts.length < 2 || !parts[1]) {
-          fail(lineNo, `S* line needs a literal category text: "${line}"`)
+          fail(lineNo, `S line needs a category: "${line}"`)
+        }
+        const ageStr = parts[2]
+        let ageNum: number | null = null
+        if (ageStr) {
+          ageNum = parseInt(ageStr, 10)
+          if (Number.isNaN(ageNum)) {
+            fail(lineNo, `S line has non-numeric age "${ageStr}": "${line}"`)
+          }
         }
         currentSection = {
           category: parts[1],
-          age: null,
+          age: ageNum,
         }
         break
       }
