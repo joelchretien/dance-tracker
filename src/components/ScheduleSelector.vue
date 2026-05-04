@@ -35,16 +35,21 @@ const spotlightUrl = `${import.meta.env.BASE_URL}empty-spotlight.webp`
        title is dropped here — the user knows what app they opened, and
        repeating it would split the visual hierarchy between two equal-
        weight elements. The illustration carries the page identity, the
-       copy explains the state. -->
+       copy explains the state.
+
+       Headline copy "Stage is dark" reinforces the illustration's
+       metaphor (a literal dark stage with the spotlight off) rather
+       than the more apologetic "No competition right now" — which
+       reads like the app failed rather than just being between events. -->
   <div v-else class="flex flex-col items-center text-center px-6">
     <img
       :src="spotlightUrl"
       alt=""
-      class="w-56 h-56 mb-6"
+      class="w-72 h-72 mb-6"
       aria-hidden="true"
     />
-    <div class="text-lg font-medium text-gray-200">
-      No competition right now
+    <div class="text-lg font-medium text-gray-100">
+      Stage is dark
     </div>
     <div class="text-sm text-gray-500 mt-2 max-w-xs">
       Check back later for the next event's schedule.
