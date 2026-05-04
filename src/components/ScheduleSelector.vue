@@ -30,17 +30,19 @@ const spotlightUrl = `${import.meta.env.BASE_URL}empty-spotlight.webp`
     </div>
   </div>
 
-  <!-- Empty state: between competitions. Centered hero with the
-       spotlight illustration as the focal point. The "Dance Tracker"
-       title is dropped here — the user knows what app they opened, and
-       repeating it would split the visual hierarchy between two equal-
-       weight elements. The illustration carries the page identity, the
-       copy explains the state.
+  <!-- Empty state: between competitions or end of season. Centered hero
+       with the spotlight illustration as the focal point. The "Dance
+       Tracker" title is dropped here — the user knows what app they
+       opened, and repeating it would split the visual hierarchy
+       between two equal-weight elements. The illustration carries the
+       page identity, the copy explains the state.
 
-       Headline copy "Stage is dark" reinforces the illustration's
-       metaphor (a literal dark stage with the spotlight off) rather
-       than the more apologetic "No competition right now" — which
-       reads like the app failed rather than just being between events. -->
+       "Curtain call" leans into the theatrical metaphor the spotlight
+       illustration already establishes. It works for both end-of-
+       season and between-events states without needing a state machine
+       to pick the right wording — both situations are a moment of
+       quiet between performances. The supporting line carries the
+       practical "check back later" information. -->
   <div v-else class="flex flex-col items-center text-center px-6">
     <img
       :src="spotlightUrl"
@@ -49,7 +51,7 @@ const spotlightUrl = `${import.meta.env.BASE_URL}empty-spotlight.webp`
       aria-hidden="true"
     />
     <div class="text-lg font-medium text-gray-100">
-      Stage is dark
+      Curtain call
     </div>
     <div class="text-sm text-gray-500 mt-2 max-w-xs">
       Check back later for the next event's schedule.
